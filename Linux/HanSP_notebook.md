@@ -509,12 +509,25 @@ sync                 # 将内存数据同步到磁盘
    绝对路径：从根目录开始，到当前目录的路径。如`/opt/test`
    相对路径：从当前目录开始，到目标文件的路径。如位于`opt`目录下，`test`
 2. `ls`命令
+
    ```sh
    ls [选项] [目录]         # 显示目录下的文件列表
+
+   # 在 linux 中，隐藏文件是`.*`的形式。
+
+   ls -a       # 查看所有文件（包括隐含文件）all
+   ls -l       # 查看文件详细信息（按列显示）list
+   ls -la      # 查看文件详细信息（按列显示，包括隐含文件）
+               # 指令可以组合
+
+   ls -h       # 显示文件大小，以易读的方式显示（如：1K、1M、1G） h human
    ```
+
    常用选项：
+
    - `-a`：显示所有文件，包括隐藏文件。
    - `-l`：显示详细信息，包括文件类型、权限、所有者、大小、修改时间等。
+
 3. `cd`命令
 
    ```sh
@@ -547,17 +560,20 @@ sync                 # 将内存数据同步到磁盘
 
    rm -rf /tmp/a           # 强制删除（不需要为空）
                            # r代表递归，f代表强制
+                           # 递归删除可以删除非空目录，强制删除不会有删除询问。
    ```
 
 6. `touch`命令
    用于在指定位置创建空文件
+
    ```sh
    touch [文件名]       # 在当前目录创建空文件
    ```
+
 7. `cp`命令
 
    ```sh
-   cp [选项] source dest
+   cp [选项] source dest         # dest destination
 
    cp hello.c /home/aha        # 将hello.c文件复制到‘/opt/aha’目录下（前提是目录存在）
 
@@ -566,17 +582,640 @@ sync                 # 将内存数据同步到磁盘
    \cp -r /home/aha/ /opt/       # 直接覆盖目标文件，不再询问
    ```
 
-### 待分类项
+8. `mv`命令
 
-1. 在 linux 中，隐藏文件是`.*`的形式。
+   - 重命名
+   - 移动文件
 
    ```sh
-   ls -a       # 查看所有文件（包括隐含文件）all
-   ls -l       # 查看文件详细信息（按列显示）list
-   ls -la      # 查看文件详细信息（按列显示，包括隐含文件）
-               # 指令可以组合
+   mv oldNameFile newNameFile    # 重命名文件
+   mv /home/aha/hello.c /opt   # 将'aha'目录下的hello.c文件移动到'opt'目录下
+
+   mv /abc/ /opt                # 将'abc'目录移动到'opt'目录下
+   mv /abc/ /opt/abc2           # 将'abc'目录移动到'opt'并重命名为'abc2'
+   ```
+
+9. `cat`命令
+   相比于`vim`，`cat`只能查看不能修改，更加安全。
+
+   ```sh
+   cat [选项] [文件名]
+
+   cat -n [文件名]      # 显示文件内容，并显示行号
+
+   # 为了浏览方便，一般会带上管道命令 '|more'
+   cat [文件名] | more
+   ```
+
+10. `more`命令
+    是一个基于 Vi 编辑器的文本过滤器，用于浏览文件。
+
+    ```sh
+    more [文件名]
+    ```
+
+    |      操作       |         功能说明         |
+    | :-------------: | :----------------------: |
+    | `space`（空格） |        向下翻一页        |
+    |     `Enter`     |        向下翻一行        |
+    |       `q`       |           退出           |
+    |    `Ctrl+f`     |       向下滚动一屏       |
+    |    `Ctrl+b`     |       向上滚动一屏       |
+    |       `=`       |     输出当前行的行号     |
+    |      `:f`       | 输出文件名和当前行的行号 |
+
+11. `less`命令
+    如果使用`vi`或`more`命令，系统会将整个目标文件加载进内存中，若文件较大，则加载较慢。而`less`命令则只加载当前屏幕大小的内容，不会将整个文件加载进内存。
+
+    |      操作       |                       功能说明                       |
+    | :-------------: | :--------------------------------------------------: |
+    | `space`（空格） |                      向下翻一页                      |
+    |   `PageDown`    |                      向下翻一页                      |
+    |    `PageUp`     |                      向上翻一页                      |
+    |     `/str`      | 向下查找字符串`str`；<br> `n`向下查找，`N`向上查找。 |
+    |     `?str`      | 向上查找字符串`str`；<br>`n`向上查找，`N`向下查找。  |
+    |       `q`       |                         退出                         |
+
+12. `echo`命令
+    输出内容到控制台。
+
+    ```sh
+    echo [选项] [输出内容]
+
+    echo $PATH          # 输出PATH环境变量
+    echo $HOSTNAME      # 输出主机名
+
+    echo "hello world"  # 输出字符串
+    ```
+
+13. `head`命令
+    ```sh
+    head [文件名]          # 显示文件开头10行
+    head -n 5 [文件名]     # 显示文件开头5行
+    ```
+14. `tail`命令
+
+    ```sh
+    tail [文件名]          # 显示文件结尾10行
+    tail -n 5 [文件名]     # 显示文件结尾5行
+    tail -f [文件名]       # 实时显示文件内容，文件内容有更新时，屏幕也会更新。
+                          # 追踪文件内容时，终端不能进行输入。
+
+    ```
+
+15. `>`、`>>`命令
+
+    ```sh
+    echo "hello world" > hello.txt      # 将字符串在命令行输出，并写入文件（覆盖原有内容）
+    echo "hello world" >> hello.txt     # 将字符串在命令行输出，并写入文件（追加内容）
+
+    ls -l > list.txt                    # 将ls命令的输出写入文件
+
+    cat list.txt > hello.txt            # 将list.txt的内容写入hello.txt
+
+    cal > cal.txt                       # 将日历输出到文件 cal calendar
+    ```
+
+    - `>`：重定向。
+    - `>>`：追加
+
+16. `ln`命令
+    软链接，类似于 Windows 下的快捷方式`*.lnk`。
+    在`ls -l`结果中，包含`->`的就是软链接。
+    `cd`到软链接会直接转到链接的目录。
+
+    ```sh
+    ln -s [文件/目录] [链接名（相对或绝对路径）]         # 创建软链接
+    ```
+
+    **注意**：在删除软链接时，千万不要使用`rm -rf`。
+
+    ```sh
+    ln /root /home/my_root
+    rm  /home/my_root   # 删除对应软链接
+    rm  /home/my_root/   #会提示你删除的是一个目录，这时‘rm -rf’会删除真的root目录
+
+    ```
+
+17. `history`命令
+    查看/执行 已经执行过的命令。
+    ```sh
+    history             # 查看所有历史命令
+    history 10          # 查看最近10条命令
+    !5                  # 执行曾经执行的第5条命令
+    ```
+
+### 时间日期类
+
+1. `date`命令
+
+   ```sh
+   date                     # 显示当前时间
+   date +%Y                 # 显示当前年份
+   date +%m                 # 显示当前月份
+   date +%d                 # 显示当前是哪一天
+   date "+%Y-%m-%d %H:%M:%S"  # 显示当前日期和时间
+
+   date -s "2018-01-01 12:00:00"   # 设置时间
 
    ```
+
+2. `cal`命令
+   ```sh
+   cal [选项]               # 不加选项则显示当前月的日历
+   cal 2020                # 显示2020年日历
+   ```
+
+### 搜索查找类
+
+1. `find`命令
+
+   ```sh
+   find [搜索范围] [选项]
+   find / -name "*.txt"    # 在根目录下搜索所有文件名包含.txt的文件
+   find / -user LCQ         # 搜索当前用户的所有文件
+   find / -size +100M      # 搜索大于100M的文件 + 表示大于，-表示小于
+
+   find / -name "*.txt" |more # 分页显示
+
+   ```
+
+2. `locate`命令
+   用于快速定位文件路径
+   这条指令无需遍历整个文件系统，而是通过自己的数据库进行检索，速度较快。
+   第一次使用前，需`updatedb`更新数据库
+
+   ```sh
+   updatedb
+   locate [文件名]       # 搜索文件
+
+   ```
+
+3. `which`命令
+   查看一个指令存放于什么目录
+
+   ```sh
+   which [指令名]       # 查看指令存放路径
+
+
+   [root@LCQaha /]# which ls
+   alias ls='ls --color=auto'
+      /bin/ls
+   [root@LCQaha /]# which reboot
+   /sbin/reboot
+   [root@LCQaha /]#
+   ```
+
+4. `grep`命令
+   过滤查找，常与管道符号`|`结合使用。
+   管道符`|`会将前一个指令的输出作为下一条指令的输入。
+
+   ```sh
+   grep [选项] [要查找的字符串] [文件名]
+
+   grep -n              # 显示匹配行及行号
+   grep -i              # 忽略大小写
+
+   cat hello.txt | grep "hello"     # 在hello.txt文件中查找字符串hello
+
+   ```
+
+### 压缩解压类
+
+1. `gzip`、`gunzip`命令
+   `gzip`压缩文件，`gunzip`解压文件。
+   ```sh
+   gzip [文件]                   # 将文件转换为[文件.gz]
+   gunzip [文件].gz              # 将文件转换为[文件]
+   ```
+2. `zip`、`unzip`命令
+   `zip`压缩文件，`unzip`解压文件。
+   `gzip`常用于文件，而`zip`常用于文件夹。
+
+   ```sh
+   zip [选项] [压缩包名].zip [文件/文件夹]
+   unzip [选项] [压缩包名].zip
+
+   zip -r                   # 递归压缩，不递归则只压缩目录本身。
+   unzip -d <dir>           # 解压到指定目录
+
+   ```
+
+3. `tar`命令
+   打包指令，会打包出`*.tar.gz`文件。
+
+   ```sh
+   tar [选项] *.tar.gz [打包内容]
+
+   tar -c                 # 产生.tar打包文件    （建包）
+   tar -v                 # 显示详细信息
+   tar -f                 # 指定压缩后文件名    （指定文件名）
+   tar -z                 # 打包同时压缩        （压缩或解压）
+   tar -x                 # 解包文件            （解包）
+
+   # 将多个文件打包并压缩(z)，指定压缩后文件为<gz_name>(f)，显示详细信息(v)
+   tar -zcvf <gz_name>.tar.gz <dir1> <dir2> ...
+
+   tar -zxvf <gz_name>.tar.gz <dir>    # 解压到指定目录
+   ```
+
+## 组管理与权限管理
+
+### 组
+
+1. Linux 中，每一个用户必须属于一个组。
+2. Linux 中每一个文件都有所有者、所在组、其他组的概念。（？？？）
+3. 当用户创建了一个文件，其属于用户所在组。之后修改时，这两个概念可独立修改。
+4. 除文件从属的组，均为其他组。
+
+```sh
+ls -ahl                      # 可以显示文件所有者
+ll                           # 同上
+
+chown [用户名] [文件名]        # 修改文件所有者
+
+groupadd [组名]               # 创建组
+useradd -g [组名] [用户名]    # 将用户加入组
+
+chgrp [组名] [文件名]         # 修改文件所在组
+
+usermod -g [组名] [用户名]    # 修改用户所在组
+                            # 该组须存在
+cat /etc/group               # 查看所有已有组
+
+
+usermod -d [目录名] [用户名]  # 修改用户主目录（初始登录目录）
+                            # 用户需拥有进入新目录的权限
+
+
+```
+
+### 权限
+
+先来看一段数据：
+
+```sh
+[root@LCQaha /]# ll
+总用量 68
+lrwxrwxrwx.   1 root root     7 10月  7 11:56 bin -> usr/bin
+dr-xr-xr-x.   6 root root  4096 10月 13 10:41 boot
+drwxr-xr-x.  19 root root  3260 10月 14 09:46 dev
+drwxr-xr-x. 144 root root 12288 10月 16 10:31 etc
+drwxr-xr-x.   4 root root  4096 10月 15 21:49 home
+lrwxrwxrwx.   1 root root     7 10月  7 11:56 lib -> usr/lib
+lrwxrwxrwx.   1 root root     9 10月  7 11:56 lib64 -> usr/lib64
+drwx------.   2 root root 16384 10月  7 11:55 lost+found
+drwxr-xr-x.   2 root root  4096 4月  11 2018 media
+drwxr-xr-x.   3 root root  4096 10月  7 21:51 mnt
+drwxr-xr-x.   7 root root  4096 10月 15 21:59 opt
+dr-xr-xr-x. 245 root root     0 10月 14 09:46 proc
+dr-xr-x---.  16 root root  4096 10月 16 12:19 root
+drwxr-xr-x.  42 root root  1280 10月 16 10:31 run
+lrwxrwxrwx.   1 root root     8 10月  7 11:56 sbin -> usr/sbin
+drwxr-xr-x.   2 root root  4096 4月  11 2018 srv
+dr-xr-xr-x.  13 root root     0 10月 14 09:46 sys
+drwxrwxrwt.  35 root root  4096 10月 16 13:09 tmp
+drwxr-xr-x.  13 root root  4096 10月  7 11:56 usr
+drwxr-xr-x.  21 root root  4096 10月  7 14:02 var
+```
+
+#### rwx 权限
+
+这段数据中，每一条信息前都有 10 位字符组成，现在来介绍其含义。
+我们以 0~9 标记这 10 位。
+
+1. 第`0`位代表：文件类型(d,-,l,c,b)
+   - d：目录
+   - l：链接（快捷方式）
+   - c：字符设备文件（鼠标、键盘等）
+   - b：块设备文件（硬盘、光驱等）
+2. 第`1~3`位代表：所有者权限。
+3. 第`4~6`位代表：所在组权限。
+4. 第`7~9`位代表：其他用户权限。
+
+**这些字母代表的就是用户对文件操作的 rwx 权限，分别对应读(r,read)、写(w,write)、执行(x,execute)。**
+
+1. 作用于目录
+
+   - r 权限：可以读取，使用`ls`查看其中的文件
+   - w 权限：可以修改文件内容，对目录内创建、删除、重命名目录
+   - x 权限：可以进入目录，执行文件
+
+2. 作用于文件
+
+   - r 权限：可以读取文件内容
+   - w 权限：可以修改文件内容，但不能删除，删除需要取得对目录的 w 权限。
+   - x 权限：可以执行。
+
+3. rwx 权限还可以用数字表示：r=4,w=2,x=1，若拥有这三个权限，则表示为 4+2+1=7。（即三位二进制数）
+
+4. 一些杂例
+   - 当用户对一个目录拥有`--x`（仅执行）权限时，可以打开此目录，但无法读取此目录（无`r`），也无法修改其中文件的名字（无`w`），**但可以打开其中的文件/目录**。
+
+#### 其他信息
+
+其他信息表示如下（以第一行数据为例）：
+
+```sh
+lrwxrwxrwx.   1 root root     7 10月  7 11:56 bin -> usr/bin
+```
+
+从左至右依次为：
+
+1. `lrwxrwxrwx.`：类型与 rwx 权限
+2. `1`：硬链接数（目录下的文件与目录数量）
+3. `root`：所有者
+4. `root`：所在组
+5. `7`：大小（字节数，若为目录则显示 4096）
+6. `10月  7 11:56`：创建时间
+7. `bin -> usr/bin`：名称，这里是软链接，会指向真正的链接。
+
+#### 修改权限
+
+使用`chmod`修改文件或目录的权限
+
+1. 使用`+`、`-`、`=`变更权限
+   ```sh
+   chmod u=rwx,g=rx,o=x [文件/目录]      # 添加权限,u=用户，g=所在组，o=其他用户
+   chmod o+w [文件/目录]                 # 为其他用户添加写权限
+   chmod a-x [文件/目录]                 # 删除所有用户执行权限 a=所有用户
+   ```
+2. 通过数字变更权限
+
+   ```sh
+   chmod u=7,g=6,o=5 [文件/目录]       # u=b(111),g=b(110),o=b(101)
+                                      # 赋予所有者读写执行权限
+                                      # 所在组读写权限
+                                      # 其他用户执行权限
+   chmod 765 [文件/目录]               # 作用同上
+   ```
+
+### 修改文件所有者、所在组
+
+1. `chown`命令
+
+   ```sh
+   chown [用户名] [文件名]               # 修改文件所有者
+   chown -R [用户名]:[组名] [文件名]     # 修改文件所有者和所在组 R,递归
+
+   ```
+
+2. `chgrp`命令
+
+   ```sh
+   chgrp [组名] [文件名]         # 修改文件所在组（前提是组存在）
+   chgrp -R [组名] [文件名]       # 修改文件所在组和所在组所有文件
+
+   ```
+
+   **注意**：
+
+- 更改用户组后，可能无法立即生效，需要被更改的用户重新登陆。
+
+## crond 基础（定时任务调度）
+
+### 快速入门
+
+Linux 中有一个 crond 后台程序，可以令系统在某一特定时间执行特定指令。
+比如：
+
+- 令系统在某一时间完成备份任务。
+- 系统定时进行病毒扫描。
+
+通过`crondtab`命令可以进行定时任务的设置
+
+```sh
+crondtab [选项]
+
+crondtab -e          # 打开文本编辑器，编辑定时任务
+crondtab -l          # 列出定时任务
+crondtab -r          # 终止定时任务
+service crond restart # 重启定时任务
+```
+
+1. 设置定时任务
+
+   ```sh
+   crontab -e     # 编辑定时任务
+   ```
+
+   输入如上命令后，会弹出一个文本编辑器，在当中编辑定时任务。
+
+   ```text
+   */1 * * * * ls -l /etc/ > /tmp/ls.txt
+   ```
+
+   上面文本的含义为：每隔一分钟，将`/etc`目录下的文件列表，保存到`/tmp/ls.txt`中。
+   每一个`*`的位置都有自己的作用（这里的星号可以是数字或其他符号）：
+
+   - 第一个`*`：表示每小时的第几分钟，取值 0~59。
+   - 第二个`*`：表示每天第几小时，取值 0~23。
+   - 第三个`*`：表示每月的第几天，取值 1~31。
+   - 第四个`*`：表示每年的第几月，取值 1~12。
+   - 第五个`*`：表示星期几，取值 0~7，1 为星期一，0/7 为星期日。
+
+   **注意**：其中，天和星期可以同时存在，两者同时满足才会执行，但为了防止管理混乱，不建议这样写。
+
+2. 特殊符号
+   - `*`：代表任何时间，第一个`*`代表一小时中每分钟都执行一次
+   - `,`：代表不连续的时间，如：`1,3,5`，表示在 1、3、5 三个时间点执行。
+     如`0 8,12,16 * * *`代表指令在每天的 8:00、12:00、16:00 都执行。
+   - `-`：代表连续的时间，如：`1-5`。
+   - `*/n`：代表每 n 个时间执行一次，如：`*/2`，表示每两小时执行一次。
+3. 借助脚本实现定时任务
+
+   ```sh
+   vim ~/myshell.sh        # 创建脚本文件（创建的脚本暂无可执行权限）
+   chmod u+x ~/myshell.sh  # 为脚本增加可执行权限
+   ~/myshell.sh            # 执行脚本
+
+   ```
+
+   以上是一个简单的创建、执行脚本的过程。
+   脚本中的命令格式与命令行中相同。
+
+   现在我们开始实现自动化（以每分钟一次为例）：
+
+   ```text
+   * * * * * /root/myshell.sh
+
+   ```
+
+### 一次性定时计划任务（at 命令）
+
+1. 一些说明
+   - `at`命令是一次性定时计划任务，`at`的守护进程`atd`以后台模式运行。
+   - `atd`在默认情况下，每 60 秒检查一次作业队列，有作业时，检查作业运行时间，若时间匹配，则运行此作业。
+   - `at`是一次性定时计划任务，执行完后就没了
+   - **使用 at 命令时，务必保证 atd 进程启动，可通过以下命令查看：**
+     ```sh
+     ps -ef|grep atd
+     ```
+   - 编写任务时，若发生错误，须按`Ctrl+Backspace`退格。
+2. 基本语法
+
+   ```sh
+   at [选项] [时间]     # 增加一个任务
+
+   Ctrl+D            # 结束输入
+
+   at 5pm+2 days      # 两天后的下午5:00执行
+   >/bin/ls /home/    # 打印home目录下的文件
+   # 按Ctrl+D 结束输入（两次）
+
+   atq               # 查看待执行的任务
+
+   # 明天下午5点钟，将时间存入指定文件
+   at 5pm+1 tomorrow
+   > date > /tmp/time.txt
+
+   # 两分钟后写入
+   at now + 2 minutes
+   > echo "Hello World" > /tmp/hello.txt
+
+   atrm [任务编号]         # 删除指定编号的任务
+   ```
+
+3. 指定时间的方式
+   - `hh:mm`将在当天的 hh:mm 执行，若当天该时刻已过，则在第二天这个时刻执行。
+   - 使用`midnight`（深夜）、`noon`（中午）、`teatime`（饮茶时间，一般指下午 4 点）等模糊词语指代
+   - 采用 12 小时制，如：`12pm`
+   - 指定具体日期，格式为`month day`（月 日）、`mm/dd/yy`（月/日/年）、`mm.dd.yy`（月.日.年）共计 3 种。如：`04:00 2024-10-17`
+   - 相对计时法，`now + count time-unit`，如：`now + 1 hours`，表示在当前时间点之后 1 小时。
+     单位：`minute`（分钟）、`hour`（小时）、`day`（日）、`week`（周）。
+   - 直接使用`today`、`tomorrow`。
+4. 选项
+   |选项|含义|
+   |:----:|:----:|
+   |`-m`|指定任务执行完后，向用户发送邮件，即便没有标准输出|
+   |`-I`|`atq`的别名|
+   |`-d`|`atrm`的别名|
+   |`-v`|显示任务将被执行的时间|
+   |`-c`|打印任务内容到标准输出|
+   |`-V`|显示版本信息|
+   |`-q<队列>`|使用指定队列|
+   |`-f<文件>`|从指定文件读入任务，而不是标准输入读入|
+   |`-t<时间参数>`|以时间参数形式提交要运行的任务|
+
+## 磁盘分区与挂载
+
+1. 无论 Linux 有几个分区，供哪一个目录使用，归根结底都只有一个根目录，一个独立且唯一的文件结构，每个分区都是组成整个文件系统的一部分。
+2. Linux 采用“载入”的方式将分区与目录联系起来。
+
+### 磁盘分区
+
+1. 一些说明
+   - Linux 硬盘有 IDE 和 SCSI 两种，现在一般使用 SCSI。
+   - 对于 IDE 硬盘，驱动器标识符为`hdx~`，`hd`代表硬盘类型 IDE，`x`代表盘号（a 为基本盘，b 为基本从属盘，c 为辅助主盘。d 为辅助从属盘），`~`为分区（用数字表示，1~4 为主分区或扩展分区，5 开始是逻辑分区）。
+   - 对于 SCSI 硬盘，驱动器标识符为`sdx~`。
+   - 例：`sdb3`指第二块 SCSI 硬盘的第 3 个分区。
+2. 查看分区情况
+
+   ```sh
+   lsblk                   # 查看磁盘分区情况
+   [root@LCQaha ~]# lsblk
+   NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+   sda      8:0    0   20G  0 disk
+   ├─sda1   8:1    0    1G  0 part /boot
+   ├─sda2   8:2    0   17G  0 part /
+   └─sda3   8:3    0    2G  0 part [SWAP]
+   sr0     11:0    1 53.6M  0 rom
+
+   ```
+
+   - 设备名称|主设备号/次设备号|是否为可移除设备|大小|是否为只读设备|类型|挂载点
+   - `sr0`为光驱
+
+   ```sh
+   lsblk -f            # 显示文件系统信息
+
+   [root@LCQaha ~]# lsblk -f
+   NAME   FSTYPE  LABEL        UUID                                 MOUNTPOINT
+   sda
+   ├─sda1 ext4                 18d0b2c9-6f23-4573-ad0c-e6d4104f67e4 /boot
+   ├─sda2 ext4                 7e4c4154-a98a-4ab6-b394-7c5dfc25a3b0 /
+   └─sda3 swap                 565d761c-4d5a-4d35-b1f5-4f5729ce0e52 [SWAP]
+   sr0    iso9660 VMware Tools 2023-07-14-05-46-23-00
+   [root@LCQaha ~]#
+
+   ```
+
+   - 分区情况|文件系统类型|设备标签|设备全局唯一标识符|挂载点
+
+3. 添加一块硬盘
+
+   - 虚拟机-设置-硬件-添加
+   - 在向导中依次选择硬盘、SCSI、创建新的虚拟磁盘、输入大小。
+   - 重启系统以识别新硬件，然后通过`lsblk`可以看到新硬件
+     但由于硬盘还没有进行分区，所以只能看到硬盘本身。
+   - 分区
+
+     ```sh
+     fdisk /dev/sdb           # 将sdb进行分区操作
+
+      [root@LCQaha dev]# fdisk /dev/sdb
+      欢迎使用 fdisk (util-linux 2.23.2)。
+
+      更改将停留在内存中，直到您决定将更改写入磁盘。
+      使用写入命令前请三思。
+
+      Device does not contain a recognized partition table
+      使用磁盘标识符 0x16087942 创建新的 DOS 磁盘标签。
+
+      命令(输入 m 获取帮助)：m
+      命令操作
+         a   toggle a bootable flag                      #
+         b   edit bsd disklabel
+         c   toggle the dos compatibility flag
+         d   delete a partition                          # 删除分区
+         g   create a new empty GPT partition table
+         G   create an IRIX (SGI) partition table
+         l   list known partition types
+         m   print this menu                             # 显示命令列表
+         n   add a new partition                         # 新增分区
+         o   create a new empty DOS partition table
+         p   print the partition table                   # 显示磁盘分区（同fdisk -l）
+         q   quit without saving changes
+         s   create a new empty Sun disklabel
+         t   change a partition\'s system id
+         u   change display/entry units
+         v   verify the partition table
+         w   write table to disk and exit                # 写入并退出
+         x   extra functionality (experts only)
+      命令(输入 m 获取帮助)：n
+      Partition type:
+         p   primary (0 primary, 0 extended, 4 free)     # 分区模式：主分区
+         e   extended                                    # 分区模式：扩展分区
+      Select (default p): p
+      分区号 (1-4，默认 1)：1                             #分区数量
+      起始 扇区 (2048-2097151，默认为 2048)：
+      将使用默认值 2048
+      Last 扇区, +扇区 or +size{K,M,G} (2048-2097151，默认为 2097151)：
+      将使用默认值 2097151
+      分区 1 已设置为 Linux 类型，大小设为 1023 MiB
+
+      命令(输入 m 获取帮助)：w                              # 此步骤完成后，修改才真正生效
+      The partition table has been altered!
+
+      Calling ioctl() to re-read partition table.
+      正在同步磁盘。
+      [root@LCQaha dev]#
+
+     ```
+
+   - 格式化
+     ```sh
+     mkfs -t ext4 /dev/sdb1
+     ```
+   - 挂载
+
+     ```sh
+     # 以挂载到/newdisk为例
+     mkdir /newdisk
+     mount /dev/sdb1 /newdisk
+
+
+     ```
 
 ## 找回 ROOT 密码
 
