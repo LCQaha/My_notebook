@@ -262,7 +262,7 @@ Linux 采用的**层式树状目录结构**，在实际生产环境中，我们�
 1. Xshell （用于远程登录）
    [free-for-home-school](https://www.netsarang.com/en/free-for-home-school/)
 2. Xftp （用于文件传输）
-3. 百度网盘资源
+3. [百度网盘资源](https://pan.baidu.com/s/14sh6Jx0jNJekzR0epgrdgQ?pwd=yxsm)
 
 ### 使用
 
@@ -1175,7 +1175,7 @@ service crond restart # 重启定时任务
          n   add a new partition                         # 新增分区
          o   create a new empty DOS partition table
          p   print the partition table                   # 显示磁盘分区（同fdisk -l）
-         q   quit without saving changes
+         q   quit without saving changes                 # 不写入退出
          s   create a new empty Sun disklabel
          t   change a partition\'s system id
          u   change display/entry units
@@ -1213,6 +1213,11 @@ service crond restart # 重启定时任务
      # 以挂载到/newdisk为例
      mkdir /newdisk
      mount /dev/sdb1 /newdisk
+
+     # 卸载分区
+     umount /dev/sdb1
+
+     此时并不能永久挂载，还要执行下面的操作
 
 
      ```
