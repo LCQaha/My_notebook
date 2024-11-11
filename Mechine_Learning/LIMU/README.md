@@ -533,3 +533,81 @@ $$
 $$
 \mathbf{w}^*, \mathbf{b}^* = \arg\min_{\mathbf{w}, \mathbf{b}} J(\mathbf{X}, \mathbf{y}, \mathbf{w}, b)
 $$
+
+#### 显示解
+
+将偏差加入权重 **$ \mathbf{X}<-[\mathbf{X,1}] , \mathbf{w}<-[\mathbf{w,b}]^T $**
+
+$$
+J(\mathbf{X},\mathbf{y},\mathbf{w})= \frac{1}{2n} \sum_{i=1}^{n} \left\| y_i - \mathbf{X} \mathbf{w} \right\|^2\\
+\frac{\partial}{\partial \mathbf{w}} J(\mathbf{X},\mathbf{y},\mathbf{w}) = \frac{1}{n} \sum_{i=1}^{n} \left( y_i - \mathbf{X} \mathbf{w} \right) \mathbf{X}^T
+$$
+
+对于一个线性模型，其二阶导一定是大于零。
+
+#### 总结
+
+- 线性回归是对 n 维输入的加权外加偏差
+- 使用平方损失来衡量预测值和真实值的差异
+- 线性回归有显示解（别的模型均没有）
+- 线性回归可看做单层神经网络
+
+### 基础优化算法
+
+#### 梯度下降
+
+当一个函数没有显示解，该怎么办？
+
+- 挑选一个参数的随机初始值，记为 **$ \mathbf{w}\_0 $**
+- 不断更新 **$ \mathbf{w}\_0 $**，令其不断接近最优解
+  $$
+    \mathbf{w}_{i+1} = \mathbf{w}_i - \eta \nabla f(\mathbf{w}_i) = \mathbf{w}_i - \eta \frac{\partial f}{\partial \mathbf{w}}
+  $$
+  $f$ 为随时函数
+  $\eta$ 学习率，步长的超参数（超参数是人为指定的参数），这个参数太大和太小都不合适。
+
+1. 小批量随机梯度下降
+   在整个训练集上计算梯度太贵，一个神经网络模型可能需要数分钟至数小时。
+   可以随机采样 $b$ 个样本 $ i_1,i_2,...,i_b$ 来近似损失：
+   $$
+   f(\mathbf{w}) \approx \frac{1}{b}\sum_{i=1}^b f(\mathbf{w};\mathbf{x}_{i_j},\mathbf{y}_{i_j})
+   $$
+   这里的 $b$ 表示批量大小，是另一个重要的超参数。这个参数同样不能太大（开销太大）或太小（数据不精确）。
+
+总结：
+
+- 梯度下降通过不断沿着反梯度方向更新参数求解
+- 小批量随机梯度下降是深度学习默认的求解算法
+- 两个重要的超参数是批量大小 $b$ 和学习率 $\eta$
+
+### 线性回归的 pytorch 实现
+
+任务：根据带有噪声的线性模型构造一个人造数据集，使用这个有限样本的数据集来恢复这个模型的参数。
+
+1. 生成一个带有 1000 个样本的数据集
+
+   ```python
+   %matplotlib inline
+   # 令生成的图表不会显示于窗口，而是显示于nb的命令行
+   import random                          # 导入random库
+   import torch                           # 导入torch库
+   from d2l import torch as d2l           # 导入课程库的torch版本
+
+   def synthetic_data(w, b, num_examples):  #@save
+      """生成y=Xw+b+噪声"""
+      X = torch.normal(0, 1, (num_examples, len(w)))
+      y = torch.matmul(X, w) + b
+      y += torch.normal(0, 0.01, y.shape)
+      return X, y.reshape((-1, 1))
+
+   true_w = torch.tensor([2, -3.4])
+   true_b = 4.2
+   features, labels = synthetic_data(true_w, true_b, 1000)
+
+   print('features:', features[0],'\nlabel:', labels[0])
+
+   d2l.set_figsize()
+   d2l.plt.scatter(features[:, (1)].detach().numpy(), labels.detach().numpy(), 1);
+   ```
+
+2.
