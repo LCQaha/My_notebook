@@ -123,6 +123,15 @@ Linux 嵌入式工程师
 - 服务器
 - 嵌入式（优势：内核小。物联网趋势会带来更广阔的应用）
 
+### 视频课程分 p
+
+P3-P85 linux 基础篇
+P86-P90 java 定制篇
+P91-P107 大数据 shell 篇
+P108-P115 python 定制篇
+P117-P141 linux 高级篇
+P142-P153 面试题
+
 ## 开始使用 Linux
 
 ### 安装
@@ -1216,11 +1225,84 @@ service crond restart # 重启定时任务
 
      # 卸载分区
      umount /dev/sdb1
+     ```
 
      此时并不能永久挂载，还要执行下面的操作
 
+     ```vim
+     vim /etc/fstab # 打开挂载文件
+
+
+     # 下面两行效果相同任选一种写法即可
+     # 磁盘id 挂载点 文件系统 挂载选项 是否备份 检查
+     UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx /newdisk ext4 defaults 0 0
+     /dev/sdb1 /newdisk ext4 defaults 0 0
 
      ```
+
+     - 第一个数字是备份选项，0 为不备份，1 为备份。
+     - 第二个数字是检查选项，0 为不检查，1 为根目录，2 为其他目录。建议按照根目录、其他目录、不检查目录的顺序编辑挂载列表。
+
+### 磁盘情况查询
+
+1. `df -h` 查看磁盘使用情况
+   ```
+   [root@LCQaha ~]# df -h
+   文件系统        容量  已用  可用 已用% 挂载点
+   /dev/sda2        17G  5.2G   11G   33% /
+   devtmpfs        895M     0  895M    0% /dev
+   tmpfs           910M     0  910M    0% /dev/shm
+   tmpfs           910M   11M  900M    2% /run
+   tmpfs           910M     0  910M    0% /sys/fs/cgroup
+   /dev/sda1       976M  144M  766M   16% /boot
+   .host:/         954G  582G  373G   61% /mnt/hgfs
+   tmpfs           182M   12K  182M    1% /run/user/42
+   tmpfs           182M     0  182M    0% /run/user/0
+   ```
+2. `du -h <dir>` 查看目录磁盘占用情况（不加`<dir>`则查看当前目录。
+
+   - `-h` 带计量单位。
+   - `-s` 指定目录占用大小的汇总。
+   - `-a` 含文件。
+   - `--max-depth` 子目录深度。
+   - `-c` 列出明细的同时，增加汇总值。
+
+3. 实用指令
+
+   - `ls -l <dir> | grep "^-" | wc -l`：统计目录`<dir>`下文件个数。
+
+     ```sh
+     [root@LCQaha opt]# ls -lh /opt/
+     总用量 277M
+     drwxr-xr-x. 3 root root 4.0K 10月 10 18:01 aha
+     -rw-r--r--. 1 root root 226M 10月 15 21:55 ahooo.tar.gz
+     -rw-r--r--. 1 root root   70 10月  9 17:04 hello.c
+     drwxr-xr-x. 2 root root 4.0K 10月 15 22:00 home
+     drwxr-xr-x. 2 root root 4.0K 10月 31 2018 rh
+     drwxr-xr-x. 2 root root 4.0K 10月 15 22:00 tar1
+     -rw-r--r--. 1 root root  52M 7月  14 2023 VMwareTools-10.3.26-22085142.tar.gz
+     drwxr-xr-x. 8 root root 4.0K 7月  14 2023 vmware-tools-distrib
+
+
+     # 使用正则将开头为'-'的行（即普通文件）输出
+     [root@LCQaha opt]# ls -l /opt |grep "^-"
+     -rw-r--r--. 1 root root 236221892 10月 15 21:55 ahooo.tar.gz
+     -rw-r--r--. 1 root root        70 10月  9 17:04 hello.c
+     -rw-r--r--. 1 root root  53949998 7月  14 2023 VMwareTools-10.3.26-22085142.tar.gz
+
+     # 统计行数 wc会统计字节数、字数、行数，-l为只统计行数
+     [root@LCQaha opt]# ls -l /opt |grep "^-"|wc -l
+     3
+     ```
+
+   - `ls -l <dir> | grep "^d" | wc -l`：统计目录`<dir>`下目录个数
+   - `ls -lR <dir> | grep "^-" | wc -l`：统计目录`<dir>`下文件个数（包括子目录）
+   - `ls -lR <dir> | grep "^d" | wc -l`：统计目录`<dir>`下目录个数（包括子目录）
+     一般情况下，`R`一定代表递归，但`r`不一定。
+     比如`ls -lR <dir>`，`R`代表递归；
+     `ls -lr`，`r`代表逆向。
+
+   - `tree`：以树状显示目录结构
 
 ## 找回 ROOT 密码
 

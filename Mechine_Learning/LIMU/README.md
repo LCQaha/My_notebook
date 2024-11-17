@@ -230,6 +230,20 @@ print (id(Z))              # 提前分配空间后，可以执行原地操作，
 
 #### 转换为其他 Python 对象
 
+```python
+# 将一个张量转换为 numpy 数组
+A=X.numpy()
+B=torch.tensor(A)
+
+type(A),type(B)
+
+# 将一个大小为1的张量转换为 Python 的标量
+a=torch.tensor([1.2])
+a,a.item(),float(a)
+
+
+```
+
 ### 数据预处理
 
 #### 读取数据集
@@ -305,7 +319,12 @@ sum4=X.sum(axis=[0,1])     # 用于指定沿那一维度求和，求和后该维
 
 # 可以通过参数keepdim来保留维度
 # 保留维度只会令该维度为1，不会保留任何值（直接求和会降维）可以在后续计算中利用广播机制参与计算
-sum5=X.sum(axis=1,keepdim=True)
+sum5=X.sum(axis=1,keepdim=True)     # 不降维求和
+
+A.mean(axis=1)             # 按第1维求均值
+
+A.cumsum(axis=0)           # 沿特定轴计算累积和
+
 ```
 
 #### 点积
@@ -322,7 +341,7 @@ x,y,torch.dot(x,y)
 
 ```python
 A = torch.arange(20).reshape(5,4)
-x = torch.arange(4)
+x = torch.arange(4,dtype=torch.float32)
 
 A.shape, x.shape, torch.mv(A, x)     # mv,matrix vector multiplication
 ```
@@ -335,8 +354,11 @@ torch.mm(A,B)           # mm,matrix multiplication
 
 #### 范数
 
-$ L*2 $范数表达式如下：
-**$$\|\mathbf{x}\|\_2 = \sqrt{\sum*{i=1}^n x_i^2},$$\*\*
+$L*2$范数表达式如下：
+
+$$
+\|\mathbf{x}\|\_2 = \sqrt{\sum*{i=1}^n x_i^2},
+$$
 
 ```python
 u = torch.tensor([3.0, -4.0])

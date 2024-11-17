@@ -40,3 +40,7 @@ Jupyter Notebook 是一个交互式笔记本，可以运行 Python、R、Julia�
 1. numpy
    [点击这里](.\tongyi\numpy.md)查看通义千问生成的 numpy 函数教程。
 2.
+
+# Leetcode
+
+我认为 leetcode 算法题值得多开一个章节去详细描述，我将在此记录学习 Leetcode 时用到的好的材料和方法，那么[点击这里](./leetcode/README.md)，我们开始吧。
