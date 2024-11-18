@@ -1303,6 +1303,111 @@ service crond restart # 重启定时任务
      `ls -lr`，`r`代表逆向。
 
    - `tree`：以树状显示目录结构
+     这个指令不是系统自带的，需要安装后使用：
+
+     ```sh
+     yum install tree
+
+     # 若无法使用，请先添加阿里镜像源
+     wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
+     yum makecache
+     ```
+
+## 网络配置
+
+### NAT 网络
+
+1. 在 linux 中通过`ifconfig`查看 linux 网络信息。
+   在 cmd 中通过`ipconfig`查看 Windows 网络信息。
+2. 在 windows 的网络信息中：
+   `VMnet8`：用于与虚拟机通信，与虚拟机处于同一网段。
+   `无线网络连接`（或其他名字）：网卡地址，该地址经由网关可与外网通信。
+   在虚拟机中`编辑-虚拟网络编辑器`，这里会有显示一系列网络信息。
+3. `ping <ip/url>`：测试网络是否通。
+
+（此处待补充 ip 地址相关信息）
+
+### 网络环境配置
+
+1. 自动获取
+   登录后，通过界面设置自动获取 ip。
+   缺点：每次启动 ip 不同，不能用于服务器
+
+2. 指定 ip
+   直接修改配置文件来指定 ip，并可以连接到外网。
+
+   - 修改如下配置文件：
+
+     ```sh
+     vim /etc/sysconfig/network-scripts/ifcfg-eth33
+     ```
+
+   - 作如下编辑：
+
+     ```sh
+     # 以下为修改项
+     BOOTPROTO="static"
+
+     # 以下为增加项
+     # 我们选择将IP设为192.168.200.130
+     # 将网关设为192.168.200.2
+     # 将域名解析器设为192.168.200.2
+
+     IPADDR=192.168.200.130
+     GATEWAY=192.168.200.2
+     DNS1=192.168.200.2
+
+     ```
+
+   - 在虚拟机的虚拟网络编辑器中将`VMnet8`的子网 ip 修改到`192.168.200.0`；NAT 设置中将网关 ip 修改为`192.168.200.2`。
+   - 输入如下指令使设置生效：
+
+     ```sh
+     # 以下指令任选其一
+     service network restart
+     reboot
+     ```
+
+### 主机名与 host 映射
+
+1. 主机名
+
+   - `hostname`：查看主机名
+   - `vim /etc/hostname` 修改主机名。
+   - 修改后重启生效
+
+2. 设置 host 映射
+   建设集群的关键技术
+   设置 host 映射，虚拟机就可以通过主机名访问（ping 通）。
+
+   - Windows
+     在`C:\Windows\System32\drivers\etc\hosts`添加如下内容：
+
+     ```sh
+     # 将192.168.200.130 映射为 <hostname>
+     192.168.200.130  <hostname>
+     ```
+
+   - Linux
+     在`/etc/hosts`添加如下内容：
+
+     ```sh
+     # 将 192.168.200.1 映射为 <Mywin>
+     192.168.200.1 <Mywin>
+     ```
+
+#### 主机名解析过程（Hosts、DNS）
+
+- Hosts：一个文本文件，用于记录 IP 和 Hostname（主机名）的映射关系。
+- DNS
+  - 全称 Domain Name System，域名解析系统，是 Internet 上用于将域名与 IP 地址相互映射的分布式数据库。
+  - 通过
+
+2. 应用实例：当你访问www.baidu.com时，发生了什么？
+   - 浏览器检查**浏览器缓存**中有无此 IP，若有，访问，若没有，下一步。
+   - 检查操作系统**DNS 解析器缓存**，若有，访问，若没有，下一步。
+   - 如果本地解析器缓存未找到映射，则检查系统 hosts 文件。
+   - 若以上均未找到，则到对应域名服务器查找。
 
 ## 找回 ROOT 密码
 
