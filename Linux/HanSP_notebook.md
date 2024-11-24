@@ -453,18 +453,23 @@ sync                 # 将内存数据同步到磁盘
 
 ### 指定运行级别
 
+<a id="useful-commands"></a>
+
 1. 运行级别介绍
 
-   - 0：关机。
-   - 1：单用户模式，可用于找回密码
-   - 2：多用户模式，但无网络服务
-   - 3：多用户模式，有网络服务。
+   - 0：关机。系统停机状态，系统默认运行级别不能设为 0，否则不能正常启动。
+   - 1：单用户工作状态，root 权限，用于系统维护，禁止远程登录。（可用于找回密码）
+   - 2：多用户状态（无 NFS），但无网络服务
+   - 3：完全的多用户状态（有 NFS ），登录后进入控制台命令行模式，有网络服务。
    - 4：保留级别
-   - 5：图形界面
-   - 6：系统重启
+   - 5：X11 控制台，登录后进入图形 GUI 模式。（图形界面）
+   - 6：系统正常关闭并重启，默认级别不能设置为 6。
 
    常用的运行级别是 3 和 5。
    也可以指定默认运行级别。
+
+   开机流程：
+   `开机->BIOS->/boot->system进程(pid=1)->运行级别->运行当前级别对应的服务`
 
 2. 命令
    ```sh
@@ -492,10 +497,16 @@ sync                 # 将内存数据同步到磁盘
 
      # 设定默认运行级别
      systemctl set-default TARGET.target    # TARGET处填写具体运行模式
-
+     multiuser.target           # 设定默认运行级别为3（多用户模式）
+     graphical.target           # 设定默认运行级别为5（图形界面）
      #systemctl 可以理解成system control
 
      ```
+
+     `TARGET`可填内容：
+
+     - `multi-user.target`：多用户模式，级别 3。
+     - `graphical.target`：图形界面
 
 ### 帮助指令
 
@@ -1401,13 +1412,277 @@ service crond restart # 重启定时任务
 - Hosts：一个文本文件，用于记录 IP 和 Hostname（主机名）的映射关系。
 - DNS
   - 全称 Domain Name System，域名解析系统，是 Internet 上用于将域名与 IP 地址相互映射的分布式数据库。
-  - 通过
+  - 通过网络设置可以修改 DNS 服务器。
 
 2. 应用实例：当你访问www.baidu.com时，发生了什么？
    - 浏览器检查**浏览器缓存**中有无此 IP，若有，访问，若没有，下一步。
    - 检查操作系统**DNS 解析器缓存**，若有，访问，若没有，下一步。
    - 如果本地解析器缓存未找到映射，则检查系统 hosts 文件。
    - 若以上均未找到，则到对应域名服务器查找。
+
+## 进程管理
+
+### 进程基本介绍
+
+1. 在 linux 中，每个执行的程序都称为一个**进程**，进程会占用一部分内存。每一个进程都有一个 ID（pid，进程号）。
+2. 进程有两种存在形式，**前台**与**后台**。一般情况下，前台进程会在屏幕显示直接与用户交互，后台进程不显示。
+3. 一般系统的服务都以后台进程的方式存在，且会常驻于系统中直至关机。
+
+### 查看进程
+
+1. `ps`指令
+
+   - `-a`：显示当前终端的所有进程信息。
+   - `-u`：以用户的形式显示进程信息。
+   - `-x`：显示后台进程运行的参数。（extended）
+   - `-e`：显示所有进程。（every）
+   - `-f`：以全格式显示。（format）
+
+2. `ps`详解
+
+   - `USER`：进程执行用户。
+   - `PID`：进程号。
+   - `%CPU`：CPU 使用率。
+   - `%MEM`：内存使用率。
+   - `VSZ`：虚拟内存占用（KB）。
+   - `RSS`：物理内存占用（KB）。
+   - `TTY`：终端名称。
+   - `STAT`：进程状态。
+     - `S`：Sleep（睡眠）状态。
+     - `s`：该进程是会话的先导进程。
+     - `N`：进程拥有比普通优先级更低的优先级
+     - `R`：正在运行。
+     - `D`：短期等待。
+     - `Z`：僵死进程。
+     - `T`：被跟踪或者被停止。
+   - `START`：开始时间。
+   - `TIME`：运行时间。
+   - `COMMAND`：命令。
+
+3. 应用实例：以全格式显示当前所有的进程，查看进程的父进程。
+
+   ```sh
+   ps -ef | grep sshd      # 查看 sshd 服务进程的详细信息
+
+   # PPID栏显示的就是父进程的PID。
+
+
+   ```
+
+4. `pstree`命令
+   可以更直观地显示进程 pid
+
+   ```sh
+   pstree [选项]
+
+   pstree -p          # 显示进程PID
+   pstree -u          # 显示进程所属用户
+   ```
+
+### 终止进程
+
+当一个进程已经消耗了很大资源，或进程需要停止时，可以使用`kill`命令来终止进程。
+
+1. `kill`和`killall`
+
+   ```sh
+   kill [选项] <PID>       # 根据进程ID终止进程
+   killall <进程名称>      # 根据进程名称终止进程（支持通配符，适合在系统负载过大时使用）
+
+   ```
+
+   - `-9`：强制终止进程，使用此参数时，进程将立即终止。
+
+2. 应用实例
+
+   - 踢掉一个非法登录的用户。
+     ```sh
+     ps -aux | grep "sshd"      # 筛选出包含'sshd'的进程
+     kill xxxxx                 # 杀死命令为'sshd:<username>'的进程
+     ```
+   - 终止远程登录服务`sshd`。
+     ```sh
+     kill <sshd_pid>                   # 杀死命令为'/usr/sbin/sshd -D'的进程
+     /bin/systemctl start sshd.service # 重启sshd服务
+     ```
+   - 终止多个 gedit （文本编辑器）。
+     ```sh
+     killall gedit
+     ```
+   - 强制杀掉一个终端（Shell）。
+
+     ```sh
+     ps -aux | grep "bash"
+
+     kill -9 <bash_pid>       # 杀死bash进程（需要'-9'）避开保护机制。
+
+     ```
+
+### 服务管理
+
+服务的本质是运行在后台中的进程，通常监听摸个端口，等待其他程序的请求（如 MySQL、sshd、防火墙等），因此又称守护进程。
+
+#### 查看服务
+
+1. service 管理指令
+
+   ```sh
+   service <service_name> [start|stop|restart|reload|status]     # 开始|停止|重启|重载|查看状态
+
+   # CentOS7以后，很多服务不再使用service来管理，而是使用systemctl来管理。
+   # 继续使用service的服务存在于'/etc/init.d/'
+
+   ```
+
+2. `setup`命令
+   这个命令会转到一个蓝色的对话框，具体功能下面详细讲一下：
+   - 点击`系统服务`可以查看所有服务。其中：
+   - 前面带`*`号的服务会随 linux 启动自动启动。
+   - 点击空格键可以取消当前行的`*`号。
+   - 最上面的几个`<SysV initscript>`服务可以使用`service`命令来管理。
+
+#### 服务的运行级别
+
+1. 开机流程：
+   `开机->BIOS->/boot->system进程(pid=1)->运行级别->运行当前级别对应的服务`
+
+2. 在`\etc/inittab`文件中，可以找到所有运行级别的定义。
+
+   ```
+
+   ```
+
+……本节具体内容参照[`实用指令-指定运行级别`](#useful-commands)
+
+1. `chkconfig`命令
+
+   - 本命令可以设定指定服务在指定运行级别上自启动。
+   - `chkconfig`管理的服务可在`/etc/init.d`目录下查看。
+
+   ```sh
+   chkconfig --list              # 查看所有服务
+   chkconfig --list | grep <service_name> # 查看指定服务
+   chkconfig --level <level> <service_name> [on|off]    # 设定指定服务在指定级别上打开/关闭自启动
+
+
+   chkconfig --level 3 network off     # 将network服务在运行级别3上关闭自启动
+   ```
+
+2. `systemctl`命令
+
+   - `systemctl`命令管理的服务在`/usr/lib/systemd/system`目录下。
+   - `systemctl`默认对级别 3、5 生效。
+
+   ```sh
+   systemctl [start|stop|restart|status] <service_name>     # 开始|停止|重启|查看 指定的服务状态
+
+   systemctl list-unit-files [|grep <service_name>]         # 查看服务开机启动状态
+   systemctl enable <service_name>                          # 将指定的服务设置为开机启动
+   systemctl disable <service_name>                         # 关闭指定服务开机启动
+   systemctl is-enabled <service_name>                      # 查看指定服务是否开机自启动，比如查询sshd，可写为sshd or sshd.service
+
+
+   systemctl status firewalld                               # 查看防火墙状态
+
+   ```
+
+#### 防火墙
+
+用于拒绝外部访问未开启端口（服务）的请求。
+
+防火墙关闭后，外部访问可以无限制地访问内部资源。
+
+1. `netstat`命令
+   用于显示网络连接状态。
+2. `firewall`命令
+   ```sh
+   firewall-cmd --permenant --add-port=<端口号>/<协议>         # 打开端口
+   firewall-cmd --permenant --remove-port=<端口号>/<协议>      # 关闭端口
+   firewall-cmd --reload                                      # 重新载入，令修改的配置生效
+   firewall-cmd --query-port=<端口号>/<协议>                   # 查看端口是否开启
+   ```
+3. `telnet`命令（windows）
+   用于连接一个远程端口。
+
+### 动态监控系统
+
+1. `top`命令
+
+   - 与`ps`命令类似，但是可以**实时**显示进程信息。
+   - 进入 top 界面后，按`f`查看每一项具体含义。
+   - 交互指令（唤起 top 后执行的指令）：
+     - `P`：以 CPU 使用率排序，此为默认选项。
+     - `M`：以内存使用率排序。
+     - `N`：以`PID`排序。
+     - `q`：退出`top`。
+
+   ```sh
+   top [选项]
+   top -d <seconds>              # 设置刷新间隔，默认为3秒
+   top -i                        # 不显示任何闲置或僵死的进程
+   top -p <pid>                  # 显示指定进程的信息
+   ```
+
+   - 其信息及含义如下所示：
+
+     ```sh
+     top - 18:00:15 up 2 days,  1:28,  1 user,  load average: 0.00, 0.01, 0.05
+     Tasks: 225 total,   1 running, 224 sleeping,   0 stopped,   0 zombie
+     %Cpu(s):  1.4 us,  1.4 sy,  0.0 ni, 97.1 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+     KiB Mem :  1863252 total,   733608 free,   449972 used,   679672 buff/cache
+     KiB Swap:  2097148 total,  2097148 free,        0 used.  1147900 avail Mem
+
+     ```
+
+     - `top`：当前系统时间，示例中为`18:00:15`。
+     - `up`：系统已运行时间，示例中为`2 days,  1:28`。
+     - `user`：用户数量。
+     - `load average`：负载值，三个值的均值建议不要超过 0.7。
+     - `Tasks`：任务数，示例中共有 225 个进程，其中运行 1 个、休眠 224 个、停止 0 个、僵死 0 个。
+     - `%Cpu(s)`：
+       - `us` (User): 用户空间占用 CPU 的百分比，示例中为 `1.4`。
+       - `sy` (System): 系统空间占用 CPU 的百分比，示例中为 `1.4`。
+       - `ni` (Nice): 改变过优先级的进程占用 CPU 的百分比，示例中为 `0.0`。
+       - `id` (Idle): 空闲 CPU 百分比，示例中为 `97.1`。
+       - `wa` (I/O wait): 等待 I/O 完成的时间百分比，示例中为 `0.0`。
+       - `hi` (Hardware IRQ): 硬件中断占用 CPU 的百分比，示例中为 `0.0`。
+       - `si` (Software IRQ): 软件中断占用 CPU 的百分比，示例中为 `0.0`。
+       - `st` (Steal time): 虚拟机环境中，被其他虚拟机占用的 CPU 时间百分比，示例中为 `0.0`。
+     - `KiB Mem`：内存使用情况，示例中总内存为 `1863252 KiB`，空闲内存为 `733608 KiB`，已用内存为 `449972 KiB`，缓冲/缓存内存为 `679672 KiB`。
+     - `KiB Swap`：交换分区使用情况，示例中总交换分区为 `2097148 KiB`，空闲交换分区为 `2097148 KiB`，已用交换分区为 `0 KiB`，可用内存为 `1147900 KiB`
+
+2. 实战案例
+
+   - 监控指定用户
+     - 在`top`页面输入`u`后`回车`
+     - 输入目标用户名。
+   - 终止指定进程
+     - 在`top`页面输入`k`后`回车`
+     - 输入目标`PID`。
+   - 指定系统状态更新时间
+     - `top -d 10`
+
+3. `netstat`命令
+
+   ```sh
+   netstat [选项]
+
+   netstat -an # 按照一定顺序排列输出
+   netstat -p  # 显示哪个进程在调用
+
+   ```
+
+   显示的内容：
+
+   - `Proto`：协议
+   - `Recv-Q`：接收队列，若不为 0，则代表有其他数据待接收
+   - `Send-Q`：发送队列，若不为 0，则代表有其他数据待发送
+   - `Local Address`：本地地址
+   - `Foreign Address`：远端地址
+   - `State`：状态
+     - `LISTEN`：监听状态，等待连接请求。
+     - `ESTABLISHED`：已连接。
+   - `PID/Program name`：进程 ID 和进程名。
 
 ## 找回 ROOT 密码
 
