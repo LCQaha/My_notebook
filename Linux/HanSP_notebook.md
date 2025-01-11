@@ -705,7 +705,7 @@ sync                 # 将内存数据同步到磁盘
     `cd`到软链接会直接转到链接的目录。
 
     ```sh
-    ln -s [文件/目录] [链接名（相对或绝对路径）]         # 创建软链接
+    ln -s [文件/目录] [链接名（相对或绝对路径）]         # 创建软链接 s soft
     ```
 
     **注意**：在删除软链接时，千万不要使用`rm -rf`。
@@ -1662,7 +1662,7 @@ service crond restart # 重启定时任务
    - 指定系统状态更新时间
      - `top -d 10`
 
-3. `netstat`命令
+3. `netstat`命令【涉及网络基本知识】
 
    ```sh
    netstat [选项]
@@ -1678,11 +1678,59 @@ service crond restart # 重启定时任务
    - `Recv-Q`：接收队列，若不为 0，则代表有其他数据待接收
    - `Send-Q`：发送队列，若不为 0，则代表有其他数据待发送
    - `Local Address`：本地地址
-   - `Foreign Address`：远端地址
+   - `Foreign Address`：远端地址，若显示`0.0.0.0:*`，则代表尚未建立连接
    - `State`：状态
      - `LISTEN`：监听状态，等待连接请求。
      - `ESTABLISHED`：已连接。
+     - `TIMED_WAIT`：等待时间。
    - `PID/Program name`：进程 ID 和进程名。
+
+## 包管理
+
+### rpm 包管理（Redhat Package Manager）
+
+1. 查询
+
+   ```sh
+   rpm -qa | grep <package_name>    # 在所有已安装软件中过滤
+
+   # q： 查询(query)
+   # a： 显示所有信息
+
+   rpm -q <package_name>            # 查询指定软件包是否安装
+   rpm -qi <package_name>           # 查询指定软件包信息
+   rpm -ql <package_name>           # 查询指定软件包中的文件路径
+   rpm -qf <file_path>              # 查询指定文件属于哪个软件包
+
+   [lcq@LCQaha ~]$ rpm -qa|grep firefox
+   firefox-60.2.2-1.el7.centos.x86_64
+
+   # 名称：firefox
+   # 版本：60.2.2-1
+   # 适用系统：CentOS 7.x
+
+   ```
+
+2. 删除
+
+   ```sh
+   rpm -e <package_name>            # 删除指定软件包(erase)
+   rpm -e <package_name> --nodeps   # 删除指定软件包，忽略依赖关系(no dependencies)
+   ```
+
+3. 安装
+
+   ```sh
+   rpm -ivh <package_path>
+
+   # i：安装(install)
+   # v：提示(verbose)
+   # h：进度条(hash)
+   ```
+
+### yum
+
+yum 是一个 Shell 前端软件包管理器。基于 RPM 包管理，能够从制定的服务器自动下载 RPM 包并安装，可以自动处理依赖关系，一次安装所有依赖的软件包。
 
 ## 找回 ROOT 密码
 
@@ -1717,3 +1765,12 @@ exec /sbin/init
 
 1. processON
    用于绘制流程图等图像。
+
+### 知识拓展
+
+1. `0.0.0.0`和`127.0.0.1`的区别
+   简单来说，前者可以接受所有来自网络接口的请求，而后者是一个**回环地址**只能接受来自本地的请求。
+
+| 姓名 | 单位（高校、研究所） | 职称 | 详细信息                          | 论文                          |
+| :--- | :------------------- | :--- | :-------------------------------- | :---------------------------- |
+| 张三 | 北京大学             | 教授 | [详细信息](https://www.baidu.com) | [论文](https://www.baidu.com) |
