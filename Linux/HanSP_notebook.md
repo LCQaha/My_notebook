@@ -1732,6 +1732,15 @@ service crond restart # 重启定时任务
 
 yum 是一个 Shell 前端软件包管理器。基于 RPM 包管理，能够从制定的服务器自动下载 RPM 包并安装，可以自动处理依赖关系，一次安装所有依赖的软件包。
 
+1. 查询 yum 服务器是否有需要安装的软件
+   ```sh
+   yum list|grep <package_name>
+   ```
+2. 安装
+   ```sh
+   yum install <package_name>
+   ```
+
 ## 找回 ROOT 密码
 
 果然，不出所料，你设置的 ROOT 密码奇难无比，然后你就把他忘掉了。不过没事，还是有抢救的空间的。
@@ -1771,6 +1780,98 @@ exec /sbin/init
 1. `0.0.0.0`和`127.0.0.1`的区别
    简单来说，前者可以接受所有来自网络接口的请求，而后者是一个**回环地址**只能接受来自本地的请求。
 
-| 姓名 | 单位（高校、研究所） | 职称 | 详细信息                          | 论文                          |
-| :--- | :------------------- | :--- | :-------------------------------- | :---------------------------- |
-| 张三 | 北京大学             | 教授 | [详细信息](https://www.baidu.com) | [论文](https://www.baidu.com) |
+## 【以下为高级篇内容】
+
+## CentOS 8.1
+
+## Ubuntu 使用
+
+### 基础
+
+Ubuntu 和 Centos 都是基于 GNU/Linux 内核的，因此基本使用和 Centos 是几乎一样的它们的各种指令可以通用，各种操作指令在 Centos 都使用过。只是界面和预安装的软件有所差别。
+
+1. 下载
+   https://www.cn.ubuntu.com/download
+   下载桌面版即可。
+2. 安装
+   参照
+3. 设置 root 密码
+   在 Ubuntu 中，可以使用`sudo`命令来调用高于自己权限的命令，这个过程需要输入密码。
+   可以通过`su root`转到 root 用户，但此时 root 用户没有密码，我们无法进入，需要采取以下操作：
+
+   ```sh
+   sudo passwd root        # 设置root密码
+
+   ```
+
+4. Ubuntu 自带 Python，可直接输入`python3`使用。
+
+### APT
+
+1. APT（Advanced Package Tool）是 Ubuntu 的包管理工具，用于安装、更新和删除软件包。
+2. `/etc/apt/sources.list`是 APT 的配置文件，它包含软件源的列表，默认情况下，Ubuntu 安装的源是官方的。初始服务器地址一般指向美国。可以通过`apt`命令完成软件的安装、更新、卸载。
+
+   在最新版的 Ubuntu 中，默认源已经指向中国大陆官方源，不需要修改，但这里会给出修改教程。点击以下链接获得镜像源配置内容。
+   https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/
+
+   ```sh
+   sudo cp /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources.bak          #备份源
+   echo "">/etc/apt/sources.list.d/ubuntu.sources                                        #清空源
+   vi /etc/apt/sources.list.d/ubuntu.sources             # 进入后，将上述网站中的文本粘贴到vi编辑器中
+   sudo apt-get update     # 更新，会花一点时间
+   ```
+
+3. apt 常用命令
+
+   ```sh
+   sudo apt-get update                          #更新源
+   sudo apt-get install package                 #安装包
+   sudo apt-get remove package                  #删除包
+
+   sudo apt-cache search package                #搜索软件包
+   sudo apt-cache show package                  #获取包的相关信息，如说明、大小、版本等
+   sudo apt-get install package --reinstall     #重新安装包
+
+   sudo apt-get -finstall                       #修复安装
+   sudo apt-get remove package --purge          #删除包，包括配置文件等
+   sudo apt-get build-dep package               #安装相关的编译环境
+
+   sudo apt-get upgrade                         #更新已安装的包
+   sudo apt-get dist-upgrade                    #升级系统
+   sudo apt-cache depends package               #了解使用该包依赖那些包
+   sudo apt-cache rdepends package              #查看该包被哪些包依赖
+   sudo apt-get source package                  #下载该包的源代码
+   ```
+
+   这里的命令比较多，下面列出必须掌握的：
+
+   ```sh
+   sudo apt-get update                          #更新源
+   sudo apt-get install package                 #安装包
+   sudo apt-get remove package                  #删除包
+
+   sudo apt-cache show package                  #获取包的相关信息，如说明、大小、版本等
+
+   sudo apt-get source package                  #下载该包的源代码
+   ```
+
+4. 安装实操
+   - 安装 vim
+     ```sh
+     apt-get remove vim
+     apt-get install vim
+     apt-cache show vim
+     ```
+
+### 远程登录
+
+ssh 是建立在应用层和传输层基础上的安全协议，专为远程登录会话和其他网络服务提供安全性的协议，产用于远程登录，可在几乎所有 linux/Unix 系统上使用。
+使用 ssh 需要安装相应的服务器和客户端（在本地机器上安装客户端，在服务器上安装服务端。
+与 CentOS 不同的是，Ubuntu 没有自带 sshd，需手动安装。
+
+1. 安装服务
+
+   ```sh
+   sudo apt-get install openssh-server
+   sudo service ssh start
+   ```
