@@ -1,5 +1,7 @@
 # Linux 学习指南
 
+## 学习资源
+
 [1] [韩顺平：一周学会 Linux](https://www.bilibili.com/video/BV1Sv411r7vd)
 
 ## 学习笔记

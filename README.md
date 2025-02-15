@@ -4,7 +4,7 @@
 
 ## Linux
 
-[韩顺平 Linux 学习笔记](./Linux/HanSP_notebook.md)
+[Linux 学习笔记](./Linux/README.md)
 
 ## 机器学习
 
