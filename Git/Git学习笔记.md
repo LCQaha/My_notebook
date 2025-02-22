@@ -18,6 +18,8 @@
 
 初稿为您的学习之路带来的不便还请谅解！
 
+若您想快速完成 Git 的配置投入使用，请[点击这里](./Git学习笔记.md#git-快速配置指南)查看快速配置指南。
+
 ## Git 简介
 
 git 的特点：
@@ -522,3 +524,23 @@ $ git remote add origin <gitee_repo_url>
 ## GUI 工具 SourceTree
 
 可以通过[SourceTree 官网](https://www.sourcetreeapp.com/)下载这个工具。
+
+# Git 快速配置指南
+
+若您使用的是 Windows 操作系统，请准备好 Git Bash 软件，Linux/Mac 直接使用命令行工具。
+
+#### 配置密钥
+
+1. 生成 rsa 密钥对。
+   ```sh
+   ssh-keygen -t rsa -C "<your_email>"
+   ```
+2. 在 GitHub 添加公钥。
+   在`设置-SSH与GPG公钥-新建SSH密钥-添加认证密钥`中粘贴生成的`~/.ssh/id_rsa.pub`文件中的内容。
+
+#### 指定用户名和邮箱地址
+
+```sh
+git config --global user.name "Your Name"
+git config --global user.email "youremail@example.com"
+```
