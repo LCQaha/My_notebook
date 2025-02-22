@@ -52,10 +52,13 @@
    ![system_install_14_language](./img/system_install_14_language.png)
 5. 点击`软件选择`
    ![system_install_15_software](./img/system_install_15_software.png)
-   依照下图选择安装内容
+   依照下图选择安装内容（CentOS 8 与此不同）
    ![system_install_16_software_choose](./img/system_install_16_software_choose.png)
+   ![system_install_16_software_choose_CentOS8](./img/system_install_16_software_choose_CentOS8.png)
+
    等待系统检查软件依赖关系（可能会很久）
    ![system_install_17_software_check](./img/system_install_17_software_check.png)
+
 6. 选择`安装位置`
    ![system_install_18_install_location](./img/system_install_18_install_location.png)
    - 选择`我要配置分区`
@@ -112,6 +115,10 @@
 
 1. 删除虚拟机所在的整个文件夹
 2. 在虚拟机列表中，选择虚拟机，`右键-移除`。（此方法不会删除虚拟机源文件，只在列表中进行删除）
+
+## Ubuntu 安装
+
+1. 下载
 
 ## 题外话
 

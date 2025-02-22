@@ -1780,11 +1780,9 @@ exec /sbin/init
 1. `0.0.0.0`和`127.0.0.1`的区别
    简单来说，前者可以接受所有来自网络接口的请求，而后者是一个**回环地址**只能接受来自本地的请求。
 
-## 【以下为高级篇内容】
+## 【Linux 高级篇】CentOS 8.1
 
-## CentOS 8.1
-
-## Ubuntu 使用
+## 【Python 定制篇】Ubuntu 使用
 
 ### 基础
 
@@ -1874,4 +1872,20 @@ ssh 是建立在应用层和传输层基础上的安全协议，专为远程登�
    ```sh
    sudo apt-get install openssh-server
    sudo service ssh start
+   ```
+
+2. 需要安装的功能
+   - `net-tools`：用于查看网络信息，使用`netstat`命令查看网络连接。
+   - `openssh-server`：用于实现 ssh 服务。
+   -
+
+#### Linux 系统相互登录
+
+1. 在新建立的服务器上安装 ssh 服务
+2. 建立通信
+
+   ```sh
+   ssh <user>@<ip>
+
+   ssh -i <key> <user>@<ip>   # 指定密钥
    ```
