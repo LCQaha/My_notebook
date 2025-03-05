@@ -1632,6 +1632,8 @@ service crond restart # 重启定时任务
      KiB Mem :  1863252 total,   733608 free,   449972 used,   679672 buff/cache
      KiB Swap:  2097148 total,  2097148 free,        0 used.  1147900 avail Mem
 
+      PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND  
+
      ```
 
      - `top`：当前系统时间，示例中为`18:00:15`。
@@ -1651,6 +1653,27 @@ service crond restart # 重启定时任务
      - `KiB Mem`：内存使用情况，示例中总内存为 `1863252 KiB`，空闲内存为 `733608 KiB`，已用内存为 `449972 KiB`，缓冲/缓存内存为 `679672 KiB`。
      - `KiB Swap`：交换分区使用情况，示例中总交换分区为 `2097148 KiB`，空闲交换分区为 `2097148 KiB`，已用交换分区为 `0 KiB`，可用内存为 `1147900 KiB`
 
+      **进程列表标题行**
+      -  **`PID`**：进程 ID，唯一标识进程的整数。
+      -  **`USER`**：启动该进程的用户名。
+      -  **`PR`**（Priority）：进程的实时优先级（值越小优先级越高）。
+      -  **`NI`**（Nice Value）：进程的「谦让度」调整值（范围 `-20` 到 `19`），影响 CPU 时间分配：  
+         -  **负值**：更高优先级（需 root 权限）。  
+         -  **正值**：更低优先级。
+      -  **`VIRT`**（Virtual Memory）：进程占用的虚拟内存总量（包括物理内存、交换分区、未实际使用的预留内存）。
+      -  **`RES`**（Resident Memory）：进程实际使用的物理内存（单位 KiB）。
+      -  **`SHR`**（Shared Memory）：进程与其他进程共享的内存（如共享库）。
+      -  **`S`**（Process Status）：进程状态：  
+         -  **R**（Running）：运行中。  
+         -  **S**（Sleeping）：休眠（等待事件）。  
+         -  **D**（Uninterruptible Sleep）：不可中断休眠（通常等待 I/O）。  
+         -  **Z**（Zombie）：僵死进程（已终止但未被父进程回收）。  
+         -  **T**（Stopped）：被信号暂停。
+         -  **`%CPU`**：进程占用的 CPU 百分比（多核环境下可能超过 100%）。
+      -  **`%MEM`**：进程占用的物理内存百分比。
+      -  **`TIME+`**：进程累计使用的 CPU 时间（格式 `分钟:秒.毫秒`）。
+
+---
 2. 实战案例
 
    - 监控指定用户
