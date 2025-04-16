@@ -1,4 +1,4 @@
-# 韩顺平 JAVA 课程
+# 韩顺平 JAVA 学习笔记
 
 ## PRE
 ### 课程目录
@@ -1030,3 +1030,170 @@
 #### 【待补充】原码、反码、补码
 我会，等我学完回来补
 1. **Java没有无符号数**
+
+## 程序控制结构
+### 章节目录
+1. 顺序控制
+2. 分支控制（`if-else`、`switch`）
+3. 循环控制（`for`、`while`、`do-while`）
+4. `break`
+5. `continue`
+6. `return`
+
+### 顺序控制
+1. 介绍
+    - 程序从上到下逐行执行，中间没有任何跳转和判断。
+    - **顺序控制是程序默认的控制方式。**
+    - Java定义变量时采用前向引用的方式，即先声明后调用。
+### 分支控制
+#### 单分支（`if`）
+1. 基本语法
+    ```java
+    if(条件表达式){
+        执行代码块;
+    }
+    ```
+    - 当条件表达式为`true`时，执行代码块。
+    - 当条件表达式为`false`时，不执行代码块。
+    - 如果执行代码只有一行，可以不加大括号。（不推荐）
+2. 流程图
+    ![java_control_branch_if](./img/java_control_branch_if.png)
+#### 双分支
+1. 基本语法
+    ```java
+    if(条件表达式){
+        执行代码块1;
+    }
+    else{
+        执行代码块2;
+    }
+    ```
+2. 流程图
+    ![java_control_branch_if_else](./img/java_control_branch_if_else.png)
+#### 多分支
+1. 基本语法
+    ```java
+    if(条件表达式1){
+        执行代码块1;
+    } 
+    else if(条件表达式2){
+        执行代码块2;
+    }
+    ...
+    else {
+        执行代码块n;
+    }
+    ```
+2. 流程图
+    ![java_control_branch_if_elif](./img/java_control_branch_if_elif.png)
+
+#### 嵌套分支
+1. 基本语法
+    ```java
+    if(条件表达式1){
+        if(){
+            //if-else
+        }else{
+            //if-else
+        }
+    }
+    ```
+    - **为保证程序可读性，建议嵌套不要超过三层。**
+
+#### `switch`分支结构
+1. 基本语法
+    ```java
+    switch(表达式){
+        case 常量值1:
+            执行代码块1;break;
+        case 常量值2:
+            执行代码块2;break;
+        ...
+        case 常量值n:
+            执行代码块n;break;
+        default:
+            执行代码块n+1;
+            break;
+    }
+    ```
+2. 流程图
+    ![java_control_branch_switch](./img/java_control_branch_switch.png)
+4. 注意事项
+    - 标的是的数据类型应与`case`后的常亮数据类型一致（或可以转换成对应的类型）。否则会报错。
+    - `switch`的表达式的返回值必须是以下类型中的一种：
+        `byte`、`short`、`int`、`char`、`num`、`String`
+    - **`case`子句中的值只能是常量，不能是变量。**
+    - `default`子句是可选的。
+    - `switch`结构具有穿透的特点，会从符合条件的`case`处执行到最后，而`break`用于跳出代码块。
+
+### 循环控制
+
+#### for循环
+
+1. 基本语法
+    ```java
+    for(循环变量初始化;循环条件;循环变量迭代){
+        循环操作;
+    }
+    ```
+2. 流程图：
+    ![java_control_loop_for](./img/java_control_loop_for.png)
+
+3. 注意事项
+    - 循环条件返回一个布尔值表达式。
+    - 初始化和变量迭代可以写在别的地方，**但分号不能省略**。
+    - 初始化变量可以有多条语句，用逗号隔开，**要求类型相同**。
+
+#### while循环
+1. 基本语法
+    ```java
+    while(条件表达式){
+        循环体语句;
+        变量迭代;
+    }
+    ```
+2. 流程图
+    ![java_control_loop_while](./img/java_control_loop_while.png)
+
+#### do-while循环
+1. 基本语法
+    ```java
+    do{
+        循环体语句;
+        变量迭代;
+    }while(条件表达式);
+    ```
+2. 流程图
+    ![java_control_loop_dowhile](./img/java_control_loop_dowhile.png)
+ 
+#### 多重循环
+1. 介绍
+    - 将一个循环嵌套在另一个循环中，称为多重循环。
+    - 建议一般使用2层循环，3层循环以上不建议使用。
+
+### 其他控制语句
+#### `break`
+1. 流程图
+    ![java_control_jump_break](./img/java_control_jump_break.png)
+2. 使用细节
+    - `break`语句可以通过标签指明终止哪一层的语句块。
+        ```java
+        lable1:
+        for(int i=0;i<10;i++){
+            lable2:
+            for(int j=0;j<10;j++){
+                label3:
+                for(int k=0;k<10;k++){
+                    if(k==5){
+                        break lable2;
+                    }
+                }
+            }
+        }
+        ```
+        建议在实际开发中尽量不使用标签，这会降低代码的可读性。
+
+#### `continue`
+1. 流程图
+    ![java_control_jump_continue](./img/java_control_jump_continue.png)
+ 
