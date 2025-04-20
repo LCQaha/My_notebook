@@ -1,5 +1,8 @@
 # 韩顺平 JAVA 学习笔记
 
+写在前面：
+本笔记为应某项目需求，短期速成java时进行的记录，因本人有一定编程基础，故跳过了一些基础的知识点，望读者海涵。
+
 ## PRE
 ### 课程目录
 1. Java基础
@@ -1196,4 +1199,236 @@
 #### `continue`
 1. 流程图
     ![java_control_jump_continue](./img/java_control_jump_continue.png)
- 
+
+#### `return`
+1. 介绍
+    - 当`return`被用于一个方法时，其将结束当前方法并返回值。
+    - 如果`return`被应用于主方法，将直接退出程序。
+
+## 数组、排序、查找
+### 章节目录
+1. 数组
+2. 排序
+3. 查找
+4. 多维数组
+
+### 数组
+1. 引例
+    给n个母鸡称重
+    ```java
+    public class Array01{
+        public static void main (String[] args){
+            double[] hens = {1,2,3,4,56,73,5,23};       //定义一个double类型的数组
+            double totalWeight = 0;                     //定义累加器
+            //遍历数组
+            for (int i = 0; i < hens.length; i++){                             // 通过数组的length方法获得数组长度
+                System.out.println("第"+(i+1)+"个母鸡的重量为"+hens[i]+"kg");   // 可以通过下标访问数组中的元素
+                totalWeight += hens[i];
+            }
+            System.out.println("平均值：" + (totalWeight/hens.length));
+            System.out.println("总重：" + (totalWeight));
+            
+        }
+    }
+    ```
+2. 数组的动态初始化
+    - 用法1
+        - 数组定义
+            ```java
+            int[] array01 = {}      // 第1种：将中括号写在数据类型后
+            int array02[] = {}      // 第2种：将中括号写在数组名后
+            int array03[] = new int[5]  // 定义一个长度为5的数组，存放5个int类型数据，初始值为0
+            ```
+            通用的定义格式：`数据类型 数组名[] = new 数据类型[大小]`
+        - 数组的引用（使用）
+            `array01[i]`：访问数组`array01`中的第`i+1`个数。
+    -  用法2
+        - 数组声明
+            `数据类型 数组名[];`
+            `数据类型[] 数组名;`
+        - 创建数组
+            `数组名 = new 数据类型[大小]`
+        ```java
+        int[] arrayint01;
+        arrayint01 = new int[5];
+        ```
+
+3. 数组的静态初始化
+    如果知道数组的大小，则可以使用静态初始化。
+    -  语法
+        `数据类型 数组名[] = {值1, 值2, 值3, ...};`
+
+4. 注意事项
+    - 数组是多个**相同类型**数据的组合。
+    - 数组中的元素可以是任何数据类型，包括基本类型和引用类型，但不能混用
+    - 数组创建后，如果没有赋值，则有默认值
+        - `int`：`0`
+        - `short`：`0`
+        - `byte`：`0`
+        - `long`：`0L`
+        - `float`：`0.0f`
+        - `double`：`0.0`
+        - `char`：`\u0000`
+        - `boolean`：`false`
+        - `String`：`null`
+    - 数组下标必须在指定范围使用。
+    - **数组属于引用类型，数组型数据是对象`object`。**
+
+5. 数组添加/扩容
+    ```java
+    int[] arr = {1, 2, 3};
+    int[] arrNew = new int[arr.length + 1];
+    for (int i = 0; i < arr.length; i++) {
+        arrNew[i] = arr[i];
+    }
+    arrNew[arrNew.length - 1] = 4;
+    arr = arrNew;
+    ```
+
+### 排序（基本，冒泡排序）
+详细排序算法待高级篇讲解。
+1. 介绍
+    - 排序是将多个数据，依指定顺序进行排序的过程。
+2. 分类
+    - 内部排序
+        指将需要处理的所有数据**加载到内部存储器中**，然后进行排序。
+        包括：交换式排序、选择式排序、插入式排序。
+    - 外部排序
+        数据量过大，无法全部加载到内存中，需要**借助外部存储**进行排序。
+        包括：合并排序、直接合并排序。
+3. 冒泡排序
+    - 通过对待排序序列从后向前依次比较相邻元素的值，若发生逆序，则交换。
+    - 像水底的气泡向上冒。
+    - 冒泡排序的每一轮排序一定能将剩余元素中的最大元素移到序列的末尾。
+    ![java_sort_bubble_sort](./img/java_sort_bubble_sort.png)
+    ```java
+    public class BubbleSort{
+        public static void main (String[] args){
+
+            int[] arr1 = {100,34,36,424,456,33,18};
+
+            System.out.println("====初始数组====");
+            for (int k = 0; k < arr1.length; k++){
+                System.out.print(arr1[k] + "\t");
+            }
+            System.out.println("");
+
+            for (int i = arr1.length - 1; i > 0; i--){
+                int temp = 0;
+                for (int j = 1; j < i + 1; j++){
+                    if (arr1[j-1] > arr1[j]){           // 更改这里的">"为"<"，实现降序排序
+                        temp = arr1[j-1];
+                        arr1[j-1] = arr1[j];
+                        arr1[j] = temp;
+                        temp = 0;
+                    }
+                }
+                System.out.println("====第"+(arr1.length - i)+"轮排序====");
+                for (int k = 0; k < arr1.length; k++){
+                    System.out.print(arr1[k] + "\t");
+                }
+                System.out.println("");
+                }
+        }
+    }
+    ```
+### 查找
+详细内容在数据结构与算法，这里只做简要说明。
+1. 介绍
+    - 常用的查找有两种：顺序查找和二分查找。
+2. 顺序查找
+
+### 二维数组
+1. 定义
+    ```java
+    int[][] arr = new int[3][4];
+    int arr2[][] = { {1,2,3,4},
+                     {5,6,7,8},
+                     {9,10,11,12} };
+    ```
+2. 动态初始化
+    - `类型[][] 数组名 = new 类型[大小][大小]`
+        ```java
+        // 方法1
+        int[][] arr = new int[3][4];
+        
+        // 方法2（分开）
+        int[][] arr2;
+        arr2 = new int[3][4];
+        ```
+    - 方法3：一种特殊的动态初始化
+        每行的元素数量可以不一样（列数不确定）
+        ![java_array_two_dimension_init3](./img/java_array_two_dimension_init3.png)
+        ```java
+        int[][] arr = { {1}, 
+                        {2, 2}, 
+                        {3, 3, 3} };
+
+        int[][] arr2 = new int[3][];// 不确定的位置不填值
+        for (int i = 0; i < arr2.length; i++){
+            arr2[i] = new int[i + 1];// 分配内存
+            for (int j = 0; j < arr2[i].length; j++){
+                arr2[i][j] = i + 1;     // 赋值
+            }
+        }
+        ```
+2. 静态初始化
+    ```java
+    int[][] arr = { {1, 2, 3},
+                    {4, 5, 6}, 
+                    {7, 8, 9}};
+
+    int[][] arr2 = { {1}, 
+                    {2, 2}, 
+                    {3, 3, 3} };
+
+    //一个错误的例子：
+    int[][] arr2 = { 1,             // 哪怕只有一个数字，数组也需要括起来 
+                    {2, 2}, 
+                    {3, 3, 3} };    
+    ```
+3. 内存布局
+    ![java_array_two_dimension](./img/java_array_two_dimension.png)
+
+### 附加内容
+#### 【自编，待完善】关于new
+在之前的例子中，我们发现，定义一个数组时，可以在声明的同时new，也可以先声明在之后的代码中new，这有什么区别呢？
+看一下下面几个例子。
+1. 数组初始化（一行完成）
+    ```java
+    int[] arr1 = new int[5];          // 动态初始化，元素默认值为0
+    int[] arr2 = new int[]{1, 2, 3}; // 显式静态初始化
+    int[] arr3 = {1, 2, 3};          // 隐式静态初始化（编译器自动补全为 new int[]）
+
+    // 下面是两种错误的初始化
+    // 对于显示静态初始化，[] 必须有且不能有值。
+    // int[] arr4 = new int[5]{1, 2, 3, 4, 5}; 
+    // int[] arr5 = new int{1, 2, 3, 4, 5};
+    ```
+2. 数组初始化（分开完成）
+    ```java
+    int[] arr;
+    if (condition) {
+        arr = new int[10]; // 根据条件动态分配大小
+    } else {
+        arr = new int[5];
+    }
+    ```
+new起到的是一个分配空间的作用，声明仅是定义的过程，此时赋值会抛出**空指针异常**。
+
+#### 赋值机制
+1. 图解
+    ![java_array_eq](./img/java_array_eq.png)
+2. 解释
+    - 对于一个变量，初始化后存储在栈中。
+    - 对于一个数组，初始化后地址存储在栈中，数组内容存储在堆中。
+        因此，将数组`arr1`整体直接赋值给`arr2`，相当于将数组`arr1`的地址赋值给`arr2`，两个数组的地址相同，对`arr1[i]`进行修改，`arr2[i]`也会同步修改。
+3. 数组拷贝
+    显然，数组之间直接进行赋值是行不通的，因此我们需要另辟蹊径。
+    ```java
+    int[] arr1 = {1, 2, 3, 4, 5};
+    int[] arr2 = new int[arr1.length];
+    for (int i = 0; i < arr1.length; i++) {
+        arr2[i] = arr1[i];
+    }
+    ```
