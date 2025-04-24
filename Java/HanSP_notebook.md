@@ -1432,3 +1432,603 @@ new起到的是一个分配空间的作用，声明仅是定义的过程，此�
         arr2[i] = arr1[i];
     }
     ```
+
+## 面向对象编程基础
+### 章节目录
+1. 类和对象
+2. 成员方法
+3. 成员方法传参机制
+4. overload
+5. 可变参数
+6. 作用域
+7. 构造器
+8. this
+
+### 类和对象
+1. 引例
+    张老太养了两只猫猫:一只名字叫小白,今年 3 岁,白色。还有一只叫小花,今年 100 岁,花色。请编写一个程序，当用户输入小猫的名字时，就显示该猫的名字，年龄，颜色。如果用户输入的小猫名错误，则显示 张老太没有这只猫猫。
+    用之前学过的知识，或许我们可以使用单独定义变量或数组解决，但这不利于变量的管理，现在引出类和对象的概念。
+    - 一个对象由属性和行为构成，而类是一种数据类型，用于定义对象实例。
+        举个例子，猫类`Cat`是一种自定义的数据类型，而具体的一只猫是一个对象。
+    - 三种叫法
+        - 创建一个对象
+        - 实例化一个对象
+        - 把类实例化
+
+    一个面向对象编程（oop, Oobject-oriented programming）实例
+    ```java
+    public class Object01 {
+        Cat cat1 = new Cat();
+        cat1.name = "小白";
+        cat1.age = 3;
+        cat1.color = "白色";
+
+        Cat cat2 = new Cat();
+        cat2.name = "小花";
+        cat2.age = 100;
+        cat2.color = "花色";
+    }
+    class Cat {
+        String name;    // 名字
+        int age;        // 年龄
+        String color;   // 颜色
+    }
+    ```
+2. 类与对象的区别
+    - 类是抽象的、概念的，代表**一类事物**，如：猫类、狗类、人类。即：类是数据类型。
+    - 对象是具体的、实体的，代表**某一具体事物**，如：一只猫、一只狗、一个人类。即：对象是实例。
+    - 类是对象的模板，对象是类的一个个体，对应一个实例。
+3. 对象的内存分布
+    ![java_object_memory](./img/java_oopbase_object_memory.png)
+    - 基本数据类型存于堆，其他数据存于方法区。
+4. 属性/成员变量
+    - 成员变量=属性=字段
+    - 属性是类的一个组成部分，一般是基本数据类型，也可以是引用类型（对象、数组）。
+    - 属性的定义语法和变量相同
+        `访问修饰符 属性类型 属性名;`
+        访问修饰符：控制属性的访问范围。有`public`、`protected`、默认、`private`四种。
+    - 属性的定义类型可以是任意类型（基本数据类型和引用类型）。
+    - 属性如果不赋值，默认值与变量相同。
+
+5. 创建对象
+    ```java
+    // 先声明再创建
+    Cat cat1;
+    cat1 = new Cat();
+
+    // 直接创建
+    Cat cat2 = new Cat();
+    ```
+6. 访问属性
+    ```java
+    cat1.name
+    cat1.age
+    cat1.color
+    ```
+7. 一个例子
+    看一个练习题，并分析画出内存布局图，进行分析
+    ```java
+    Person person1 = new Person();
+    person1.name = "小明";
+    person1.age = 18;
+    Person person2 = person1;
+    System.out.println(person2.name);
+    ```
+    ![java_object_memory_example1](./img/java_oopbase_object_memory_example1.png)
+8. 类和对象的内存分配机制
+    - 栈：一般存放基本数据类型（局部变量）。
+    - 堆：存放对象（自建类、数组等）。
+    - 方法区：常量池（常量，如字符串）；类加载信息。
+9. Java创建对象的流程简述
+    - 加载类信息（属性和方法），仅在首次创建时加载。
+    - 在堆中分配空间进行默认初始化。
+    - 把地址赋值给变量。（`new`）
+    - 进行指定初始化（`cat.age = 3;`）
+
+### 成员方法
+1. 基本介绍
+    - 成员方法也称方法。
+2. 快速入门
+    创建一个名为`Method01.java`的类，并添加如下方法：
+    - 添加 `speak` 成员方法,输出 `"我是一个好人"` 
+    - 添加 `cal01` 成员方法,可以计算从 `1+..+1000` 的结果
+    - 添加 `cal02` 成员方法,该方法可以接收一个数 `n`，计算 `1+..+n` 的结果
+    - 添加 `getSum` 成员方法,可以计算两个数的和
+    ```java
+    public class Method01 {
+        public static void main(String[] args) {
+            Person person = new Person();
+            person.speak();
+            System.out.println(person.cal01());
+            System.out.println(person.cal02(100));
+            System.out.println(person.getSum(10, 20));
+        }
+    }
+    class Person {
+        String name;
+        int age;
+
+        public void speak() {
+            System.out.println("我是一个好人");
+        }
+        
+        public int cal01() {
+            int sum = 0;
+            for (int i = 1; i <= 1000; i++) {
+                sum += i;
+            }
+            return sum;
+        }
+
+        public int cal02(int n) {
+            int sum = 0;
+            for (int i = 1; i <= n; i++) {
+                sum += i;
+            }
+            return sum;
+        }
+
+        public int getSum(int a, int b) {
+            return a + b;
+        }
+    }
+    ```
+3. 剖析方法
+    `public void speak()`
+    - `public`：访问修饰符，控制方法的访问范围。这里`public`表示公开。
+    - `void`：返回值类型，`void`表示该方法没有返回值。
+    - `speak`：方法名，自定义。
+    - `()`：形参列表，方法可以接收参数，也可以不接收参数。
+4. 图解
+    ![java_oopbase_method_img](./img/java_oopbase_method_img.png)
+
+5. 成员方法定义语法
+    ```java
+    访问修饰符 返回值类型 方法名(参数（形参）列表) {
+        语句;
+        return 返回值;
+    }
+    ```
+    - 访问修饰符：如果不写默认访问，[有四种: public, protected, 默认, private]。
+    - 返回数据类型
+        1) 一个方法最多有一个返回值 [思考，如何返回多个结果 返回数组 ]
+        2) 返回类型可以为任意类型，包含基本类型或引用类型(数组，对象)
+        3) 如果方法要求有返回数据类型，则方法体中最后的执行语句必须为 return 值; 而且要求返回值类型必须和 return 的
+        值类型一致或兼容
+        4) 如果方法是 void，则方法体中可以没有 return 语句，或者 只写 return（用于终止方法） ;
+    - 方法名
+        遵循驼峰命名法，最好见名知义，表达出该功能的意思即可, 比如 得到两个数的和 getSum, 开发中按照规范
+    - 形参列表
+        - 调用带参数的方法时，应对应参数列表传入相同类型或兼容类型的参数。如形参为`double`可传入`double`、`int`等
+        - 方法定义时的参数称为形式参数，方法调用时传入的参数为实际参数，两者需要一一对应。
+
+6. 方法调用
+    - 同一个类中调用方法，直接调用即可。如：A类中有方法f1和f2。
+        ```java
+        class A{
+            public void f1(){
+                f2();       // 无需A.f2()
+            }
+            public void f2(){
+                return;     // 空的return语句
+            }
+        }
+        ```
+    - 跨类调用需要通过对象名调用。
+        ```java
+        class B{
+            public void f1(){
+                A a = new A();      // 先实例化对象
+                a.f1();             // 通过对象调用
+            }
+        }
+        ```
+    - 跨类方法调用与访问修饰符相关。
+
+### 成员方法的传参机制
+1. 基本数据类型的传参机制
+    - 基本数据类型的值存储于栈中，传递的是值，其内容不受方法影响。
+    ```java
+    public class MethodParameter01 {
+    //编写一个 main 方法
+        public static void main(String[] args) {
+            int a = 10;
+            int b = 20;
+            //创建 AA 对象 名字 obj
+            AA obj = new AA();
+            obj.swap(a, b); //调用 swap
+            System.out.println("main 方法 a=" + a + " b=" + b);//a=10 b=20
+        }
+    }
+
+    class AA {
+        public void swap(int a,int b){
+            System.out.println("\na 和 b 交换前的值\na=" + a + "\tb=" + b);//a=10 b=20
+            //完成了 a 和 b 的交换
+            int tmp = a;
+            a = b;
+            b = tmp;
+            System.out.println("\na 和 b 交换后的值\na=" + a + "\tb=" + b);//a=20 b=10
+        }
+    }
+    ```
+    ![java_method_param_basic](./img/java_method_param_basic.png)
+2. 引用数据类型的传参机制
+    - 引用类型的地址存于栈，具体值存于堆（数组）或方法区（自建类）
+    - 当将引用类型传入方法中时，传递的是地址，而不是值，对相应对象的操作会影响原来的对象。
+    ```java
+    public class MethodParameter02 {
+    //编写一个 main 方法
+        public static void main(String[] args) {
+            //测试
+            B b = new B();
+            // int[] arr = {1, 2, 3};
+            // b.test100(arr);//调用方法
+            // System.out.println(" main 的 arr 数组 ");
+            // //遍历数组
+            // for(int i = 0; i < arr.length; i++) {
+            // System.out.print(arr[i] + "\t");
+            // }
+            // System.out.println();
+            //测试
+            Person p = new Person();
+            p.name = "jack";
+            p.age = 10;
+            b.test200(p);
+            //测试题, 如果 test200 执行的是 p = null ,下面的结果是 10
+            //测试题, 如果 test200 执行的是 p = new Person();..., 下面输出的是 10
+            System.out.println("main 的 p.age=" + p.age);//10000
+        }
+    }
+
+    class Person {
+        String name;
+        int age;
+    }
+    class B {
+        public void test200(Person p) {
+            //p.age = 10000; //修改对象属性
+            //思考
+            p = new Person();
+            p.name = "tom";
+            p.age = 99;
+            //思考
+            //p = null;
+        }
+        //B 类中编写一个方法 test100，
+        //可以接收一个数组，在方法中修改该数组，看看原来的数组是否变化
+        public void test100(int[] arr) {
+            arr[0] = 200;//修改元素
+            //遍历数组
+            System.out.println(" test100 的 arr 数组 ");
+            for(int i = 0; i < arr.length; i++) {
+            System.out.print(arr[i] + "\t");
+            }
+            System.out.println();
+        }
+    }
+    ```
+3. 扩展
+    在上面的代码中，提到了两种特殊情况：
+    - 当方法内部将传入的引用对象赋值为null时，传入参数会发生什么？
+        答：什么都不会发生，仅会改变传入的地址值，对原地址指向的内容不会产生任何影响。
+        ![java_method_refParam_null](./img/java_method_refParam_null.png)
+    - 当方法内部将传入的引用对象new为另一个对象时，传入参数会发生什么？
+        答：什么都不会发生，仅会将新申请的空间赋值给方法内的变量，对传入的引用对象本身不会产生任何影响。
+        ![java_method_refParam_new](./img/java_method_refParam_new.png)
+
+4. 对象克隆
+    ```java
+    class Person {
+        String name;
+        int age;
+    }
+    class MyTools {
+        public Person copyPerson(Person p) {
+            //创建一个新的对象
+            Person p2 = new Person();
+            p2.name = p.name; //把原来对象的名字赋给 p2.name
+            p2.age = p.age; //把原来对象的年龄赋给 p2.age
+            return p2;
+        }
+    }
+    ```
+### 方法递归调用
+1. 引例
+    ```java
+    public class Test {
+        public static void main(String[] args) {
+            T t = new T();
+            t.test(4);
+        }
+    }
+    class T {
+        public void test(int n) {
+            if (n > 2) {
+                test(n - 1);
+            }
+            System.out.println("n=" + n);
+        }
+    }
+    ```
+    ![java_recursion_example](./img/java_recursion_example.png)
+2. 递归的规则
+    - 执行一个方法时，就创建一个新的受保护的独立空间（栈空间）。
+    - 方法的局部变量是独立的，不会相互影响。
+    - 如果方法中使用的是引用类型变量，就会共享该引用类型。
+    - **递归必须向推出递归的条件逼近，否则会无限递归。**
+    - 一个方法执行完毕时，或遇到return，就会返回，遵循**谁调用就将结果返回给谁**的规则，同时当方法执行完毕或返回时，该方法执行完毕。
+
+#### 实例
+1. 斐波那契数列
+    ```java
+    /*
+    请使用递归的方式求出斐波那契数 1,1,2,3,5,8,13...给你一个整数 n，求出它的值是多
+    思路分析
+    1. 当 n = 1 斐波那契数 是 1
+    2. 当 n = 2 斐波那契数 是 1
+    3. 当 n >= 3 斐波那契数 是前两个数的和
+    4. 这里就是一个递归的思路
+    */
+    int fibonacci(int n){
+		if (n>=1){
+			if (n == 1 || n == 2){
+				return 1;
+			}else{
+				return fibonacci(n-1) + fibonacci(n-2);
+			}
+		}else{
+			System.out.print("错误");
+			return -1;
+		}
+	}
+    ```
+2. 猴子吃桃
+    ```java
+    /*
+    猴子吃桃子问题：有一堆桃子，猴子第一天吃了其中的一半，并再多吃了一个！
+    以后每天猴子都吃其中的一半，然后再多吃一个。当到第 10 天时，
+    想再吃时（即还没吃），发现只有 1 个桃子了。问题：最初共多少个桃子？
+    思路分析 逆推
+    1. day = 10 时 有 1 个桃子
+    2. day = 9 时 有 (day10 + 1) * 2 = 4
+    3. day = 8 时 有 (day9 + 1) * 2 = 10
+    4. 规律就是 前一天的桃子 = (后一天的桃子 + 1) *2//就是我们的能力
+    5. 递归
+    */
+    public int peach(int day) {
+        if(day == 10) {//第 10 天，只有 1 个桃
+            return 1;
+        } else if ( day >= 1 && day <=9 ) {
+            return (peach(day + 1) + 1) * 2;//规则，自己要想
+        } else {
+            System.out.println("day 在 1-10");
+            return -1;
+        }
+    }
+    ```
+3. 迷宫问题
+   
+4. 汉诺塔
+
+5. 八皇后
+
+### 方法重载（overload）
+1. 基本介绍
+    - **java中允许同一个类中有多个同名方法存在，但要求形参列表不一致。（顺序、类型不同）**
+    - 利于接口编程。
+### 可变参数
+1. 基本介绍
+    java允许将同一个类中的多个同名同功能但参数个数不同的方法，封装成一个方法。可以通过可变参数实现。
+2. 基本语法
+    ```java
+    访问修饰符 返回值类型 方法名(参数类型... 变量名) {}
+    ```
+3. 一个例子
+    ```java
+    class Method01{
+        public int sum(int n1, int n2){
+            return n1 + n2;
+        }
+        public int sum(int n1, int n2, int n3){
+            return n1 + n2 + n3;
+        }
+        //...
+    }
+    class VarParam {
+        // 可变参数的传入个数可以是0个至多个
+        public int sum(int... n) {
+            int sum = 0;
+            for (int i = 0; i < n.length; i++) {
+                sum += n[i];
+            }
+            return sum;
+        }
+    }
+    ```
+4. 可变参数细节
+    - 可变参数的实参可以为0个或任意多个。
+    - 可变参数的实参可以是一个数组。
+        **如果传入的是数组，则等价于将数组中的所有元素依次传入方法。**
+    - 可变参数的本质就是数组。
+    - 可变参数可以和普通类型参数放在一个形参列表中，但可变参数必须放在最后。
+    - 一个形参列表中只能出现一个可变参数。
+
+### 作用域
+1. 基本介绍
+    - 在java编程中，主要的变量就是属性（成员变量）和局部变量。
+    - 局部变量一般指定义在成员方法中的变量。
+    - 作用域分类
+        - 全局变量，即属性，作用域为整个类。
+        - 局部变量，即除属性外的其他变量，作用域为定义它的代码块。
+    - 全局变量有默认值，可以不赋值直接使用；局部变量没有默认值，必须赋值后使用。
+2. 使用细节
+    - 属性和局部变量可以重名，访问时遵循就近原则。
+    - 在同一个作用域中，两个局部变量不能重名。
+    -   属性生命周期较长，随对象创建和销毁；
+        局部变量生命周期较短，随代码块创建和销毁。
+    - 作用域范围不同
+        - 全局变量（属性）可以被本类或其他类使用。
+        - 局部变量只能在本类中对应方法中使用。
+    - 修饰符不同
+        全局变量（属性）可以加修饰符。
+        局部变量不可以加修饰符。
+
+### 构造器
+1. 基本介绍
+    当创建一个对象时，如果需要在new的同时定义其中属性的值，就需要使用构造器。
+    构造方法又叫构造器（constructor），是类的一种特殊方法，用于完成对新对象的初始化。
+2. 基本语法
+    ```java
+    [修饰符] 方法名(形参列表){
+        方法体;
+    }
+    ```
+    - 构造器的修饰符没有要求。
+    - 构造器没有返回值。**（也不能写`void`）**
+    - **`方法名`和类名必须相同。**
+    - `参数列表`和成员方法规则相同。
+    - 构造器的调用由系统完成（new时完成）。 
+3. 快速入门
+    ```java
+    public class Constructor {
+        public static void main(String[] args) {
+            Person p = new Person(18,"jason");
+            System.out.println(p.age);
+            System.out.println(p.name);
+        }
+    }
+    
+    class Person {
+        int age;
+        String name;
+
+        public Person(int pAge, String pName) {
+            age = pAge;
+            name = pName;
+        }
+    }
+4. 细节
+    - 一个类可以定义多个构造器（构造器重载）
+        ```java
+        class Person {
+            int age;
+            String name;
+            public Person(int pAge, String pName) {
+                age = pAge;
+                name = pName;
+            }
+            public Person(String pName) {
+                name = pName;
+                age = 0;
+            }
+        }
+    - **构造器名和类型须相同。**
+    - 构造器没有返回值。
+    - 构造器是完成对象初始化，不是创建对象。
+    - 创建对象时，系统自动调用该类的构造方法。
+    - 如果没有定义构造器，系统会自动生成一个默认的构造器。
+        这是一个默认无参构造器，可以用`javap`指令反编译查看。
+        ```java
+        //Dog类的默认构造器举例
+        public class Dog {
+            public Dog() {}    
+        }
+        ```
+    - **一但定义了自己的构造器，默认构造器就会被覆盖，除非重新显式定义无参构造器。**
+5. 【面试题】对象创建流程分析
+    ```java
+    class Person {
+        int age = 90;
+        String name;
+        Person(String pName, int pAge) {
+            name = pName;
+            age = pAge;
+        }
+    }
+
+    Person p = new Person("jason", 18);
+    ```
+    - 在方法区中加载类信息。
+    - 在堆中分配内存空间
+    - 完成对象初始化
+        - 默认初始化：`age = 0;name = null;`
+        - 显式初始化：`age = 90;name = null;`
+        - 构造器初始化：`name = "jason";age = 18;`
+    - 将对象在堆中的地址返回给p。
+
+### this
+1. 引例
+    - 在之前的构造器学习中，我们创建过这样的构造器。
+        ```java
+        public Person(int pAge, String pName){
+            age = pAge;
+            name = pName;
+        }
+        ```
+    - 显然`pAge`和`pName`并没有什么意义，所以我们想出了一种办法。
+        ```java
+        public Person(int age, String name){
+            this.age = age;
+            this.name = name;
+        }
+    - 简单地说，哪个对象调用，`this`就代表哪个对象。
+2. 图解
+    ![java_class_this](./img/java_class_this.png)
+3. 使用细节
+    - `this`关键字可以用来访问本类的属性、方法、构造器。
+    - `this`用于区分当前类的属性和局部变量。
+    - 访问成员方法的语法：`this.方法名(参数列表);`
+    - **访问构造器语法：`this(参数列表);` 注意只能在构造器中使用(即只能在构造器中访问另外一个构造器, 而且必须放在第一条语句)**
+    - this 不能在类定义的外部使用，只能在类定义的方法中使用。
+### 附加内容
+#### 代码健壮性
+1. 引例
+    一个返回double数组最大值的方法：
+    ```java
+    public class Homework01{
+        public static void main(String[] args) {
+            A01 a01 = new A01();
+            double[] arr;
+            int length = 20;
+            arr = new double[length];
+            for (int i = 0; i < length; i++){
+                arr[i] = Math.random() * 100;
+                System.out.println("arr[" + i + "] = " + arr[i]);
+            }
+            double max = a01.max(arr);
+            if (max == null){
+                System.out.println("输入错误");
+            }
+            else
+                System.out.println("max:" + a01.max(arr));
+        }
+    }
+
+    class A01{
+        public Double max(double[] arr){
+            if(arr != null && arr.length > 0){
+                double res = arr[0];
+                for (int i = 1; i < arr.length; i++){
+                    res = arr[i] > res ? arr[i] : res;
+                }
+                return res;
+            }
+            else
+                return null;
+        }
+    }
+    ```
+2. 健壮性体现
+    - 当传入参数为`{}`或`null`时，方法返回`null`。
+    - 采用`double`的包装类`Double`，避免返回`null`产生错误。
+    - 在执行代码中加入对`null`的判断，避免空指针异常。
+
+#### 匿名对象
+1. 例子
+    ```java
+    new Test().f1();
+    ```
+2. 特点
+    - 匿名对象，由于没有赋值给任意对象，所以使用一次就销毁
+    
