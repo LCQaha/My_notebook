@@ -3242,3 +3242,588 @@ new起到的是一个分配空间的作用，声明仅是定义的过程，此�
 
     ```
 
+## 【项目】房屋出租系统
+### 项目需求说明
+1. 基本需求
+    实现基于文本界面的《房屋出租软件》，实现对房屋信息的修改和删除（由于没有学习数据库，这里用数组实现），并能够打印房屋明细表。
+2. 项目图片预览
+    - 项目界面-主菜单
+        ![java_project_houseRentSystem_mainMenu](./img/java_project_houseRentSystem_mainMenu.png)
+    - 项目界面-新增房源
+        ![java_project_houseRentSystem_addHouse](./img/java_project_houseRentSystem_addHouse.png)
+    - 项目界面-查找房源
+        ![java_project_houseRentSystem_findHouse](./img/java_project_houseRentSystem_findHouse.png)
+    - 项目界面-删除房源
+        ![java_project_houseRentSystem_deleteHouse](./img/java_project_houseRentSystem_deleteHouse.png)
+    - 项目界面-修改房源
+        ![java_project_houseRentSystem_updateHouse](./img/java_project_houseRentSystem_updateHouse.png)
+    - 项目界面-房屋列表
+        ![java_project_houseRentSystem_houseList](./img/java_project_houseRentSystem_houseList.png)
+    - 项目界面-退出系统
+        ![java_project_houseRentSystem_exit](./img/java_project_houseRentSystem_exit.png)
+
+### 项目设计
+
+1. 程序框架图（分层模式）
+    还有Model2、MVC等设计模式，会在后面接触。
+    ![java_project_houseRentSystem_frame](./img/java_project_houseRentSystem_frame.png)
+2. 解析
+    - 分三个层：界面层、业务层、数据层（又称模型model层、domain层）
+
+### 开始项目开发
+1. 创建项目结构
+    这个项目虽然简单，但仍需遵守标准化的流程将代码分类存放，因为在后面的更大型项目中，可能还会采用分层结构设计，这时每个包下就会有更复杂的代码。
+    - `com.lcq.houserentsys.view`：用于存放界面层代码。
+    - `com.lcq.houserentsys.service`：用于存放业务层代码。
+    - `com.lcq.houserentsys.domain`：用于存放数据层代码。
+    - `com.lcq.houserentsys.utils`：用于存放工具类代码。
+    - `HouseRentApp.java`：程序主入口
+
+2. 完成数据层编写
+    - 编写`House.java`用于存放房屋信息。
+3. 完成功能-主菜单显示
+    - 在`HouseView.java`中编写`mainMenu()`方法用于显示主菜单。
+    - 在`HouseRentApp.java`中调用`HouseView.mainMenu()`方法用于启动程序。
+3. 完成功能-房屋列表显示
+    - 在`HouseService.java`中编写`list()`方法返回房屋信息。
+    - 在`HouseService.java`中添加数组`House[]`。
+    - 在`HouseView.java`中编写`listHouses()`方法用于显示列表界面和调用业务层。
+    - 调用方法前，记得进行类初始化，否则无法调用非静态方法。
+4. 完成功能-添加房源
+    - 在`HouseService.java`中编写`add()`方法添加房屋信息。
+    - 在`HouseView.java`中编写`addHouse()`方法用于显示添加房源界面、数据输入和传入业务层。返回boolean用于判断信息是否成功添加。
+    - 在`HouseService.java`中添加变量：
+        - `idCounter = 1`：用于生成唯一ID。
+        - `houseNum`：用于记录房源信息数量，判断数组空间是否足够。
+5. 完成功能-删除房屋信息
+    - 在`HouseService.java`中编写`del()`方法删除房屋信息。
+    - 在`HouseView.java`中编写`delHouse()`方法用于显示删除房源界面、数据输入和传入业务层。返回boolean用于判断信息是否成功删除。
+
+### 项目源码
+1. `House.java`
+    ```java
+    package com.lcq.houserentsys.domain;
+
+    /**
+     * House对象表示一个房屋信息
+     */
+    public class House {
+        private int houseId;
+        private String houseHost;
+        private String phone;
+        private String address;
+        private int rent;
+        private String state;
+
+        public House(int houseId, String houseHost, String phone, String address, int rent, String state) {
+            this.houseId = houseId;
+            this.houseHost = houseHost;
+            this.phone = phone;
+            this.address = address;
+            this.rent = rent;
+            this.state = state;
+        }
+
+        public int getHouseId() {
+            return houseId;
+        }
+
+        public void setHouseId(int houseId) {
+            this.houseId = houseId;
+        }
+
+        public String getHouseHost() {
+            return houseHost;
+        }
+
+        public void setHouseHost(String houseHost) {
+            this.houseHost = houseHost;
+        }
+
+        public String getPhone() {
+            return phone;
+        }
+
+        public void setPhone(String phone) {
+            this.phone = phone;
+        }
+
+        public String getAddress() {
+            return address;
+        }
+
+        public void setAddress(String address) {
+            this.address = address;
+        }
+
+        public int getRent() {
+            return rent;
+        }
+
+        public void setRent(int rent) {
+            this.rent = rent;
+        }
+
+        public String getState() {
+            return state;
+        }
+
+        public void setState(String state) {
+            this.state = state;
+        }
+
+        @Override
+        public String toString() {
+            return houseId +
+                    "\t" +houseHost +
+                    "\t" +phone +
+                    "\t" +address +
+                    "\t" +rent +
+                    "\t" +state;
+        }
+    }
+
+    ```
+2. `HouseView.java`
+    ```java
+    package com.lcq.houserentsys.view;
+
+    import com.lcq.houserentsys.domain.House;
+    import com.lcq.houserentsys.service.HouseService;
+    import com.lcq.houserentsys.utils.Utility;
+
+    /**
+     * 1. 显示界面
+     * 2. 接收用户输入
+     * 3. 调用HouseService完成对房屋信息的各种操作
+     */
+    public class HouseView {
+
+        private boolean loop = true;
+        private char key = ' ';
+        private HouseService houseService = new HouseService(10);
+
+        public void mainMenu(){
+            do {
+                System.out.println("\n\n===========房屋出租系统===========");
+                System.out.println("\t\t\t1 新 增 房 源");
+                System.out.println("\t\t\t2 查 找 房 屋");
+                System.out.println("\t\t\t3 删 除 房 屋");
+                System.out.println("\t\t\t4 修 改 房 屋 信 息");
+                System.out.println("\t\t\t5 房 屋 列 表");
+                System.out.println("\t\t\t6 退       出");
+                System.out.print("请输入选项（1~6）：");
+                key = Utility.readChar();
+                switch (key){
+                    case '1':
+                        addHouse();
+                        break;
+                    case '2':
+                        findHouse();
+                        break;
+                    case '3':
+                        delHouse();
+                        break;
+                    case '4':
+                        update();
+                        break;
+                    case '5':
+                        listHouses();
+                        break;
+                    case '6':
+                        exit();
+                        break;
+                }
+            }while(loop);
+        }
+
+        public void listHouses(){
+            System.out.println("===========房屋信息列表===========");
+
+            House[] houses = houseService.list();
+            System.out.println("编号\t房主\t\t电话\t\t地址\t\t月租金\t状态");
+            for(int i = 0; i<houses.length; i++){
+                if (houses[i] != null)
+                    System.out.println(houses[i]);
+            }
+            System.out.println("===========房屋信息完毕===========");
+        }
+
+        public void addHouse(){
+            System.out.println("===========添加房屋信息===========");
+            System.out.print("姓名：");
+            String name = Utility.readString(8);
+            System.out.print("电话：");
+            String phone = Utility.readString(12);
+            System.out.print("地址：");
+            String address = Utility.readString(16);
+            System.out.print("月租：");
+            int rent = Utility.readInt();
+            System.out.print("状态：");
+            String state = Utility.readString(8);
+            // ID 是系统自动分配，用户不能输入。
+            House house = new House(0, name, phone, address, rent, state);
+            //...传进业务层
+            if(houseService.add(house)){
+                System.out.println("添加房屋成功");
+            }else {
+                System.out.println("添加房屋失败");
+            }
+            System.out.println("==========房屋信息添加完成=========");
+        }
+
+        public void delHouse(){
+            System.out.println("===========删除房屋信息===========");
+            System.out.print("输入想删除的房源ID（-1退出）：");
+            int delid = Utility.readInt();
+            if (delid == -1){
+                System.out.println("放弃了删除房屋信息");
+                return;
+            }
+
+            char choice = Utility.readConfirmSelection();
+
+            if (choice == 'Y') {
+                if (houseService.del(delid)) {
+                    System.out.println("删除成功");
+                }else{
+                    System.out.println("删除失败");
+                }
+            }else if (choice == 'N'){
+                System.out.println("放弃了删除房屋信息");
+            }
+        }
+
+        public void findHouse(){
+            System.out.println("===========查找房屋信息===========");
+            System.out.print("输入要查找的房源ID（输入-1退出）：");
+            int id = Utility.readInt();
+            if (id == -1){
+                return;
+            }
+            House house = houseService.findById(id);
+            if (house != null) {
+                System.out.println(house);
+            }else{
+                System.out.println("未查找到ID为 "+ id +" 的房源");
+            }
+        }
+
+        public void update(){
+            System.out.println("===========修改房屋信息===========");
+
+            System.out.println("输入要修改的房源ID（输入-1退出）：");
+            int id = Utility.readInt();
+            if (id == -1){
+                return;
+            }
+            House house = houseService.findById(id);
+            if (house == null) {
+                System.out.println("ID不存在！");
+                return;
+            }
+
+            System.out.print("房主（"+house.getHouseHost()+"）：");
+            String houseHost = Utility.readString(8,"");
+            if (!("".equals(houseHost))){
+                house.setHouseHost(houseHost);
+            }
+
+            System.out.print("电话（"+house.getPhone()+"）：");
+            String phone = Utility.readString(12,"");
+            if (!("".equals(phone))){
+                house.setPhone(phone);
+            }
+
+            System.out.print("地址（"+house.getAddress()+"）：");
+            String address = Utility.readString(16,"");
+            if (!("".equals(address))){
+                house.setAddress(address);
+            }
+
+            System.out.print("月租（"+house.getRent()+"）：");
+            int rent = Utility.readInt(-1);
+            if (rent != -1){
+                house.setRent(rent);
+            }
+
+            System.out.print("状态（"+house.getState()+"）：");
+            String state = Utility.readString(8,"");
+            if (!("".equals(state))){
+                house.setState(state);
+            }
+        }
+
+        public void exit(){
+            char choice = Utility.readConfirmSelection();
+            if (choice == 'Y') {
+                loop = false;
+            }
+        }
+    }
+    ```
+3. `HouseService.java`
+    ```java
+    package com.lcq.houserentsys.service;
+
+    import com.lcq.houserentsys.domain.House;
+
+    public class HouseService {
+
+        private House[] houses;
+        private int houseNum;       // 记录房屋信息数量
+        private int idCounter = 1;
+
+        public HouseService(int size) {
+            houses = new House[size];
+            //配合测试的初始化House对象
+            houses[0] = new House(idCounter, "jason", "123321", "海淀区", 2000, "已出租");
+            houseNum++;
+
+        }
+        public House[] list() {
+            return houses;
+        }
+        public boolean add(House newhouse) {
+            // 判断能否继续添加（暂不考虑数组扩容）
+            if (houseNum == houses.length) {
+                System.out.println("数组已满，不可继续添加");
+                return false;
+            }
+
+            // 存放信息
+            houses[houseNum++] = newhouse;
+
+            // 设置房屋ID
+            newhouse.setHouseId(++idCounter);
+
+            return true;
+        }
+
+        public boolean del(int delId){
+            int index = -1;
+            for (int i = 0; i < houseNum; i++) {
+                if (houses[i].getHouseId() == delId) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index == -1) {
+                return false;
+            }
+
+            for (int i = index; i < houseNum - 1; i++) {
+                houses[i] = houses[i + 1];
+            }
+            houses[--houseNum] = null;
+
+            return true;
+        }
+
+        public House findById(int id) {
+            for (int i = 0; i < houseNum; i++) {
+                if (houses[i].getHouseId() == id) {
+                    return houses[i];
+                }
+            }
+            return null;
+        }
+    }
+
+    ```
+4. `HouseRentSysApp.java`
+    ```java
+    package com.lcq.houserentsys;
+
+    import com.lcq.houserentsys.view.HouseView;
+
+    public class HouseRentApp {
+        public static void main(String[] args) {
+            // 创建HouseView对象并显示主菜单
+            new HouseView().mainMenu();
+        }
+    }
+
+    ```
+
+5. `Utility.java`
+    ```java
+    package com.lcq.houserentsys.utils;
+
+
+    /**
+        工具类的作用:
+        处理各种情况的用户输入，并且能够按照程序员的需求，得到用户的控制台输入。
+    */
+
+    import java.util.*;
+    /**
+
+        
+    */
+    public class Utility {
+        //静态属性。。。
+        private static Scanner scanner = new Scanner(System.in);
+
+        
+        /**
+         * 功能：读取键盘输入的一个菜单选项，值：1——5的范围
+         * @return 1——5
+         */
+        public static char readMenuSelection() {
+            char c;
+            for (; ; ) {
+                String str = readKeyBoard(1, false);//包含一个字符的字符串
+                c = str.charAt(0);//将字符串转换成字符char类型
+                if (c != '1' && c != '2' && 
+                    c != '3' && c != '4' && c != '5') {
+                    System.out.print("选择错误，请重新输入：");
+                } else break;
+            }
+            return c;
+        }
+
+        /**
+         * 功能：读取键盘输入的一个字符
+         * @return 一个字符
+         */
+        public static char readChar() {
+            String str = readKeyBoard(1, false);//就是一个字符
+            return str.charAt(0);
+        }
+        /**
+         * 功能：读取键盘输入的一个字符，如果直接按回车，则返回指定的默认值；否则返回输入的那个字符
+         * @param defaultValue 指定的默认值
+         * @return 默认值或输入的字符
+         */
+        
+        public static char readChar(char defaultValue) {
+            String str = readKeyBoard(1, true);//要么是空字符串，要么是一个字符
+            return (str.length() == 0) ? defaultValue : str.charAt(0);
+        }
+        
+        /**
+         * 功能：读取键盘输入的整型，长度小于2位
+         * @return 整数
+         */
+        public static int readInt() {
+            int n;
+            for (; ; ) {
+                String str = readKeyBoard(10, false);//一个整数，长度<=10位
+                try {
+                    n = Integer.parseInt(str);//将字符串转换成整数
+                    break;
+                } catch (NumberFormatException e) {
+                    System.out.print("数字输入错误，请重新输入：");
+                }
+            }
+            return n;
+        }
+        /**
+         * 功能：读取键盘输入的 整数或默认值，如果直接回车，则返回默认值，否则返回输入的整数
+         * @param defaultValue 指定的默认值
+         * @return 整数或默认值
+         */
+        public static int readInt(int defaultValue) {
+            int n;
+            for (; ; ) {
+                String str = readKeyBoard(10, true);
+                if (str.equals("")) {
+                    return defaultValue;
+                }
+                
+                //异常处理...
+                try {
+                    n = Integer.parseInt(str);
+                    break;
+                } catch (NumberFormatException e) {
+                    System.out.print("数字输入错误，请重新输入：");
+                }
+            }
+            return n;
+        }
+
+        /**
+         * 功能：读取键盘输入的指定长度的字符串
+         * @param limit 限制的长度
+         * @return 指定长度的字符串
+         */
+
+        public static String readString(int limit) {
+            return readKeyBoard(limit, false);
+        }
+
+        /**
+         * 功能：读取键盘输入的指定长度的字符串或默认值，如果直接回车，返回默认值，否则返回字符串
+         * @param limit 限制的长度
+         * @param defaultValue 指定的默认值
+         * @return 指定长度的字符串
+         */
+        
+        public static String readString(int limit, String defaultValue) {
+            String str = readKeyBoard(limit, true);
+            return str.equals("")? defaultValue : str;
+        }
+
+
+        /**
+         * 功能：读取键盘输入的确认选项，Y或N
+         * 将小的功能，封装到一个方法中.
+         * @return Y或N
+         */
+        public static char readConfirmSelection() {
+            System.out.println("请输入你的选择(Y/N): 请小心选择");
+            char c;
+            for (; ; ) {//无限循环
+                //在这里，将接受到字符，转成了大写字母
+                //y => Y n=>N
+                String str = readKeyBoard(1, false).toUpperCase();
+                c = str.charAt(0);
+                if (c == 'Y' || c == 'N') {
+                    break;
+                } else {
+                    System.out.print("选择错误，请重新输入：");
+                }
+            }
+            return c;
+        }
+
+        /**
+         * 功能： 读取一个字符串
+         * @param limit 读取的长度
+         * @param blankReturn 如果为true ,表示 可以读空字符串。 
+         * 					  如果为false表示 不能读空字符串。
+         * 			
+         *	如果输入为空，或者输入大于limit的长度，就会提示重新输入。
+        * @return
+        */
+        private static String readKeyBoard(int limit, boolean blankReturn) {
+            
+            //定义了字符串
+            String line = "";
+
+            //scanner.hasNextLine() 判断有没有下一行
+            while (scanner.hasNextLine()) {
+                line = scanner.nextLine();//读取这一行
+            
+                //如果line.length=0, 即用户没有输入任何内容，直接回车
+                if (line.length() == 0) {
+                    if (blankReturn) return line;//如果blankReturn=true,可以返回空串
+                    else continue; //如果blankReturn=false,不接受空串，必须输入内容
+                }
+
+                //如果用户输入的内容大于了 limit，就提示重写输入  
+                //如果用户如的内容 >0 <= limit ,我就接受
+                if (line.length() < 1 || line.length() > limit) {
+                    System.out.print("输入长度（不能大于" + limit + "）错误，请重新输入：");
+                    continue;
+                }
+                break;
+            }
+
+            return line;
+        }
+    }
+
+    ```
+
