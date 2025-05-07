@@ -2149,6 +2149,11 @@ new起到的是一个分配空间的作用，声明仅是定义的过程，此�
     - `文件-项目结构-SDK-源文件路径`
         添加`$JDK_PATH$`下的`src.zip`和`javafx-src.zip`。
     - 通过`Ctrl+B`或`右键-goto-声明或用例(Declaration or Usages)`查看源码。
+3. IDEA中为程序传入实参
+    在右上角图示位置选择编辑配置：
+    ![java_IDEA_paramIn1](./img/java_IDEA_paramIn1.png)
+    修改程序实参选项，参数间用空格隔开。
+    ![java_IDEA_paramIn2](./img/java_IDEA_paramIn2.png)
 
 ### 包
 1. 基本介绍：包的三大作用
@@ -3826,4 +3831,811 @@ new起到的是一个分配空间的作用，声明仅是定义的过程，此�
     }
 
     ```
+
+## 面向对象编程高级
+### 章节目录
+1. 类变量和类方法
+2. 理解main方法、语法static
+3. 代码块
+4. 单例设计模式
+5. final 关键字
+6. 抽象类
+7. 接口
+8. 内部类
+
+### 类变量和类方法（static）
+#### 类变量
+1. 引例
+    有一群小孩，现在要统计做游戏的小孩人数，给出解决的方案。
+    - 传统方案：定义一个int变量count，记录游戏的人数，每次调用方法时，将变量加1，并返回结果。
+    - 类变量：定义类变量，令所有Child对象共用一个计数器。
+2. 类变量（静态变量）简介
+    在类内作如下定义：
+    ```java
+    public static int count = 0;
+    ```
+    此时对Child.count的操作会反映到所有Child对象上。
+
+3. 类变量的内存布局
+    - 图解
+        ![java_staticVar_memory](./img/java_staticVar_memory.png)
+    - JDK7及以前，静态变量存储在方法区，JDK8及以后，静态变量存储在堆中。
+    - 静态变量的存放涉及反射、class原型对象等知识，后面会讲。
+    - 类变量所有该类对象是共享的。
+    - 静态变量在类加载时就确定了，无论静态变量如何存储，都不会改变其使用细节。
+    - 参考文章
+        - [【CSDN】Java static变量保存在哪？](https://blog.csdn.net/x_iya/article/details/81260154/)
+        - [【知乎】java中的静态变量和Class对象究竟存放在哪个区域？](https://www.zhihu.com/question/59174759/answer/163207831)
+4. 定义访问
+    - 定义语法
+        ```java
+        访问修饰符 static 数据类型 变量名; // 推荐
+        static 访问修饰符 数据类型 变量名;
+        ```
+    - 访问类变量
+        ```java
+        类名.类变量名;      //类变量随类的加载创建，即使没有创建实例也可以访问
+        对象名.类变量名;
+        ```
+5. 类变量注意事项和细节讨论
+    - 什么时候需要用类变量？
+        当我们需要让某个类的所有对象都共享一个变量时，就可以考虑使用类变量（静态变量）。
+        例：定义学生类，统计所有学生共交多少钱。
+    - 类变量与实例变量（普通属性）的区别
+        类变量是该类所有对象共享的，而实例变量是每个对象独享的。
+    - 加上`static`称为类变量（静态变量），否则称为实例变量（普通变量、非静态变量）。
+    - 推荐使用`类名.变量名`的形式访问类变量。访问类变量须满足访问修饰符的访问权限和范围。
+    - 实例变量不能通过`类名.变量名`的形式访问。
+    - 类变量在类加载时就完成了初始化，也就是说，即使没有创建对象，只要类加载了，就可以使用类变量。
+    - 类变量的生命周期是随类的加载开始，随着类的消亡而销毁。
+
+#### 类方法
+1. 介绍
+    - 类方法也称静态方法
+2. 类方法的定义
+    ```java
+    访问修饰符 static 返回值类型 方法名(参数列表){};    // 推荐
+    static 访问修饰符 返回值类型 方法名(参数列表){};
+    ```
+2. 类方法的调用
+    调用前提是满足访问修饰符的访问权限和范围。
+    ```java
+    类名.类方法名(参数列表);
+    对象名.类方法名(参数列表);
+    ```
+4. 类方法经典使用场景
+    - 当方法中不涉及到任何和对象相关的成员，则可以将方法设计成静态方法，提高开发效率。
+        如：工具类中的方法`java.util.*`、`Math`类、`Arrays`类、`Collections`集合类等。
+    - 开发自己的工具类时，可以将方法做成静态的。
+5. 类方法注意事项
+    - 类方法和普通方法都是随着类的加载而加载，将结构信息存储在方法区中。
+        - **类方法中无`this.*`参数。**
+        - 普通方法中隐含this参数。
+    - 类方法可以通过类名调用，也可以通过对象名调用。
+    - **普通方法和对象有关，需要通过对象名调用，比如`对象名.方法名(参数)`，不能通过类名调用。**
+    - 类方法中不允许使用和对象有关的关键字，如`this`、`super`。普通成员方法可以。
+    - **类方法（静态方法）中只能访问静态变量或静态方法。**
+    - 普通成员方法既可以访问普通变量（方法），也可以访问静态变量（方法）。
+
+### 理解main方法语法
+1. 深入理解main方法
+    - main方法的形式：
+        ```java
+        public static void main (String[] args){}
+        ```
+    - main方法由java虚拟机调用。
+    - java虚拟机需要调用类的main方法，所以该方法的访问权限必须是`public`。
+    - java虚拟机在执行`main()`方法时不必创建对象，所以该方法必须是`static`。
+    - 该方法接收`String`类型的数组参数，该数组中保存执行java命令时传递给所有运行的类的参数。
+    - `java 执行的程序 参数1 参数2 ...`
+2. 特别提示
+    - 在`main()`方法中，我们可以直接调用main方法所在类的静态方法和静态属性。
+    - 但是，不能直接访问该类的非静态成员，必须创建该类的一个实例对象后，才能通过这个对象去访问类中的非静态成员。
+
+### 代码块
+1. 介绍
+    代码块又称为初始化块，属于类中的成员（是类的一部分），类似于方法，将逻辑语句封装在方法体内，用`{}`包围起来。
+    但和方法不同，没有方法名、没有返回、没有参数、只有方法体，而且不能通过对象或类显示调用，而是加载类时，或创建对象时隐式调用。
+2. 基本语法
+    ```java
+    [修饰符] {
+        逻辑语句;
+    };
+    ```
+    - 修饰符可选，要写也只能写`static`。
+    - 代码块分为两类，用`static`修饰的代码块称为静态代码块，其他代码块称为普通代码块。
+    - 逻辑语句可以为任何逻辑语句（输入、输出、方法调用、循环、判断等）
+    - 最后的`;`可写可省略。
+3. 使用场景
+    - 代码块相当于另一种形式的构造器（对构造器的补充机制），可以做初始化的操作。
+    - 场景：如果多个构造器中有重复的雨具，可以抽取到初始化块中，提高代码的重用性。
+    - **代码块的调用先于构造器的调用。**
+#### 代码块注意事项
+1. `static`代码块也叫静态代码块。作用就是对类进行初始化，而且它随着类的加载而执行，且只执行一次。**（类加载只需一次。）**
+    如果是普通代码块，每创建一个对象就会执行一次。
+2. 类什么时候加载？
+    - 创建对象实例时。
+    - 创建子类对象实例时，父类也会被加载。父类加载先于子类。
+    - 直接使用类的静态成员时（静态属性、静态方法）。
+3. 普通代码块，在创建对象实例时，会被隐式调用，被创建一次，就会调用一次。
+    如果只是使用类的静态成员时，普通代码块并不会执行。
+4. 【重点】创建一个对象时，在一个类调用的顺序是？
+    1. 调用静态代码块和静态属性初始化。
+        注意：静态代码块和静态属性初始化调用的优先级相同，如果有多个静态代码块和多个静态变量初始化，按其定义顺序调用。
+    2. 调用普通代码块和普通属性初始化。
+        注意：普通代码块和普通属性初始化调用的优先级相同，如果有多个普通代码块和多个普通变量初始化，按其定义顺序调用。
+    3. 最后调用构造器
+    4. **小结：由于静态属性调用优于普通属性，故静态属性/方法只能调用静态属性/方法，不能调用普通属性/方法。而普通属性/方法可以调用加载完成的所有属性/方法。**
+    5. 实际的执行顺序按照属性/方法的出现顺序执行。
+        先来看一段代码：
+        ```java
+        class A{
+            int static a = getAValue();
+            static{
+                System.out.println("静态代码块");
+            }
+            public int static getAValue(){
+                System.out.println("getAValue");
+                return 1;
+            }
+        }
+        ```
+        当首次加载A类时，上面的代码输出结果为：
+        ```bash
+        getAValue
+        静态代码块
+        ```
+        原因：`getAValue()`方法先于静态代码块出现
+5. 构造器的最前面，隐含了`super()`和调用普通代码块。
+    ```java
+    class A{
+        public A(){
+            // super();
+            // 调用普通代码块...
+            // 构造器体...
+        }
+    }
+    ```
+    另外，静态相关代码块、属性初始化，在类加载时就执行完毕，这部分先于构造器调用。
+6. 【面试题】创建一个子类时（继承关系），它们的静态代码块、静态属性初始化、普通代码块、普通属性初始化、构造方法的调用顺序如下：
+    1. 父类的静态代码块和静态属性（优先级一样，按定义顺序执行）。
+    2. 子类的静态代码块和静态属性（优先级一样，按定义顺序执行）。
+    3. **父类的普通代码块和普通属性初始化（优先级一样，按定义顺序执行）。**
+    4. 父类的构造方法
+    5. 子类的普通代码块和普通属性初始化（优先级一样，按定义顺序执行）。
+    6. 子类的构造方法
+    7. 用一个简单的代码说明一下。
+        ```java
+        class A extends B{
+            // 调用构造器前，从父类到子类进行加载，此时完成静态方法加载。
+            public A(){
+                super();                // 调用构造器时，首先调用父类构造方法，依次为：父类普通代码块/普通属性初始化、父类构造器。
+                调用普通代码块...        // 调用完父类构造器后，调用子类普通代码块
+                构造器体...             // 最后调用子类构造方法
+            }
+        }
+        ```
+7. 静态代码块只能直接调用静态成员，普通代码块可以调用任意成员。
+
+### 单例设计模式
+1. 什么是设计模式？
+    - 静态方法和属性的经典使用模式。
+    - 设计模式是在大量的实践中总结和理论化之后优选的代码结构、编程风格以及解决问题的思考方式。好比下棋的棋谱。
+2. 什么是单例模式？
+    - 所谓的单例设计模式，就是采取一定方法保证在整个软件系统中，对某个类只能存在一个对象实例，并且给类只提供一个取得其对象实例的方法。
+        在整个程序的生命周期只创建一个实例。单例，单个实例。
+    - 单例模式有两种方式：饿汉式和懒汉式。
+3. 饿汉式和懒汉式
+    - 二者最主要的区别在于创建对象的时机不同：饿汉式在类加载的时候就创建对象，懒汉式在使用的时候才创建对象。
+    - 饿汉式不存在线程安全问题，懒汉式存在线程安全问题。（待学习线程后完善）
+    - 饿汉式存在浪费资源的可能。因为如果程序员一个对象实例都没有使用，那么饿汉式创建的对象就浪费了。懒汉式不存在这个问题。
+    - 在JavaSE标准类中，`java.lang.Runtime`就是经典的单例模式。
+`
+#### 单例模式饿汉式
+1. 解释
+    饿汉式，饿汉很着急，还没有调用，先把对象创建出来。（随类加载创建对象）
+2. 饿汉式实现
+    - 构造器私有化（防止直接new）
+    - 类的内部创建对象（饿汉式）
+    - 向外暴露一个静态的公共方法（用于返回唯一的对象）
+    - 代码实现
+        ```java
+        class GirlFriend{   // 一个人只能有一个女朋友
+            private String name;
+            // 类内部创建对象，这个对象是静态的。
+            private static GilrFriend girlFriend = new GirlFriend("小红");
+            private GirlFriend(){// 构造器私有化
+                this.name = name;
+            }
+            // 向外暴露一个静态的公共方法
+            public static GirlFriend getInstance(){
+                return girlFriend;
+            }
+        }
+        ```
+3. 饿汉式缺点
+    - 仅调用类的静态属性/方法时，对象也会随类加载创建，尽管程序中不需要这个使用这个对象。这样会浪费内存。
+    - 采用单例设计模式的对象，通常是重量级对象，这对内存的消耗是较大的。
+
+#### 单例模式懒汉式
+1. 解释
+    懒汉式，懒汉很懒，只有调用了，才会创建对象。
+2. 懒汉式实现
+    - 构造器私有化
+    - 定义一个static静态属性对象（不进行初始化）
+    - 提供一个public static方法，返回这个静态属性对象。
+    ```java
+    class Cat{  // 我只养一只猫
+        private String name;
+        private static Cat cat;     // 定义一个static静态属性对象（不进行初始化）
+        private Cat(String name){
+            this.name = name;
+        }
+        public static Cat getInstance(){
+            if(cat == null){
+                cat = new Cat("小猫");
+            }
+            return cat;
+        }
+    }
+    ```
+
+### final关键字
+1. 介绍
+    - final 最后的，最终的
+    - final可以修饰类、属性、方法、局部变量。
+    
+    在某些情况下，程序员拥有如下需求会用final修饰。
+    - 当不希望类被继承时。
+    - 当不希望父类的某个方法被子类覆盖、重写时。
+    - 当不希望类的某个属性的值被修改时。（比如税率`TAX_RATE`）
+    - 当不希望某个局部变量被修改时。
+####  注意事项和细节
+1. final修饰的属性又叫常亮，命名一般采用全大写加下划线：`XX_XX_XX`。
+2. final修饰的属性在定义时，必须赋初值，并且以后不能再修改，赋值可在如下位置之一：
+    - 定义时：`public final double TAX_RATE = 0.05;`
+    - 在构造器中。（须提前定义）
+    - 在代码块中。（须提前定义）
+3. 如果final修饰的属性是静态的，则初始化的位置只能是：
+    - 静态代码块中。（须提前定义）
+    - 定义时。
+    - （不能在构造器中赋值，因为类加载时无法同步赋值）
+4. final类不能继承，但可以实例化对象。
+5. 如果类不是final类，但含有final方法，则该方法不能重写，但类可以继承。
+6. 一般来说，如果一个类已经是final类了，就没有必要将其方法修饰为final。
+7. final不能修饰构造方法。
+8. final和static往往搭配使用，效率更高，**不会导致类加载**，底层编译器做了优化处理。（如调用静态final变量，不会执行静态代码块）
+9. 包装类（`Interger`、`Double`、`Float`、`Boolean`）、`String`都是final类。
+
+### 抽象类
+1. 引例
+    ```java
+    public class Animal {
+        private String name;
+        private int age;
+        public Animal(String name, int age){
+            this.name = name;
+            this.age = age;
+        }
+        public void eat(){
+            System.out.println("这是一个动物，但暂时不知道吃什么");
+        }
+    }
+    ```
+    - 上面的例子中，父类有一个不确定的方法`eat()`，需要子类重写来确定。
+    - 抽象类：当父类某些方法需要声明，但是又不确定如何实现时，可以将其声明为抽象方法，这个类就是抽象类。
+2. 快速入门
+    - 父类方法具有不确定性，考虑将方法设计为抽象(abstract)方法。
+    - 所谓抽象方法就是没有实现的方法，所谓没有实现指的是没有方法体
+    - 当一个类存在抽象方法时，需要将该类声明为抽象类。
+    - 一般来说，抽象类会被继承，由其子类实现抽象方法。
+    ```java
+    public abstract class Animal {
+        //...
+        public abstract void eat(); //抽象方法，没有花括号。
+    }
+    ```
+3. 抽象类介绍
+    - 用abstract关键字修饰的类就是抽象类。
+        ```java
+        访问修饰符 abstract class 类名{}
+        ```
+    - 用abstract关键字修饰的方法就是抽象方法。
+        ```java
+        访问修饰符 abstract 返回值类型 方法名(参数列表);    // 没有方法体（花括号）
+        ```
+    - 抽象类的价值更多作用是在于设计，是设计者设计好后，让子类继承并实现。
+    - **抽象类是面试题重点，在框架和设计模式使用较多。**
+
+4. 注意事项
+    - 抽象类不能实例化对象。
+    - 抽象类不一定要包含抽象方法。
+    - 一旦包含抽象方法，那么类必须声明为抽象类。
+    - abstract只能修饰类和方法，不能修饰属性和其他。
+    - 抽象类可以有任意成员（抽象类本质还是类，可以拥有非抽象方法、构造器、静态属性等）
+    - 抽象方法不能有主体，即不能实现。
+    - 如果一个类继承了抽象类，则它必须实现抽象类中的所有抽象方法，除非它自己也声明为抽象类。
+    - **抽象方法不能用private、final、static修饰。他们和重写相违背。**
+
+#### 抽象类的最佳实践——模板设计模式
+1. 需求
+    - 有多个类，完成不同的任务`job`。
+    - 要求能够统计得到各自完成任务的时间。
+    ```java
+    abstract public class Template {
+        public abstract void job() {}       // 子类只重写job()方法
+        public void countTime() {
+            long start = System.currentTimeMillis();
+            job();      // 动态绑定机制
+            long end = System.currentTimeMillis();
+            System.out.println("耗时：" + (end - start));
+        }
+    }
+    ```
+2. 中心思想：提高代码复用性
+
+### 接口
+1. 基本介绍
+    接口就是给出一些没有实现的方法，封装到一起，到某个类要使用的时候，再根据具体情况把这些方法写出来。
+2. 语法
+    ```java
+    public interface 接口名 {       // 接口名首字母大写
+        // 属性
+        // 方法
+    }
+
+    class 类名 implements 接口名 {
+        // 自己属性
+        // 自己方法
+        // 必须实现的接口的抽象方法
+    }
+    ```
+3. 特性
+    - 在JDK7前，接口里的所有方法都没有方法体。  
+    - JDK8之后的就扣类可以有静态方法、默认方法，也就是说就口中可以有方法的具体实现。
+        - **默认方法须默认修饰符修饰。**
+        - **静态方法须static修饰符修饰。**
+
+4. 细节
+    - 接口不能被实例化。
+    - 接口中的所有方法都是public方法，接口中的抽象方法可以不用abstract修饰。
+    - **一个普通类实现接口，就必须将该接口的所有方法都实现。**（可使用Alt+Enter快捷键）
+    - 抽象类实现接口时，可以不实现接口的抽象方法。
+    - 一个类可以同时实现多个接口。
+        ```java
+        class A implements IB,IC{}
+        ```
+    - 接口中的属性只能是final的，而且是`public static final`修饰。
+    - 接口中属性的访问形式：`接口名.属性名`。
+    - 接口不能继承其它的类，但能继承多个别的接口。
+        ```java
+        interface IA extends IB,IC{}
+        ```
+    - 接口的修饰符只能是`public`和`default`。
+5. 实现接口与继承的区别
+    - 实现机制是Java对单继承机制的一种补充。
+        一个类只有一个爹，父类有的技能可以遗传给子类，其他实现要通过接口学习。
+    - 接口和继承解决的问题不同
+        - 继承的价值在于：解决代码的复用性和可维护性。
+        - 接口的价值在于：设计，设计好各种规范（方法），让其他类去实现这些方法，即更加的灵活。
+    - 接口比继承更加灵活
+        - 接口比继承更灵活，继承是满足is-a的关系，而接口是满足like-a的关系。
+    - 接口在一定程度上实现了代码的解耦。（接口规范性+动态绑定）
+
+#### 快速入门案例
+1. `Camara.java`
+    ```java
+    package com.lcq.interface_;
+
+    public class Camara implements UsbInterface {
+        public void start() {
+            System.out.println("Camara start");
+        }
+        public void stop() {
+            System.out.println("Camara stop");
+        }
+    }
+    ```
+2. `Computer.java`
+    ```java
+    package com.lcq.interface_;
+
+    public class Computer {
+        public void work(UsbInterface usbInterface){
+            usbInterface.start();
+            usbInterface.stop();
+        }
+    }
+    ```
+3. `Phone.java`
+    ```java
+    package com.lcq.interface_;
+
+    public class Phone implements UsbInterface {
+        public void start() {
+            System.out.println("Phone start");
+        }
+
+        @Override
+        public void stop() {
+            System.out.println("Phone stop");
+        }
+    }
+    ```
+4. `UsbInterface.java`
+    ```java
+    package com.lcq.interface_;
+
+    public interface UsbInterface {
+        public void start();
+        public void stop();
+    }
+    ```
+5. `InterfaceTest01.java`
+    ```java
+    package com.lcq.interface_;
+
+    public class InterfaceTest01 {
+        public static void main(String[] args) {
+            Computer computer = new Computer();
+            Camara camara = new Camara();
+            Phone phone = new Phone();
+            computer.work(camara);
+            computer.work(phone);
+        }
+    }
+    ```
+#### 接口的多态特性
+1. 多态参数
+    - 在上面的`UsbInterface`中，既可以接收`Camara`，也可以接收`Phone`，体现了接口的多态。**（接口引用可以指向实现了接口的类的对象）**
+    - 接口也适用于向上转型，可以实现类似于继承的功能
+        ```java
+        main{
+            IA a = new A();
+            a = new B();
+        }
+        class A implements IA{...}
+        class B implements IA{...}
+        ```
+2. 多态数组实例
+    ```java
+    package com.hspedu.interface_;
+
+    public class InterfacePolyArr {
+        public static void main(String[] args) {
+
+            //多态数组 -> 接口类型数组
+            Usb[] usbs = new Usb[2];
+            usbs[0] = new Phone_();
+            usbs[1] = new Camera_();
+            /*
+            给Usb数组中，存放 Phone  和  相机对象，Phone类还有一个特有的方法call（），
+            请遍历Usb数组，如果是Phone对象，除了调用Usb 接口定义的方法外，
+            还需要调用Phone 特有方法 call
+            */
+            for(int i = 0; i < usbs.length; i++) {
+                usbs[i].work();//动态绑定..
+                //和前面一样，我们仍然需要进行类型的向下转型
+                if(usbs[i] instanceof Phone_) {//判断他的运行类型是 Phone_
+                    ((Phone_) usbs[i]).call();
+                }
+            }
+
+        }
+    }
+
+    interface Usb{
+        void work();
+    }
+    class Phone_ implements Usb {
+        public void call() {
+            System.out.println("手机可以打电话...");
+        }
+
+        @Override
+        public void work() {
+            System.out.println("手机工作中...");
+        }
+    }
+    class Camera_ implements Usb {
+
+        @Override
+        public void work() {
+            System.out.println("相机工作中...");
+        }
+    }
+    ```
+3. 接口的多态传递
+    ```java
+    main{
+        IB ib = new A();
+        IA ia = new A();    // 接口多态传递
+    }
+    interface IA{}
+    interface IB extends IA{}   // 接口继承
+    class A implements IB{}
+    ```
+
+### 内部类
+1. 介绍
+    - 一个类的内部又完整的嵌套了另一个类结构。被嵌套的类称为内部类（inner class），嵌套其他类的类称为外部类（outer class）。是类的第五大成员（**属性、构造器、代码块、方法、内部类**）。
+    - 内部类的最大特点，是可以直接访问私有属性，并且可以体现类与类之间的包含关系。
+2. 基本语法
+    ```java
+    class OuterClass{           // 外部类
+        class InnerClass{...}   // 内部类
+    }
+    class Other{}               // 外部其他类
+    ```
+3. 内部类分类
+    定义在外部类局部位置上（如方法内）
+    - 局部内部类（有类名）
+    - 匿名内部类（没有类名，重点！！）
+    
+    定义在外部类的成员位置上
+    - 成员内部类（无static修饰）
+    - 静态内部类（有static修饰）
+
+#### 局部内部类
+1. 注意事项
+    局部内部类定义在外部类的局部位置，比如方法中，并且有类名。
+    本质是一个地位与局部变量相当的类。
+    - 可以直接访问外部类的所有成员，包括私有成员。
+    - 不能添加访问修饰符，因为他的地位就是一个局部变量。局部变量不能使用修饰符，但可以使用final修饰。
+    - 作用域：仅仅在定义它的方法或者代码块中。
+    - **局部内部类访问外部类成员：直接访问。**
+    - **外部类访问局部内部类成员：创建对象再访问（前提是在作用域中）**
+    - 外部其他类不能访问局部内部类。
+    - 如果外部类和局部内部类成员重名时，默认遵循就近原则，如果想访问外部类的成员，则可使用`外部类名.this.成员`访问。
+        `Outer.this`的本质就是一个外部类对象。
+#### 匿名内部类（最重要）
+1. 介绍
+    - 匿名内部类(anonymous inner class)的性质：
+        - 匿名内部类本质是一个类，是一个内部类。
+        - 这个类没有名字。
+        - 匿名内部类同时是一个对象。
+    - 匿名内部类是定义在外部类的局部位置，比如方法中，并且没有类名。
+2. 基本语法
+    ```java
+    new 类或接口(参数列表){
+        类体
+    }
+    ```
+3. 基于接口的匿名内部类
+    先看一段代码
+    ```java
+    public class AnonymousInnerClass01 {
+        public static void main(String[] args) {
+            MyInterface myInterface = new Tiger();
+            myInterface.cry();
+        }            
+    }
+    interface MyInterface{
+        void cry();
+    }
+    class Outer01{
+        private int num = 10;
+        public void method(){
+            // 要求：在本方法中调用MyInterface接口并创建对象
+        }
+    }
+    ```
+    - 传统方案：定义一个类实现接口
+        ```java
+        public class AnonymousInnerClass01 {
+            public static void main(String[] args) {
+                MyInterface myInterface = new Outer01();
+                myInterface.method();
+            }            
+        }
+        interface MyInterface{
+            void cry();
+        }
+        class Tiger implements MyInterface{         // 定义一个Tiger类实现MyInterface接口
+            @Override
+            void cry() {
+                System.out.println("老虎叫");
+            }
+        };
+        class Outer01{
+            private int num = 10;
+            public void method(){
+                MyInterface tiger = new Tiger();          // new一个Tiger，然后调用cry
+                tiger.cry();
+            }
+        }
+        ```      
+    - 比较要命的是，老虎类我就是一时兴起只用一次，以后再也不用了，此时匿名内部类就可以登场了，起到一个阅后即焚的作用。
+        ```java 
+        public class AnonymousInnerClass02 {
+            public static void main(String[] args) {
+                MyInterface myInterface = new Outer01();
+                myInterface.method();                
+            }            
+        }
+        interface MyInterface{
+            void cry();
+        }
+        class Outer01 {
+            private int num = 10;
+            public void method(){
+                // 定义一个匿名内部类并实例化
+                MyInterface tiger = new MyInterface(){
+                    @Override
+                    public void cry() {
+                        System.out.println("老虎叫");
+                    }
+                };
+                tiger.cry();
+            }
+        }
+
+        /*
+        底层实现：
+        class Outer01$1 implements MyInterface{ 
+            @Override
+            public void cry() {
+                System.out.println("老虎叫");
+            }
+        }
+
+        如果还有别的匿名内部类，则命名顺延：Outer01$2...
+        */
+        ```
+        - `Outer01$1`就是底层匿名内部类的实际名称，是由系统在编译过程中自动分配的。带美元符号的就是内部类。
+        - 匿名内部类实例化一次就不能再使用了。
+4. 基于类的匿名内部类
+    ```java
+    class Father{
+        public Father(String name){}
+        public void method01(){}
+    class Outer02{
+        private int num = 1;
+        public void method(){
+            Father father = new Father("name"){};   // 后面带了大括号，这是个匿名内部类，名为Outer02$1
+            System.out.println(father.getClass());
+        }
+    }
+    }
+
+    /*
+    底层实现
+    class Outer02$1 extends Father{}
+    */
+    ```
+    这有什么意义？多人协作时，别人写的类不一定完美契合你的需求，需要修改。
+5. 基于抽象类的匿名内部类
+    由于类中部分方法是抽象的，匿名内部类必须实现抽象方法才能调用。
+    特别的，基于抽象类的匿名内部类不实现抽象方法会报错。
+
+6. 匿名内部类的注意事项
+    - 匿名内部类的语法比较特别，因为匿名内部类既是一个类的定义，其本身也是一个对象，因此从语法上看，其既有定义类的特征，也有创建对象的特征。
+    - 调用匿名内部类的两种方法
+        - 第一种
+            ```java
+            new A (){
+                @Override
+                public void show(){
+                    System.out.println("匿名内部类");
+                }
+            }.show();
+            ```
+            **由于动态绑定机制的存在，这样做是有意义的，这可以改变所调用方法内部的逻辑。比如A类中有一个方法`method01`调用了这里的`show`方法，我们以匿名内部类调用的方法时`method01`，此时其会优先调用匿名内部类中的`show`方法，而不会调用A类中的`show`方法。**
+        - 第2种
+            ```java
+            A a = new A(){
+                @Override
+                public void show(){
+                    System.out.println("匿名内部类");
+                }
+            }
+            a.show();
+            ```
+            
+    - 可以直接访问外部类的所有成员（包括私有的）
+    - 匿名内部类不能添加访问修饰符，因为它是一个局部变量。
+    - 作用域：仅仅在定义它的方法或代码块中。
+    - 外部其他类不能访问匿名内部类（因为其本质就是一个局部变量）。
+    - 外部类成员和匿名内部类成员重名时，按就近原则优先访问匿名内部类成员，此时访问外部类成员需要`外部类名.this.成员名`。
+
+7. 匿名内部类的最佳实践
+    - 将匿名内部类当做实参直接传递
+        ```java
+        public class InnerClassExercise01 {
+            public static void main(String[] args) {
+                f1(new IA(){
+                    public void show() {
+                        System.out.println("hello world");
+                    }
+                })
+            }
+            public static void f1(IA ia) {
+                ia.show();
+            }
+        }
+        interface IA {
+            void show();
+        }
+        ```
+    - 一个例子
+        ```java
+        package com.lcq.innerclass;
+
+        public class InnerClassExercise02 {
+            public static void main(String[] args) {
+                CellPhone.alarmclock(new Bell() {
+                    @Override
+                    public void ring() {
+                        System.out.println("懒猪起床了");
+                    }
+                });
+                CellPhone.alarmclock(new Bell() {
+                    @Override
+                    public void ring() {
+                        System.out.println("小伙伴上课了");
+                    }
+                });
+            }
+        }
+
+        interface Bell{
+            public void ring();
+        }
+
+        class CellPhone{
+            public static void alarmclock(Bell bell){
+                bell.ring();
+                System.out.println(bell.getClass());
+            }
+        }
+        ```
+#### 成员内部类
+1. 介绍
+    - 成员内部类是定义在外部类的成员位置的类，且没有static修饰。
+    - 成员内部类可以直接访问外部类的所有成员，包括私有成员。
+    - 成员内部类可以添加任意访问修饰符，因为它的地位等同于成员。
+    - 作用域：和外部类其他成员一样，为整个外部类类体。（先实例化再调用）
+    - 成员内部类可以直接访问外部类成员。
+    - 外部类访问内部类需要先创建对象再访问。
+    - 外部其他类访问内部类
+        ```java
+        // 现有外部类Outer和内部类Inner
+        // 其他外部类访问成员内部类方法如下：
+
+        // 方法1：实例化外部类，然后定义内部类。
+        Outer outer = new Outer();              
+        Outer.Inner inner = outer.new Inner();  
+
+        // 方法2：在外部类中定义一个返回内部类的方法 Inner getInnerInstance(){return new Inner();}
+        Outer.Inner inner = outer.getInnerInstance();
+
+        // 方法3：调用一个外部类匿名对象
+        Outer.Inner inner = new Outer().new Inner();        
+        ```
+    - 外部类和成员内部类成员，内部类访问遵循就近原则，如果想访问外部类成员，需要`外部类名.this.成员名`。
+#### 静态内部类
+1. 介绍
+    - 定义在外部类的成员位置，并且有static修饰。
+    - 静态内部类可以直接访问外部类的所有静态成员，包括私有的，但不能直接访问非静态成员。
+    - 作用域：同其他成员，为整个整体。
+    - 静态内部类可以直接访问外部类的**所有静态成员**。
+    - 外部类访问静态内部类需要先创建对象再访问。
+    - 外部其他类访问静态内部类：
+        ```java
+        // 现有外部类Outer和内部类Inner
+        // 其他外部类访问静态内部类方法如下：
+        
+        // 方法1：实例化外部类，然后访问内部类
+        Outer.Inner inner = new Outer.Inner();  // 静态内部类可以直接通过类名访问（前提是满足访问权限）
+        inner.method();
+
+        // 方法2：在外部类中定义一个返回静态内部类对象的方法 static Inner getInnerInstance(){return new Inner();}
+        Outer.Inner inner = Outer.getInnerInstance();
+
+        // 方法2+：可以定义非静态方法，先实例化外部类，再调用外部类方法，获取静态内部类对象
+        // Inner getInnerInstance(){return new Inner();}
+        Outer outer = new Outer();
+        Outer.Inner inner = outer.getInnerInstance();
+        ```
+    - 外部类和静态内部类成员重名时，静态内部类访问采取就近原则，访问外部类成员需要`外部类名.成员名`。
 

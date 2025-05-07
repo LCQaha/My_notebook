@@ -19,6 +19,9 @@
 
 [Python 学习笔记](./Python/%E5%BC%80%E5%A7%8BPython%E7%BC%96%E7%A8%8B.md)
 
+### Java
+
+[Java 学习笔记](./Java/README.md)
 ## Linux
 
 [Linux 学习笔记](./Linux/README.md)
