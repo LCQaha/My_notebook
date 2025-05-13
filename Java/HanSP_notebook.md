@@ -2154,6 +2154,9 @@ new起到的是一个分配空间的作用，声明仅是定义的过程，此�
     ![java_IDEA_paramIn1](./img/java_IDEA_paramIn1.png)
     修改程序实参选项，参数间用空格隔开。
     ![java_IDEA_paramIn2](./img/java_IDEA_paramIn2.png)
+4. 为每个程序开头添加作者版本信息
+    `设置-编辑器-文件和代码模板-includes-FileHeader`中修改，这些内容会自动输入到每个代码文件开头。
+    ![java_IDEA_fileHeader](./img/java_IDEA_fileHeader.png)
 
 ### 包
 1. 基本介绍：包的三大作用
@@ -4638,4 +4641,232 @@ new起到的是一个分配空间的作用，声明仅是定义的过程，此�
         Outer.Inner inner = outer.getInnerInstance();
         ```
     - 外部类和静态内部类成员重名时，静态内部类访问采取就近原则，访问外部类成员需要`外部类名.成员名`。
+
+## 枚举与注解
+### 枚举类
+1. 引例
+    设计一个季节类，包含名字和描述两个属性。
+    ```java
+    class Season{
+        private String name;
+        private String desc;
+    }
+    ```
+    这样设计有一个问题，那就是季节是有数的，但这样一个类显然可以随意实例化，由此引出枚举。
+    而且季节名是固定不可修改的，所以：
+    - 季节的值是有限的几个值。
+    - 季节的值是只读的，不需要修改。
+2. 介绍 
+    - 枚举（enum, enumeration）
+    - 枚举是一组常量的集合。
+    - 枚举是一种特殊的类，只包含一组有限的特定对象。
+3. 实现方式
+    - 自定义枚举
+        - 构造器私有化
+        - 去掉`setXXX()`方法，防止属性被修改。
+        - 在类内部直接创建固定的对象。
+        - 对外暴露对象（暴露public static final）
+        ```java
+        class Season{
+            
+            public final static Season SPRING = new Season("春天", "温暖");
+            public final static Season SUMMER = new Season("夏天", "炎热");
+            public final static Season AUTUMN = new Season("秋天", "凉爽");
+            public final static Season WINTER = new Season("冬天", "寒冷");
+
+            private Season (String name, String desc){
+                this.name = name;
+                this.desc = desc;
+            }
+            // 仅保留get方法。。。
+        }
+        ```
+    - 使用enum关键字实现枚举
+        - 使用enum替代class
+        - 写作`常量名(属性),常量名(属性),...,常量名(属性);`
+            逗号分隔，分号结尾。
+        - 枚举的常量要写在枚举类开头。
+        ```java
+        enum Season2{
+            SPRING("春天", "温暖"),
+            SUMMER("夏天", "炎热"),
+            AUTUMN("秋天", "凉爽"),
+            WINTER("冬天", "寒冷");
+            private String name;
+            private String desc;
+            private Season2 (String name, String desc){
+                this.name = name;
+                this.desc = desc;
+            }
+            public String getName(){
+                return name;
+            }
+            public String getDesc(){
+                return desc;
+            }
+        }
+        ```
+
+4. 自定义枚举小结
+    - 不需要提供set方法，因为枚举对象通常为只读。
+    - 对枚举对象/属性使用final+static共同修饰，实现底层优化。
+    - 枚举对象名通常使用全部大写（常量的命名规范）
+    - 枚举对象根据需要，也可以有多个属性。
+
+5. enum注意事项
+    - 使用enum关键字开发一个枚举类时，默认会继承Enum类。（通过javap反编译可以看见）
+    - 需要明确调用的构造器，如果调用无参构造器，则可以不写括号和实参。
+    - 有多个枚举对象时，使用逗号间隔，最后一个以分号结尾。
+    - 枚举对象必须放在枚举类行首。
+
+6. 关于Enum
+    ```java
+    public abstract class Enum<E extends Enum<E>> implements Comparable<E>, Serializable {}
+    ```
+    - `toString()`方法：默认返回枚举对象的名字，子类可以重写这个方法。
+        ```java
+        public String toString() { return name(); }
+        ```
+    - `name()`：返回当前对象（常量名），不能重写。
+        ```java
+        public final String name() { return name; }
+        ```
+    - `ordinal()`：返回当前对象在枚举类中的索引，从0开始。
+    - `values()`：static，返回枚举类中的所有对象。
+    - `valueOf()`：static，将字符串转换成枚举对象（必须是已有常量名！）
+    - `compareTo()`：比较两个枚举对象的位置号，返回两个对象在枚举类中的索引差值。（`self.ordinal() - other.ordinal()`） 
+        ```java
+        <Enum1>.compareTo(<Enum2>)
+        return <Enum1>.ordinal() - <Enum2>.ordinal()
+        ```
+
+7. enum实现接口
+    - 使用enum关键字后，就不能继承类了，只能实现接口。（因为enum关键字隐式继承Enum类，Java不支持多继承）
+    - 枚举类可以实现接口。
+
+### 注解（Annotation）
+1. 注解的理解
+    - 注解也被称为元数据，用于修饰解释 包、类、方法、属性、构造器、局部变量等数据信息。
+    - 和注释一样，注解不影响程序逻辑，但注解可以被编译与运行，相当于嵌入在代码中的补充信息。
+    - 在JavaSE中，注解的使用目的比较简单，例如标记过时的功能、忽略警告等。
+    - 在JavaEE中，注解的作用比较强大，例如：配置应用程序的任何切面、代替JavaEE旧版中所遗留的繁冗代码和XML配置等。
+
+2. 基本的Annotation
+    使用Annotation时，要在前面增加`@`符号，并把该Annotation当做一个修饰符使用。用于修饰它支持的程序元素。
+    - `@Override`：限定某个方法，是重写父类方法，该注解只能用于方法。
+    - `@Deprecated`：用于表示某个程序元素（类、方法等）已过时。
+    - `@SuppressWarnings`：抑制编译器警告。
+
+3. `@Override`使用说明
+    - `@Override`表示指定重写父类的方法（从编译层面验证），如果父类没有此方法，直接报错。
+    - 如果不写`@Override`，但父类仍有相同方法，则构成重写。
+    - `@Override`只能修饰方法。（由源码中的`@Target(ElementType.METHOD)`限定，这里的`@Target`是修饰注解的注解，称为元注解）
+4. `@Deprecated`使用说明
+    - 用于表示某个程序元素（类、方法等）已经过时，不建议使用。
+    - 可以修饰方法、类、字段、包、参数等。
+    - 源码
+        ```java
+        @Documented
+        @Retention(RetentionPolicy.RUNTIME)
+        // 从左至右：构造器、属性、局部变量、方法、包、参数、类型
+        @Target(value={CONSTRUCTOR, FIELD, LOCAL_VARIABLE, METHOD, PACKAGE, PARAMETER, TYPE})
+        public @interface Deprecated {
+        }
+        ```
+    - `@Deprecated`的作用可以做到新旧版本的兼容和过渡。
+5. `@SuppressWarnings`使用说明
+    - 语法
+        ```java
+        @SuppressWarnings({"unchecked","deprecation"})
+        public void test(){...}
+        ```
+    - 将注解放在不同位置，可以控制抑制警告的生效范围（比如方法、类）
+    - 源码
+        ```java
+        //从左至右：类型、属性、方法、参数、构造器、局部变量，且需传入字符串数组
+        @Target({TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE})
+        @Retention(RetentionPolicy.SOURCE)
+        public @interface SuppressWarnings {
+            /**
+            * The set of warnings that are to be suppressed by the compiler in the
+            * annotated element.  Duplicate names are permitted.  The second and
+            * successive occurrences of a name are ignored.  The presence of
+            * unrecognized warning names is <i>not</i> an error: Compilers must
+            * ignore any warning names they do not recognize.  They are, however,
+            * free to emit a warning if an annotation contains an unrecognized
+            * warning name.
+            *
+            * <p> The string {@code "unchecked"} is used to suppress
+            * unchecked warnings. Compiler vendors should document the
+            * additional warning names they support in conjunction with this
+            * annotation type. They are encouraged to cooperate to ensure
+            * that the same names work across multiple compilers.
+            * @return the set of warnings to be suppressed
+            */
+            String[] value();
+        }
+        ```
+    - 可以指定的警告类型有
+        -  all，抑制所有警告
+        -  boxing，抑制与封装/拆装作业相关的警告
+        -  cast，抑制与强制转型作业相关的警告
+        -  dep-ann，抑制与淘汰注释相关的警告
+        -  deprecation，抑制与淘汰的相关警告
+        -  fallthrough，抑制与 switch 陈述式中遗漏 break 相关的警告
+        -  finally，抑制与未传回 finally 区块相关的警告
+        -  hiding，抑制与隐藏变数的区域变数相关的警告
+        -  incomplete-switch，抑制与 switch 陈述式(enum case)中遗漏项目相关的警告
+        -  javadoc，抑制与 javadoc 相关的警告
+        -  nls，抑制与非 nls 字串文字相关的警告
+        -  null，抑制与空值分析相关的警告
+        -  rawtypes，抑制与使用 raw 类型相关的警告
+        -  resource，抑制与使用 Closeable 类型的资源相关的警告
+        -  restriction，抑制与使用不建议或禁止参照相关的警告
+        -  serial，抑制与可序列化的类别遗漏 serialVersionUID 栏位相关的警告
+        -  static-access，抑制与静态存取不正确相关的警告
+        -  static-method，抑制与可能宣告为 static 的方法相关的警告
+        -  super，抑制与置换方法相关但不含 super 呼叫的警告
+        -  synthetic-access，抑制与内部类别的存取未最佳化相关的警告
+        -  sync-override，抑制因为置换同步方法而遗漏同步化的警告
+        -  unchecked，抑制与未检查的作业相关的警告
+        -  unqualified-field-access，抑制与栏位存取不合格相关的警告
+        -  unused，抑制与未用的程式码及停用的程式码相关的警告
+
+6. 关于注解的补充说明
+    - 当查看注解的源码时，会看到如下内容：
+        ```java
+        @Target(ElementType.METHOD)
+        @Retention(RetentionPolicy.SOURCE)
+        public @interface Override {
+        }
+        ```
+        这并不代表注解是一个接口，`@interface`仅代表其是一个注解类。
+        这时jdk5.0后添加的。
+
+7. 【了解】元注解
+    元注解就是修饰注解的注解。
+    - `@Target`：用于描述注解的使用范围（即：被描述的注解可以用在什么地方）。
+    - `@Retention`：用于描述注解的作用范围（即：被描述的注解在什么范围内有效）。
+        - 只能用于修饰一个Annotation的定义，用于指定该Annotation被保留的时间长短。其包含一个RentationPolicy类型的变量，使用`@Retention`时必须为该value成员指定值
+            - `RentationPolicy.SOURCE`：编译器使用后，直接丢弃这种策略的注释。
+            - `RentationPolicy.CLASS`：编译器将注解记录在class文件中，但JVM将会忽略。
+            - `RentationPolicy.RUNTIME`：编译器将注解记录在class文件中，JVM将会保留。
+        - 图解
+            ![java_annotation_retention](./img/java_annotation_retention.jpg)
+    - `@Documented`：用于描述注解是否被包含在JavaDoc中。
+    - `@Inherited`：用于描述注解是否被继承。
+
+
+    
+### 附加内容
+#### 增强for循环
+1. 语法
+    ```java
+    for(<数据类型> <变量名> : <数组名>){
+        <语句>
+    }
+    ```
+    - 这里的数组是一个可迭代对象。
+    - 在循环中，`<变量名>`会自动赋值为数组中的每一个元素。
+    - 在IDEA中，输入iter可以快速生成增强for结构。
 
