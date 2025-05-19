@@ -2157,6 +2157,8 @@ new起到的是一个分配空间的作用，声明仅是定义的过程，此�
 4. 为每个程序开头添加作者版本信息
     `设置-编辑器-文件和代码模板-includes-FileHeader`中修改，这些内容会自动输入到每个代码文件开头。
     ![java_IDEA_fileHeader](./img/java_IDEA_fileHeader.png)
+5. 【社区版没有】在一个类中右键`图表-显示图`可以打开类的结构图，选中任意对象按`Ctrl+Alt+B`即可向下扩展。
+6.  选中区域，按快捷键`Ctrl+Alt+T`可以快速生成代码块（循环、错误捕获等代码块包围方式）
 
 ### 包
 1. 基本介绍：包的三大作用
@@ -4869,4 +4871,243 @@ new起到的是一个分配空间的作用，声明仅是定义的过程，此�
     - 这里的数组是一个可迭代对象。
     - 在循环中，`<变量名>`会自动赋值为数组中的每一个元素。
     - 在IDEA中，输入iter可以快速生成增强for结构。
+
+## 异常（Exception）
+### 引例
+1. 代码
+    ```java
+    public class Exception01 {
+        public static void main(String[] args) {
+            int num1 = 10;
+            int num2 = 0;
+            int res = num1 / num2;
+            System.out.println("continue...");
+        }
+    }
+    ```
+2. 错误反馈
+    ```bash
+    Exception01
+    Exception in thread "main" java.lang.ArithmeticException: / by zero
+        at Exception01.main(Exception01.java:9)
+    ```
+3. 点评
+    - 当程序遇到除以0的错误时，就会抛出`ArithmeticException`异常。
+    - 抛出异常后，程序直接崩溃，下面的代码不再执行。
+    - 这种程序并不好，因为一个不算致命的小问题导致了整个系统的崩溃。
+    - Java设计者提供了一个异常处理机制解决这个问题。
+
+4. 异常捕获
+    - 对上述代码进行更改
+        ```java
+        //...
+        try {
+            int res = num1 / num2;
+        }catch (Exception e){
+            //两种方法
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        ```
+    - 运行结果
+        ```bash
+        java.lang.ArithmeticException: / by zero
+            at Exception01.main(Exception01.java:10)
+        / by zero
+        continue...
+        ```
+### 异常介绍
+1. 基本概念
+    - Java语言中，将程序执行中发生的不正常情况称为“异常”。（**开发过程中的语法错误和逻辑错误不是异常**）
+2. 执行过程中的两类异常事件
+    - `Error`（错误）：Java虚拟机无法解决的严重问题。如：JVM系统内部错误、资源耗尽等严重情况。如：`StackOverflowError`（堆栈溢出）、OOM（`out of memory`，内存溢出）。Error是严重错误，程序会崩溃。
+    - `Exception`（异常）：其他因编程错误或偶然的外在因素导致的一般性问题，可以使用针对性的代码进行处理。例如：空指针访问、试图读取不存在的文件、网络连接中断等。
+        **Exception也分为两类：运行时异常和编译时异常。**
+3. 异常体系图
+    ![java_exception_hierarchy](./img/java_exception_hierarchy.png)
+    - 异常分为两大类：运行时异常（非受检异常）和编译时异常（受检异常）。
+    - 运行时异常，编译器检查不出来。一般是指编程时的逻辑错误，是程序员应该避免其出现的异常。`java.lang.RuntimeException`是所有运行时异常的基类。
+    - 运行时异常可以不做处理，因为这类异常很普遍，如果全处理会对程序的可读性和运行效率产生影响。
+    - 编译时异常是编译器要求必须处理的异常。
+#### 常见运行时异常
+1. `NullPointerException` 空指针异常
+    - 当应用程序试图在需要对象的地方使用null时抛出该异常。
+    - 示例：
+        ```java
+        public static void main(String[] args) {
+            String name = null;
+            System.out.println(name.length());
+        }
+        ```
+    - 错误
+        ```bash
+        Exception in thread "main" java.lang.NullPointerException
+        at com.lcq.exception_.NullPointerException_.main(NullPointerException_.java:10)
+        ```    
+2. `ArithmeticException` 数学运算异常
+    - 当出现异常的运算条件时，抛出此异常。
+3. `ArrayIndexOutOfBoundsException` 数组下标越界异常
+    - 用非法索引访问数组时抛出的异常。（如索引为负或大于等于`arr.length`时）
+    - 示例：
+        ```java
+        public static void main(String[] args) {
+            int[] arr = new int[10];
+            System.out.println(arr[10]);
+        }
+        ```
+    - 错误
+        ```bash
+        Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: 10
+        at com.lcq.exception_.ArrayIndexOutOfBoundsException_.main(ArrayIndexOutOfBoundsException_.java:10)
+        ```    
+4. `ClassCastException` 类型转换异常
+    - 当试图将一个对象强转成非该实例子类时，抛出的异常。
+5. `NumberFormatException` 数字格式不正确异常
+    - 当应用程序试图将字符串转换成一种数值类型，但该字符串不能转换成适当格式时，抛出此异常。
+    - 使用这个异常可以确保输入的是满足条件的数字。
+    - 例如：
+        ```java
+        public static void main(String[] args) {
+            String str1 = "123";
+            int num = Integer.parseInt(str1);
+            String str2 = "aha";
+            int num2 = Integer.parseInt(str2);  // 抛出异常
+        }
+        ```
+#### 常见编译异常
+1. 介绍
+    - 编译异常是指在编译期间就必须处理的异常，否则代码不能通过编译。
+2. 常见编译异常
+    - `SQLException`：操作数据库时，查询表可能发生异常。
+    - `IOException`：操作文件时，发生的异常。
+    - `FileNotFoundException`：当操作一个不存在的文件时，发生异常。
+    - `ClassNotFoundException`：加载类，而该类不存在时，异常。
+    - `EOFException`：操作文件，到文件末尾，发生异常。
+    - `llegalArguementException`：参数异常。
+
+### 异常处理
+1. 基本介绍
+    - 异常处理就是异常发生时，对异常的处理方式。
+2. 异常处理的方式
+    - `try-catch-finally`
+        程序员在代码中捕获发生的异常。
+        ![java_exception_tryCatchFinally](./img/java_exception_tryCatchFinally.png)
+    - `throws`
+        将发生的异常抛出，交给调用者（方法）处理，最顶级的处理者就是JVM。
+        ![java_exception_throws](./img/java_exception_throws.png)
+
+#### try-catch异常处理
+1. 说明
+    - Java提供try-catch块处理异常。
+    - try块用于包含可能出错的代码。
+    - catch块用于处理try块中的异常。
+    - 可以根据需要在程序中有多个数量的try-catch块。
+2. 基本语法
+    ```java
+    try {
+        // 可能会出错的代码
+    } catch (ExceptionType1 e1) {
+        // 处理异常的代码
+    }
+    ```
+3. 细节
+    - 如果异常发生了，则try块中异常发生位置后的代码不会执行，直接跳到catch块中。
+        ```java
+        public static void main(String[] args) {
+            String name = "aha";
+            try {
+                int a = Integer.parseInt(name);     // 异常位置
+                System.out.println(a);              // 不会执行
+            } catch (NumberFormatException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        ```
+    - 如果异常没有发生，则顺序执行try，不执行catch。
+    - 如果希望不管是否发生异常，都执行某段代码（比如关闭连接、释放资源等）则将这部分写入finally块中。
+    - 如果一个try块中可能包含多个异常，可以用多个catch块分别捕获异常，这时要遵循：**子类异常优先捕获。**
+    - 存在try-finally结构，此时不会捕获异常，而是直接崩掉，这种结构的作用是，无论程序是否崩溃，都会执行某个业务逻辑。
+
+4. try-catch-finally执行顺序
+    - 如果没有出现异常，则执行try块，然后执行finally块。
+    - 如果出现异常，自try块异常点开始的所有语句均不执行，直接执行catch块，然后执行finally块。
+
+5. 一个例子
+    ```java
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int num;
+        boolean loop = true;
+        while (loop) {
+            try {
+                System.out.print("Enter number:");
+                num = scanner.nextInt();
+                System.out.println("You entered: " + num);
+                loop = false;
+            } catch (InputMismatchException e) {
+                System.out.println("必须输入一个整数！！！");
+                scanner.next();
+            }
+                
+            }
+        }
+    ```
+
+#### throws 异常处理
+1. 基本介绍
+    - 如果一个方法（中的语句执行时）可能生成某种异常，但是并不能确定如何处理这种异常，则此方法应显式声明抛出异常，表明该方法不对这些异常进行处理，而由该方法的调用者负责处理。
+    - 在方法声明中使用throws关键字，可以声明抛出异常的列表，throws后面的异常类型可以是方法中产生的异常类型，也可以是他的父类。
+2. 用法实例
+    - 这里给出一个调用了IO流的实例。
+    - 从源码可以看出，构造器向上抛出`FileNotFoundException`异常，方法`func`调用时捕捉到异常。
+    - 这是一个编译异常，只有解决了才可以编译，此时方法`func`有两个方案：继续向上抛（`throws`）或者自行解决（`try-catch-finally`）。例子中采用了前者的方法。
+    ```java
+    // 可以抛出多个异常，嫌麻烦可以直接抛出一个涵盖异常较广的父类，比如所有异常的祖宗`Exception`。
+    public void func() throws FileNotFoundException,NullPointerException{
+        FileInputStream fis = new FileInputStream("d:\\lcq.txt");
+    }
+    /*
+        public FileInputStream(String name) throws FileNotFoundException {
+            this(name != null ? new File(name) : null);
+        }
+    */
+    ```
+3. 注意事项
+    - 对于编译异常，程序中必须处理，如`try-catch`和`throws`。
+    - 对于运行时异常，程序中如果没处理，默认`throws`。
+    - 子类重写父类的方法时，对抛出异常的规定：子类重写的方法，所抛出的异常要么和父类异常一致，要么是父类抛出异常的子类异常。（儿子就是儿子）。
+    - 在throws过程中，如果有方法try-catch，相当于处理异常，就不必throws。
+
+### 自定义异常
+1. 基本概念
+    - 当程序中出现了某些“错误”，但该错误信息并没有在`Throwable`子类中描述处理，这个时候就可以设计自己的异常类，用于描述这个错误。
+2. 自定义异常的步骤
+    - 定义类：自定义异常类名，继承`Exception`或`RuntimeException`。
+    - 如果继承前者，属于编译异常。
+    - 如果继承后者，属于运行时异常。（一般选择继承后者）
+3. 自定义异常实例
+    ```java
+    public class CustomException {
+        public static void main(String[] args) /*throws AgeException*/{
+            int age = 20;
+            if(!(age >= 18 && age <= 120)){
+                throw new AgeException("年龄不合法");
+            }else {
+                System.out.println("合法");
+            }
+        }
+    }
+    class AgeException extends RuntimeException {
+        public AgeException(String message) {
+            super(message);
+        }
+    }
+    ```
+    - 将异常包装成运行时异常，可以使用默认的处理机制，否则需要再main方法显式抛出你的异常。
+
+4. `throws`和`throw`
+    ||意义|位置|后面跟的东西|
+    |:--:|:--:|:--:|:--:|
+    |`throws`|异常处理的一种方式|方法声明处|异常类型|
+    |`throw`|手动生成异常的关键字|方法体中|异常对象（new）|
 
