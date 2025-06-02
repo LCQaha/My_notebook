@@ -5,6 +5,7 @@
 [2] [Git 教程|菜鸟教程](https://www.runoob.com/git/git-tutorial.html)
 [3] [Git 教程 by 廖雪峰](https://liaoxuefeng.com/books/git/introduction/index.html)
 [4] [CSDN：Git 安装教程（超详细）](https://blog.csdn.net/qq_45281589/article/details/134650456)
+[5] [【官方教程】起步-初次运行-Git-前的配置](https://git-scm.com/book/zh/v2/起步-初次运行-Git-前的配置)
 
 扩展知识：
 [震惊！竟然有人在 GitHub 上冒充我的身份！](https://spencerwoo.com/blog/wait-this-is-not-my-commit)
