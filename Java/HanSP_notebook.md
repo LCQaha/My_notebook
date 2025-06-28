@@ -890,8 +890,6 @@
     //n2 10 进制
     int n2 = 1010;
     //n3 8 进制
-    第 81页
-    韩顺平循序渐进学 Java 零基础
     int n3 = 01010;
     //n4 16 进制
     int n4 = 0X10101;
@@ -1297,6 +1295,11 @@
         数据量过大，无法全部加载到内存中，需要**借助外部存储**进行排序。
         包括：合并排序、直接合并排序。
 3. 冒泡排序
+    ```java
+    for (int i = 0; i < length - 1; i++)
+        for (int j = 0; j < length - 1 - i; j++)
+            // ...
+    ```
     - 通过对待排序序列从后向前依次比较相邻元素的值，若发生逆序，则交换。
     - 像水底的气泡向上冒。
     - 冒泡排序的每一轮排序一定能将剩余元素中的最大元素移到序列的末尾。
@@ -2158,7 +2161,21 @@ new起到的是一个分配空间的作用，声明仅是定义的过程，此�
     `设置-编辑器-文件和代码模板-includes-FileHeader`中修改，这些内容会自动输入到每个代码文件开头。
     ![java_IDEA_fileHeader](./img/java_IDEA_fileHeader.png)
 5. 【社区版没有】在一个类中右键`图表-显示图`可以打开类的结构图，选中任意对象按`Ctrl+Alt+B`即可向下扩展。
+    - 左上方按钮可以增加显示的信息
+        - `f`：字段，定义的变量
+        - `m*`：构造器
+        - `m`：方法
+        - `p`：显示属性（`setXXX` or `getXXX`）
+        - `I`：显示内部类
+        
 6.  选中区域，按快捷键`Ctrl+Alt+T`可以快速生成代码块（循环、错误捕获等代码块包围方式）
+7. `Ctrl+J`可以查看快速生成代码的指令，即显示快捷键的快捷键。（如`itit`生成迭代while循环）
+8. 常用的快捷键
+    - `I`：生成增强for循环。
+9. JUnit快捷键：在`@Test`上按`Alt+Enter`可以快速生成单元测试。
+10. IDEA中dubug时可能会简化显示（如`ArrayList`扩容后的null不会显示，此时需要通过`设置-构建、执行、部署-调试器-数据视图-Java`取消勾选`启用集合类的替代视图`恢复显示）
+    ![java_IDEA_config_enableAlternativeViewForCollectionClasses](./img/java_IDEA_config_enableAlternativeViewForCollectionClasses.png)
+11. `Alt+Insert`在生成中选择生成`equals()和hashCode()`可以进入快速生成向导，选定`equals()`的逻辑。这个方法可以服务于哈希表的哈希值和相等判断逻辑。
 
 ### 包
 1. 基本介绍：包的三大作用
@@ -5110,4 +5127,1887 @@ new起到的是一个分配空间的作用，声明仅是定义的过程，此�
     |:--:|:--:|:--:|:--:|
     |`throws`|异常处理的一种方式|方法声明处|异常类型|
     |`throw`|手动生成异常的关键字|方法体中|异常对象（new）|
+
+## 常用类
+
+### 章节目录
+1. 包装类
+2. `String`类
+3. `StringBuffer`和`StringBuilder`类
+4. `Math`类
+5. `Date`日期类、`Calendar`日历类
+6. `System`类
+7. `Arrays`类
+8. `BigInterger`类和`BigDecimal`类
+
+### 包装类（Wrapper）
+1. 包装类的分类
+    - 针对八种基本数据类型相应的引用类型——包装类。
+    - 有了类的特点，就可以调用类中的方法。
+
+2. 对照表
+    |基本数据类型|包装类|
+    |:---:|:---:|
+    |`boolean`|`Boolean`|
+    |`char`|`Character`|
+    |`byte`|`Byte`|
+    |`short`|`Short`|
+    |`int`|`Integer`|
+    |`long`|`Long`|
+    |`float`|`Float`|
+    |`double`|`Double`|
+
+3. 包装类与基本数据类型之间的转换
+    - jdk5之前的手动装箱拆箱方式（装箱：基本类型->包装类型）
+    - jdk5之后的自动装箱和拆箱方式。
+    - 自动装箱底层调用的是`valueOf()`，如：`Integer.valueOf()`。
+    ```java
+    // 手动装箱
+    int i = 1;
+    Integer integer = new Integer(i);
+    Integer integer1 = Integer.valueOf(i);
+
+    // 手动拆箱
+    int j = integer1.intValue();
+
+    // jdk5后，自动装箱拆箱（底层还是valueOf）
+    int n2 = 200;
+    Integer integer2 = n2;
+    ```
+
+4. 包装类和`String`的转换
+    ```java
+    Integer i = 100;
+
+    // 包装类 -> 字符串
+    // 方法1
+    String str1 = i + "";
+
+    // 方法2：toString
+    String str2 = i.toString();
+
+    // 方法3：valueOf
+    String str3 = String.valueOf(i);
+
+    // 字符串 -> 包装类
+    String str4 = "123";
+    Integer i2 = Integer.parseInt(str4);
+    Integer i3 = new Integer(str4);
+    ```
+
+5. `Integer`常用方法
+    - `Integer.MIN_VALUE`：返回最大值。
+    - `Integer.MAX_VALUE`：返回最小值。
+6. `Character`常用方法
+    - `Character.isDigit('a')`：判断是否为数字。
+    - `Character.isLetter('a')`：判断是否为字母。
+    - `Character.isUpperCase('A')`：判断是否为大写。
+    - `Character.isLowerCase('A')`：判断是否为小写。
+    - `Character.isWhitespace('a')`：判断是不是空格。
+    - `Character.toUpperCase('a')`：转成大写。
+    - `Character.toLowerCase('a')`：转成小写。
+
+7. `Integer`创建机制
+    ```java
+    Integer i = new Integer(1);
+    Integer j = new Integer(1);
+    System.out.println(i == j); // false，对象不相同。
+
+    Integer m = 100;
+    Integer n = 100;
+    // true，源码显示，调用valueOf，当数值为-128~127时，
+    // 直接从cache数组中返回，视为同一对象
+    System.out.println(i == j); 
+
+    Integer x = 129;
+    Integer y = 129;
+    System.out.println(x == y); // false，原因同上。
+    ```
+
+### `String`
+1. 简介
+    - `String 对象用于保存字符串，也就是一组字符序列。
+    - 字符串常量对象是用双引号括起来的字符序列。（`"你好"`、`"123"`、`"boy"`）
+    - 字符串的字符使用Unicode字符编码，一个字符（无论字母汉字）占两个字节。
+    - `String`是一个final类（不可被继承）。
+    - `String`中有属性`private final char value[]`（常量），用于存储字符串。**（这里的不可修改，指的是value不能指向新的地址，但是单个字符的内容可以变化）**
+
+2. 常用构造方法
+    ```java
+    String str1 = new String(); // 空串
+    String str2 = new String(String original); // 一些常量
+    String str3 = new String(char[] chr);   // char数组
+    String str4 = new String(char[] chr, int startIndex, int count); // 从char数组的某一位置开始构建串
+    String str5 = new String(byte[] b); // byte数组
+    ```      
+3. 图解
+    ![java_commonClass_String_img](./img/java_commonClass_String_img.png)
+    - 实现了接口`Serializable`，可以串行化（在网络传输）。
+    - 实现了接口`Comparable`，可以进行比较。
+4. 创建`String`对象的两种方式
+    ```java
+    // 方法1：直接赋值
+    // 方法2：调用构造器
+    ```
+    - 方式1：先从常量池查看是否有目标字符串的数据空间，如果有，直接指向；如果没有，则重新创建再指向。以此法创建的字符串指向常量池的空间地址。
+    - 方法2：先在堆中创建空间，里面维护了value的属性，指向常量池的地址空间（...）。对象指向的是堆中的空间地址。
+    - 内存分布图
+        ![java_commonClass_String_memory](./img/java_commonClass_String_memory.png)
+
+5. 面试题错题本
+    - 字符串相加
+        ```java
+        String a = "hello"; // 常量池变量"hello"
+        String b = "abc"; // 常量池变量"abc"
+        String c = "hello" + "abc"; // 由编译器底层优化，即使没有a和b，也只在常量池创建"helloabc"
+        String d = a + b;   // 底层调用StringBuilder，d指向堆。
+        System.out.println(c == d); // false，两者并非都指向常量池
+        ```
+    
+#### `String`类常用方法
+1. 简介
+    - `String`类用于保存字符串常量，每次更新都需要重新开辟空间，效率较低。于是开发者提供了`StringBuilder`和`StringBuffer`用于增强功能提高效率。
+
+2. 常用方法演示
+    
+    - `equals`： 区分大小写，判断内容是否相等。
+    - `equalsIgnoreCase`：忽略大小写的判断内容是否相等。
+    - `length`： 获取字符的个数，字符串的长度。
+    - `indexOf`：获取字符在字符串中第1次出现的索引，索引从0开始，如果找不到，返回-1。
+    - `lastIndexOf`：获取字符在字符串中最后1次出现的索引，索引从0开始，如找不到，返回-1。
+    - `substring`：截取指定范围的子串。
+    - `trim`：去前后空格。
+    - `charAt`：获取某索引处的字符，注意不能使用Str[index] 这种方式。
+    - `intern`：获得String对象在常量池中的地址。
+    
+    ```java
+    System.out.println("hello".equals("Hello"));    // false，区分大小写
+    System.out.println("hello".equalsIgnoreCase("Hello"));  // true，忽略大小写
+    System.out.println("aaa@aaaa@".indexOf('@'));   // 3，取第一次出现的位置，若找不到返回-1
+    System.out.println("aaa@aaaa@".lastIndexOf('@'));   // 8，取最后一次出现的位置
+    System.out.println("hello,张三".substring(6));  // 张三
+    System.out.println("hello,张三".substring(2,5));    // llo，左闭右开
+    ```
+
+    - `toUpperCase`：转换成大写。
+    - `toLowerCase`：转换成小写。
+    - `concat`：连接字符串。**（这个操作速度快于直接相加）**
+    - `replace`：替换字符。对字符串中**所有**符合条件的子串执行替换。
+    - `split`：分割字符串
+    - `toCharArray`：字符串转换成字符数组。
+    - `compareTo`：比较两个字符串。（`a.compareTo(b)`）
+        - 长度相同且内容一致，返回0。
+        - 进行比较时，比较到某一字符串末端前出现不相同，返回不同字符的码值差值（`a.charAt(i) - b.charAt(i)`）
+        - 比较到某一字符串末尾未出现不同，返回不同字符串长度的差值。（`a.length() - b.length()`）
+    
+
+    ```java
+    System.out.println("abc".toUpperCase());    // ABC
+    System.out.println("Abc".toLowerCase());    // abc
+    System.out.println("abc".concat("def").concat("abc"));  // abcdefabc
+    System.out.println("abcdefabc".replace("abc","aha"));   // ahadefaha
+    //[Ljava.lang.String;@76ccd017
+    System.out.println("锄禾日当午，汗滴禾下土，谁知盘中餐，粒粒皆辛苦".split("，"));
+    // [锄禾日当午, 汗滴禾下土, 谁知盘中餐, 粒粒皆辛苦]
+    System.out.println(Arrays.toString("锄禾日当午，汗滴禾下土，谁知盘中餐，粒粒皆辛苦".split("，")));
+    ```
+    
+    - `format`：格式化字符串。
+
+    ```java
+    int age = 18;
+    String name = "LCQ";
+    char gender = '男';
+    float score = 90.566f;
+
+    System.out.println("我的姓名是" + name + "，性别是" + gender + "，年龄是" + age + "岁，成绩是" + score + "分。");
+    System.out.println(String.format("我的姓名是%s，性别是%c，年龄是%d岁，成绩是%.2f分。", name, gender, age, score));
+    System.out.println();
+    ```
+
+#### `StringBuffer`
+1. 源码
+    ```java
+     public final class StringBuffer
+    extends AbstractStringBuilder
+    implements Serializable, CharSequence
+    ```
+    - 父类是`AbstractStringBuilder`。
+        - 包含非final的`char[] value`。用于存放字符串内容，不是常量，存放于堆中。
+    - 实现了串行化接口。
+    - `StringBuffer`是final的。
+    - 使用`StringBuffer`，不用每次创建新对象，效率高于`String`。
+2. 构造器
+    ```java
+    StringBuffer stringBuffer = new StringBuffer(); // 默认创建一个大小为16的char数组。
+    StringBuffer stringBuffer = new StringBuffer(100);  // 创建一个大小为100的数组。
+    StringBuffer stringBuffer = new StringBuffer("hello");  // 创建一个输入字符串+16的数组，这里实际空间是21。
+    ```
+3. 使用示例
+    ```java
+    String str1 = "hello";
+    // 方法1：使用构造器
+    StringBuffer stringBuffer = new StringBuffer(str1);
+    // 方法2：使用append
+    StringBuffer stringBuffer02 = new StringBuffer();
+    stringBuffer02 = stringBuffer02.append(str1);       
+    // 注意，接受返回值并非必须，接收返回值是为了链式调用（如：str.append().append()...）
+    
+    // StringBuffer -> String
+    // 方法1：toString
+    String str2 = stringBuffer.toString();
+    // 方法2：构造器
+    String str3 = new String(stringBuffer); 
+    ```
+
+4. 增删改查
+    ```java
+    // 增
+    StringBuffer stringBuffer = new StringBuffer("hello");
+    stringBuffer.append("lcq").append("aha");
+    // 删
+    stringBuffer.delete(5,8);   // 删除[5,8)范围内的字符（左闭右开）
+    // 改
+    stringBuffer.replace(0,5,"byebye"); // 将[0,5)替换为byebye
+    // 插入
+    stringBuffer.insert(6,"666");   // 将索引9往后的内容后移并插入"666"
+    // 查
+    System.out.println(stringBuffer.indexOf("aha"));    // 返回值为int
+    ```
+
+#### `StringBuilder`
+1. 简介
+    - 与`StringBuffer`一样，用于存储一个可变的字符序列，且提供与`StringBuffer`相同的API，但不保证线程安全。
+    - 对于单线程场景，优先考虑`StringBuilder`，其速度更快。
+
+#### 小结
+1. `String`和`StringBuffer`/`StringBuilder`的区别
+    - `StringBuffer`和`StringBuilder`都是用于存储可变字符序列的类，方法相同。
+    - `String`是不可变字符序列，效率低，复用率高。（复用率高：同样的String会指向常量池同一对象）
+    - `StringBuffer`是可变字符序列，效率较高，线程安全。
+    - `StringBuider`是可变字符序列，效率最高，线程不安全。
+2. 使用注意事项
+    - 如果对一个字符串`s`进行大量修改，会极大影响系统性能。
+        ```java
+        String str = "abc"  // 常量池创建"abc"
+        str += "d";         // 创建新的字符串对象"abcd"
+        // ...
+        ```
+    - 字符串存在大量修改操作，且多线程：`StringBuffer`。
+    - 字符串存在大量修改操作，且单线程：`StringBuilder`。
+    - 字符串很少修改，被多个对象引用：`String`，如配置信息。
+
+### `Math`
+1. 常用方法
+    - `abs(i)`：求绝对值。
+    - `pow(i,j)`：求幂，i的j次方
+    - `ceil(i)`：向上取整（大于等于i的最小整数，注意负数）
+    - `floor(i)`：向下取整（小于等于i的最大整数，注意负数）。
+    - `round(i)`：返回long，四舍五入，相当于`Math.floor(i+0.5)`
+    - `sqrt(i)`：开方
+    - `random()`：返回0~1的随机小数（0<=x<1）
+    - `max(i,j)`：返回两个数中的较大值
+    - `min(i,j)`：返回两个数中的较小值
+
+### `Arrays`
+1. 常用方法
+    - `Arrays.toString(obj)`：数组转字符串
+    - `Arrays.sort(obj)`：升序排序，由于数组是引用类型，所以排序后原数组也会改变。   
+    - `Arrays.sort(obj, new Comparator<T>(){...})`：定制排序，传入一个数组和实现了Comparator接口的匿名内部类。
+        ```java
+        Integer[] arr = {1, 5, 3, 2, 4};
+        Arrays.sort(arr, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return o2 - o1;         // 这里结果大于0 or 小于0会影响排序逻辑
+            }
+        })
+        ```
+    - `Arrays.binarySearch(obj,i)`：对一个有序数组进行二分查找，查找目标是`i`。
+    - `copyOf(obj,i)`：拷贝i个原数组元素，若i<0，抛出`NegativeArraySizeException`异常，若i>obj.length，多余的值均为null。
+    - `fill(obj,i)`：数组填充，将数组内的值全替换为`i`。
+    - `equals(obj1,obj2)`：比较两个数组的内容是否完全一致。
+    - `asList()`：将一组值转换为List。
+
+### `System`类
+1. 常用方法
+    - `exit()`：退出当前程序。
+    - `arraycopy(src, srcPos, dest destPos, length)`：复制数组元素，覆盖目标数组相应位置。
+        - `src`：源数组。
+        - `srcPos`：开始索引。
+        - `dest`：目标数组。
+        - `destPos`：目标数组开始索引。
+        - `length`：拷贝长度。
+    - `currentTimeMillens()`：返回时间戳（距1970-1-1的毫秒数）。
+    - `gc()`：垃圾回收机制。
+
+### 大数处理方案：`BigInteger`和`BigDecimal`
+1. `BigInteger`
+    - 编程中，不可避免的要处理很大的数，甚至long都不够用。
+    ```java
+    // 创建对象时，应使用字符串。
+    BigInteger bigInteger = new BigInteger("1234567890123456789012345678901234567890");
+    BigInteger bigInteger2 = new BigInteger("100");
+
+    // 加减乘除用对应的方法实现，且算子两端均是BigInteger对象。
+    BigInteger add = bigInteger.add(bigInteger2);
+    System.out.println(add);
+    BigInteger subtract = bigInteger.subtract(bigInteger2);
+    System.out.println(subtract);
+    BigInteger multiply = bigInteger.multiply(bigInteger2);
+    System.out.println(multiply);
+    BigInteger divide = bigInteger.divide(bigInteger2);
+    System.out.println(divide);
+    
+    ```
+
+2. `BigDecimal`
+    - 当需要保存一个精度很高的数（double的精度都不够），可用这个类。
+    ```java
+    BigDecimal bigDecimal = new BigDecimal("123.4567891413165314314353154135413534");
+    BigDecimal bigDecimal2 = new BigDecimal("0.123456784562342592525234532523");
+
+    // 加减乘除用对应的方法实现，且算子两端均是BigDecimal对象。
+    BigDecimal result = bigDecimal.add(bigDecimal2);
+    BigDecimal result2 = bigDecimal.subtract(bigDecimal2);
+    BigDecimal result3 = bigDecimal.multiply(bigDecimal2);
+    try{// 可能抛出ArithmeticException异常，因为可能除不尽。
+        BigDecimal result4 = bigDecimal.divide(bigDecimal2);
+        // BigDecimal result4 = bigDecimal.divide(bigDecimal2, BigDecimal.ROUND_CEILING); 结果保留和被除数（分子）相同的精度。   
+    }catch(Exception e){
+        System.out.println(e.getMessage());
+    }
+    System.out.println(result);
+    System.out.println(result2);
+    System.out.println(result3);
+    System.out.println(result4);
+    
+    ```
+
+### 日期类
+#### 第一代日期类
+1. `java.util.Date`
+    - 精确到毫秒，代表特定瞬间
+    - 实现了`Cloneable`、`Comparable`、`Serializable`接口
+    - 大部分方法过时。
+    ```java
+    import java.util.Date;// 不是java.sql.Date
+    // ...
+    Date d1 = new Date();   // 无参构造器，获得当前系统时间
+    System.out.println(d1); // 输出示例（默认）：Fri Jan 08 16:07:05 CST 2021 ，CST：中国标准时间
+    // 可以对格式进行转换
+    // 下列格式：2021-1-8 16:07:05 星期五
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss E");
+    String date = sdf.format(d1);
+    System.out.println(date);
+
+    // 将一个格式化的String转换成Date对象
+    String dateStr = "2021-1-8 16:07:05 星期五";
+    Date d2 = sdf.parse(dateStr);
+    System.out.println(d2);
+    ```
+2. `SimpleDateFormat`
+    - 格式和解析日期的类
+    - 字母规定：
+        ![java_commonClass_dateTime_dateformat](./img/java_commonClass_dateTime_dateformat.png)
+
+#### 第二代日期类
+1. `Calendar`
+    - 实现了`Cloneable`、`Comparable`、`Serializable`接口。
+    - 采用单例模式。
+    - `Calendar`类是一个抽象类，它为特定瞬间、一组（诸如`YEAR`、`MONTH`、`DAY_OF_MONTH`、`HOUR`等日历字段之间的转换提供了一些方法，并未操作日历字段提供了一些方法）
+    ```java
+    Calendar c = Calendar.getInstance();    // 单例模式以此法获得日历类对象
+    System.out.println(c);                  // 查看对象格式，所有的字段
+    System.out.println("年：" + c.get(Calendar.YEAR));
+    System.out.println("月：" + c.get(Calendar.MONTH + 1));     // 返回的是0-11，需要+1
+    System.out.println("日：" + c.get(Calendar.DAY_OF_MONTH));
+    System.out.println("时：" + c.get(Calendar.HOUR_OF_DAY));   // HOUR_OF_DAY是24小时制，HOUR是12小时制
+    System.out.println("分：" + c.get(Calendar.MINUTE));
+    System.out.println("秒：" + c.get(Calendar.SECOND));
+
+    // 没有专门的格式化方法，需要自己组合。
+    System.out.println(c.get(Calendar.YEAR) + "年" + (c.get(Calendar.MONTH) + 1) + "月" + c.get(Calendar.DAY_OF_MONTH) + "日" + c.get(Calendar.HOUR_OF_DAY) + "时" + c.get(Calendar.MINUTE) + "分" + c.get(Calendar.SECOND) + "秒");
+    ```
+#### 第三代日期类
+1. 前两代的不足
+    - 可变性：日期和时间这样的类应该是不可变的。
+    - 偏移性：`Date`的年份是从1900开始的，而月份是从0开始的。
+    - 格式化：格式化只对`Date`有用，对`Calendar`无效。
+    - 它们不是线程安全的，且不能处理闰秒。
+2. 常用类
+    从JDK8开始，引入第三代类。
+    - `LocalDate`：日期
+    - `LocalTime`：时间
+    - `LocalDateTime`：日期和时间
+3. 示例
+    ```java
+    LocalDateTime ldt = LocalDateTime.now();
+    System.out.println(ldt);            // 输出示例：2021-05-05T08:09:09.000
+    System.out.println(ldt.getYear());
+    System.out.println(ldt.getMonthValue());    // 例：3
+    System.out.println(ldt.getMonth());         // 例：March
+    System.out.println(ldt.getDayOfMonth());    
+    System.out.println(ldt.getHour());
+    System.out.println(ldt.getMinute());
+    System.out.println(ldt.getSecond());
+
+    // LocalTime可以获取时、分、秒
+    LocalTime lt = LocalTime.now();
+    System.out.println(lt.getHour());
+    System.out.println(lt.getMinute());
+    System.out.println(lt.getSecond());
+
+    // LocalDate可以获取年、月、日
+    LocalDate ld = LocalDate.now();
+    System.out.println(ld.getYear());
+    System.out.println(ld.getMonthValue());
+    System.out.println(ld.getDayOfMonth());
+
+    // 第三代日期类的格式化
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    System.out.println(dtf.format(LocalDateTime.now()));
+
+    // 其他方法
+    // 使用plus和minus调整时间。
+    LocalDateTime ldt2 = ldt.plusDays(400); // 400天后
+    LocalDateTime ldt3 = ldt.minusHours(10);// 10小时前
+
+    System,out.println(LocalDateTime.now());
+    System.out.println(dtf.format(LocalDateTime.now().plusDays(400).minusHours(10).plusMinutes(30)));
+    ```
+
+4. 时间戳`Instant`
+    ```java
+    Instant now = Instant.now();
+    System.out.println(now);                
+    Date date = Date.from(now);             // 时间戳转日期类
+    Instant instant = date.toInstant();     // 日期类转时间戳
+    ```
+
+
+    
+## 集合
+
+### 章节目录
+1. 集合框架体系
+2. `Collection`
+    - `List`
+        - `ArrayList`
+        - `LinkedList`
+        - `Vector`
+    - `Set`
+        - `HashSet`
+        - `LinkedHashSet`
+        - `TreeSet`
+3. `Map`
+    - `HashMap`
+    - `HashTable`
+    - `LinkedHashMap`
+    - `TreeMap`
+    - `Properties`
+4. `Collections`
+
+### 集合基本介绍
+
+1. 数组的缺陷
+    - 长度开始时必须指定，一旦指定不能更改。
+    - 保存的必须为同一类型的元素。
+    - 使用数组进行增加、删除元素比较麻烦。
+
+2. 集合的优势
+    - 可以动态保存任意多个对象，使用比较方便。
+    - 提供了一些列方便操作对象的方法：`add()`、`remove()`、`set()`、`get()`等。
+    - 使用集合添加、删除新元素的示意代码。
+
+### 集合框架体系
+1. 【记住】`Collection`框架图 **（单列集合）**
+    ![java_collection_collection_framework](./img/java_collection_collection_framework.png)
+2. 【记住】`Map`框架图 **（双列集合）**
+    ![java_collection_map_framework](./img/java_collection_map_framework.png)
+
+3. 单列集合与双列集合
+    - `Collection`接口有两个重要的子接口：`List`和`Set`，他们实现的子类是单列集合。
+    - `Map`解耦的实现子类是双列集合，存放`Key-Value`（`K-V`，键值对）。
+
+### `Collection`接口
+
+#### 接口基本使用
+1. 代码
+    ```java
+    public interface Collection<E> extends Iterable<E> {}
+    ```
+2. `Collection`接口实现类的特点
+    - `Collection`实现子类可以存放多个元素，每一个元素可以是`Object`类型。
+    - 有些`Collection`的实现类，可以存放重复的元素，有些则不可以。
+    - `Collection`的实现类，有些事有序的（`List`），有些不是有序的（`Set`）。
+    - `Collection`接口没有直接实现子类，而是通过子接口`Set`和`List`实现。
+
+3. `Collection`接口的常用方法（用`ArrayList`实现类举例）
+    
+    - `add`：添加单个元素。
+        可以在`List`尾部添加任意元素。
+        **如果add的是基本数据类型，会进行自动装箱为包装类，因为索引也是int，自动装箱可以保证逻辑正确**
+        ```java
+        list.add("hello");
+        list.add(true);
+        ```
+    - `remove`：删除指定元素。
+        ```java
+        list.remove("hello");   // 删除指定元素"hello"，return boolean，表示删除是否成功
+        list.remove(0);         // 删除索引为0的元素，return Object，返回目标位置的值
+        list.remove((Integer) value);// 删除值为int的元素，须为包装类
+        ```
+    - `contains`：查找元素是否存在。
+        ```java
+        System.out.println(list.contains("hello"));  // return boolean，表示是否存在
+        ```
+    - `size`：获取元素个数。
+        ```java
+        System.out.println(list.size());  // return int，表示元素个数
+        ```
+    - `isEmpty`：判断是否为空。
+        ```java
+        System.out.println(list.isEmpty());  // return boolean，表示是否为空
+        ```
+    - `clear`：清空。
+        ```java
+        list.clear();
+        System.out.println(list);               // []
+        System.out.println(list.size());        // 0
+        System.out.println(list.isEmpty());     // true
+        ```
+    - `addAll`：添加多个元素。
+        ```java
+        ArrayList list2 = new ArrayList();
+        list2.add("hello");
+        list2.add("world");
+        list.addAll(list2);
+        ```
+    - `containsAll`：查找多个元素是否都存在。
+        ```java
+        System.out.println(list.containsAll(list2));   // boolean
+        ```
+    - `removeAll`：删除多个元素。
+        ```java
+        list.removeAll(list2);
+        System.out.println(list);      
+        ```
+
+#### 迭代器遍历
+1. 介绍
+    `Collection`接口遍历元素方式1：使用`Iterator`迭代器。
+    - `iterator`对象称为迭代器，用于遍历`Collection`集合中的元素。
+    - 所有实现了`Collection`接口的集合类都有一个`iterator()`方法，用以返回一个实现了`Iterator`接口的对象（即一个迭代器）。
+    - Iterator结构
+        ![]()
+    - `Iterator`仅用于遍历对象，其本身不存放对象。
+    - `Iterable`就是`Collection`的父类。
+2. 迭代器执行原理
+    ```java
+    Iterator iterator = <collection及其子类对象>.iterator(); 
+    while(iterator.hasNext()){          // 当迭代器中还有元素
+        Object obj = iterator.next();   // 获得下一个迭代器中的元素
+        //System.out.println(obj);
+    }
+    ```
+    - 调用`iterator()`方法前，必须进行`hasNext()`判断，否则会报`NoSuchElementException`异常。
+    - 当迭代完成后，迭代器的指针已经指到最后的元素位置，如果需要重新使用迭代器，须重新执行以下代码：
+        ```java
+        Iterator iterator = <collection及其子类对象>.iterator(); 
+        ```
+
+#### 增强for循环
+
+1. 介绍
+    增强for循环可以代替iterator迭代器，相当于一个简化版的Iterator，**只能遍历集合或数组**
+2. 基本语法
+    ```java
+    for(数据类型 变量名 : 集合或数组){ 
+        //循环体，在此访问迭代的元素。
+        Object obj = 变量名;
+        System.out.println(obj);
+    }
+    ```
+    - 增强for的底层还是迭代器。
+
+#### List接口方法
+
+1. 基本介绍
+    - `List`接口是`Collection`接口的子接口。
+    - `List`集合类中元素有序且可重复。（添加与取出顺序一致）
+    - `List`集合中的每一个元素都有其对应的索引，索引从0开始。（支持索引）
+    - `List`容器中的元素都都对应一个整数型的序号记载其在容器中的位置，可以根据序号存取容器中的元素。
+    - `JDK API`中`List`接口实现类有：
+    `AbstractList`、`AbstractSequentialList`、`ArrayList`、`AttributeList`、`CopyOnWriteArrayList`、`LinkedList`、`RoleList`、`RoleUnresolvedList`、`Stack`、`Vector`。
+    常用的有：`ArrayList`、`LinkedList`、`Vector`等。
+
+2. List接口常用方法
+    - `void add(int index, Object ele)`：在 index 位置插入 ele 元素
+    - `boolean addAll(int index, Collection eles)`：从 index 位置开始将 eles 中的所有元素添加进来
+    - `Object get(int index)`：获取指定 index 位置的元素
+    - `int indexOf(Object obj)`：返回 obj 在集合中首次出现的位置
+    - `int lastIndexOf(Object obj)`：返回 obj 在当前集合中末次出现的位置
+    - `Object remove(int index)`：移除指定 index 位置的元素，并返回此元素
+    - `Object set(int index, Object ele)`：设置指定 index 位置的元素为 ele , 相当于是替换. list.set(1, "玛丽");（`index`<`ele.length`）
+    - `List subList(int fromIndex, int toIndex)`：返回从 `fromIndex` 到 `toIndex` 位置的子集合（注意返回的子集合 `fromIndex` <= `subList` < `toIndex`，左闭右开）
+
+3. `List`3种遍历方法
+    ```java
+    List list = new ArrayList();
+    // 三种任选其一即可运行
+    // List list = new Vector();
+    // List list = new LinkedList();
+    
+    // 第1种：iterator
+    Iterator iterator = list.iterator();
+    while (iterator.hasNext()) {
+        System.out.println(iterator.next());
+    }
+    // 第2种：增强for
+    for (Object o : list) {
+        System.out.println(o);
+    }
+    // 第3种：普通for
+    for (int i = 0; i < list.size(); i++) {
+        System.out.println(list.get(i));
+    }
+    ```
+
+#### `ArrayList`源码解析
+
+1. 结论
+    - `ArrayList`中维护的是一个`Object`类的数组`elementData`。
+    - 当创建一个`ArrayList`时，如果使用的是无参构造器，则初始`elementData`大小为0，第1次添加元素时，`elementData`大小扩容到10，再次到上限后，扩容至`1.5*elementData.length`。
+    - 如果使用的是指定大小的构造器，初始`elementData`大小为指定大小，再次添加元素时，`elementData`大小扩容至`1.5*elementData.length`。
+2. 图解
+    ![java_collection_arrayList_source1](./img/java_collection_arrayList_source1.png)
+    ![java_collection_arrayList_source2](./img/java_collection_arrayList_source2.png)
+3. 源码注释
+    - 执行代码
+        ```java
+        public class ListGrow01 {
+            public static void main(String[] args) {
+                List list = new ArrayList();
+                // List list = new Vector();
+                // List list = new LinkedList();
+
+                for (int i = 0; i < 10; i++) {
+                    list.add("hello" + i);
+                }
+                list.add("world");
+                System.out.println(list);
+
+            }
+        }
+        ```
+    - 源码注释
+        ```java
+        // ArrayList() 无参构造器，创建一个空的ArrayList对象
+        // private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
+        public ArrayList() {
+            this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
+        }
+
+        // add() 方法
+        public boolean add(E e) {
+            // ensureCapacityInternal() 方法用于确保数组不越界
+            ensureCapacityInternal(size + 1);  // Increments modCount!!
+            elementData[size++] = e;
+            return true;
+        }
+
+        // ensureCapacityInternal() 方法
+        private void ensureCapacityInternal(int minCapacity) {
+            // calculateCapacity() 方法确定扩容策略
+            // ensureExplicitCapacity() 方法确认是否真的需要扩容并执行
+            ensureExplicitCapacity(calculateCapacity(elementData, minCapacity));
+        }
+
+        private static int calculateCapacity(Object[] elementData, int minCapacity) {
+            if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) { 
+                // 当elementData为空数组时，返回请求大小和默认大小中的最大值
+                // 其中，DEFAULT_CAPACITY = 10
+                // 这是为了应对addAll()方法可能一次性添加超过10个数据。
+                return Math.max(DEFAULT_CAPACITY, minCapacity);
+            }
+            return minCapacity;
+        }
+
+        private void ensureExplicitCapacity(int minCapacity) {
+            modCount++;         // 记录操作次数
+
+            // overflow-conscious code
+            if (minCapacity - elementData.length > 0)
+                // 当确实容量不足时，执行扩容操作，大小为calculateCapacity()方法返回的大小
+                grow(minCapacity);
+        }
+
+        private void grow(int minCapacity) {
+            // overflow-conscious code
+            int oldCapacity = elementData.length;                       // 获取当前容量
+            int newCapacity = oldCapacity + (oldCapacity >> 1);         // 初始化新容量，默认为原容量的1.5倍
+            if (newCapacity - minCapacity < 0)
+                // 如果初始化的newCapacity达不到要求，则将minCapacity直接传入。                      
+                newCapacity = minCapacity;
+            if (newCapacity - MAX_ARRAY_SIZE > 0)
+                // 检查新容量是否超出了数组最大长度限制
+                newCapacity = hugeCapacity(minCapacity);
+            // 使用Arrays.copyOf()方法将原数组复制到新数组中
+            // `copyOf(obj,i)`：拷贝i个原数组元素，若i<0，抛出`NegativeArraySizeException`异常，若i>obj.length，多余的值均为null。
+            // minCapacity is usually close to size, so this is a win:
+            elementData = Arrays.copyOf(elementData, newCapacity);
+        }
+        ```
+
+#### `Vector`类
+
+1. 基本介绍
+    - 继承了`AbstractList`。
+        ```java
+        public class Vector<E>
+            extends AbstractList<E>
+            implements List<E>, RandomAccess, Cloneable, java.io.Serializable
+        ```
+    - `Vector`底层维护的是一个`protected Object[] elementData`。
+    - `Vector`时线程同步（线程安全）的，`Vector`类的操作带有`synchronized`。
+    - 在开发中，需要线程同步安全时，用到`Vector`。
+
+2. `Vector`扩容机制
+
+    |类|`ArrayList`|`Vector`|
+    |:---:|:---|:---|
+    |底层结构|可变数组`Object[]`|可变数组|
+    |版本|jdk1.2|jdk1.0|
+    |线程安全（同步）效率|线程不安全<br>效率高|线程安全<br>效率低|
+    |扩容倍数|有参构造器：按1.5倍扩容；<br>无参构造器：<br>第一次默认为10，<br>第二次开始按1.5倍扩容。|有参构造器：按2倍扩容；<br>无参构造器：<br>第一次默认为10，<br>第二次开始按2倍扩容。|
+
+3. `Vector`源码分析
+    ```java
+    private void grow(int minCapacity) {
+        // overflow-conscious code
+        int oldCapacity = elementData.length;   // 获取当前数组长度
+        // 根据扩容策略初始化新数组长度，与ArrayList不同，Vector的策略为双倍扩容。
+        // 其中，capacityIncrement是一个须显示指定的扩容策略，默认为0，即默认双倍扩容
+        int newCapacity = oldCapacity + ((capacityIncrement > 0) ?
+                                        capacityIncrement : oldCapacity);
+        if (newCapacity - minCapacity < 0)
+            // 初始值不满足需求时，将需求量作为新数组容量
+            newCapacity = minCapacity;
+        if (newCapacity - MAX_ARRAY_SIZE > 0)
+            // 检测是否超出了数组最大值
+            newCapacity = hugeCapacity(minCapacity);
+        elementData = Arrays.copyOf(elementData, newCapacity);
+    }
+    ```
+
+4. 三种`Vector`构造器
+    - `Vector()`：无参构造器，初始化容量为`10`。
+        ```java
+        public Vector() {
+            this(10);
+        }
+        ```
+    - `Vector(int initialCapacity)`：指定初始容量的构造器。
+        ```java
+        public Vector(int initialCapacity) {
+            this(initialCapacity, 0);
+        }
+        ```
+    - `Vector(int initialCapacity, int capacityIncrement)`：指定初始容量和容量增量的构造器。
+        ```java
+        public Vector(int initialCapacity, int capacityIncrement) {
+            super();
+            if (initialCapacity < 0)
+                throw new IllegalArgumentException("Illegal Capacity: "+
+                                                initialCapacity);
+            this.elementData = new Object[initialCapacity];
+            this.capacityIncrement = capacityIncrement;
+        }
+        ```
+
+#### `LinkedList`
+
+1. 说明
+    - `LinkedList`底层实现了双向链表和双端队列的特点。
+    - 可以添加任意元素（元素可以重复），包括`null`。
+    - 线程不安全。
+
+2. `LinkedList`底层操作机制。
+    - `LinkedList`底层维护了一个双向链表。
+    - `LinkedList`中维护了两个属性：`first`和`last`，分别指向首、尾节点。
+    - 每个节点（Node对象，是一个内部类），里面维护了`prev`、`next`、`item`三个属性，通过`prev`指向前一个节点，通过`next`指向后一个节点，最终实现双向链表。
+    - `LinkedList`的元素的添加和删除，不是通过数组完成的，相对来说效率较高。
+3. 【例程】模拟一个简单的双向链表
+    ```java
+    public class LinkedList01 {
+
+        public static void main(String[] args) {
+            Node a = new Node("a");
+            Node b = new Node("b");
+            Node c = new Node("c");
+
+            // a <-> b <-> c
+            a.next = b;
+            b.next = c;
+            c.prev = b;
+            b.prev = a;
+
+            Node first = a;
+            Node last = c;
+
+            while (first != null) {
+                System.out.println(first);
+                first = first.next;
+            }
+        }
+
+        static class Node {
+            public Object item;
+            public Node next;
+            public Node prev;
+
+            public Node(Object item) {
+                this.item = item;
+            }
+
+            @Override
+            public String toString() {
+                return "Node{" +
+                        "item=" + item +
+                        '}';
+            }
+        }
+    }   
+    ```
+
+4. `LinkedList`增删改查
+    ```java
+    LinkedList list = new LinkedList();
+    for (int i = 0; i < 10; i++) {
+        list.add(i);                // 在尾部增加元素
+    }
+    System.out.println(list);
+
+    list.remove();                  // 默认移除第一个元素
+    list.remove(6);           // 指定移除的元素
+    System.out.println(list);
+
+    list.set(0, "set1");            // 在指定位置改变元素
+    list.set(7, "set2");
+    System.out.println(list);
+
+
+    System.out.println(list.get(0));
+    System.out.println(list.indexOf("set1"));
+    ```
+
+5. `LinkedList`底层分析
+    - `add()`
+        ```java
+        // 无参构造器不会执行任何操作
+        public LinkedList() {
+        }
+
+        // add()方法直接调用linkLast()
+        public boolean add(E e) {
+            linkLast(e);
+            return true;
+        }
+
+        void linkLast(E e) {
+            final Node<E> l = last; // 创建l指向LinkedList.last
+            final Node<E> newNode = new Node<>(l, e, null); // 创建新节点，pre指向last节点，last置空
+            last = newNode;         // 将新节点设置为新的last
+            if (l == null)
+                first = newNode;    // 当LinkedList为空时（first == null），将首节点指向新节点
+            else
+                l.next = newNode;   // 否则，将l.next设置为新节点
+            // 调整List大小与操作次数
+            size++;
+            modCount++;
+        }
+        ```
+    - `remove()`
+        ```java
+        public E remove() {
+            return removeFirst();       // 默认调用removeFirst()删除首节点
+        }
+        
+        public E removeFirst() {
+            final Node<E> f = first;
+            if (f == null)
+                // 如果首节点为空，抛出异常
+                throw new NoSuchElementException();
+            return unlinkFirst(f);      // 调用unlinkFirst()
+        }
+
+        private E unlinkFirst(Node<E> f) {
+            // 提取首节点信息
+            // assert f == first && f != null;
+            final E element = f.item;
+            final Node<E> next = f.next;
+            
+            // 释放首节点资源
+            f.item = null;
+            f.next = null; // help GC
+
+            // 改变首节点指向，并处理两种可能情况
+            first = next;
+            if (next == null)
+                last = null;
+            else
+                next.prev = null;
+
+            // 操作次数+1，大小-1
+            size--;
+            modCount++;
+
+            // 返回删除的元素
+            return element;
+        }
+        ```
+
+#### `List`集合选择
+
+1. `ArrayList`和`LinkedList`比较
+    ||`ArrayList`|`LinkedList`|
+    |:---:|:---:|:---:|
+    |底层结构|可变数组|双向链表|
+    |增删效率|较低，采用数组扩容机制|较高，采用链表机制|
+    |改查的效率|较高|较低|
+
+2. 两者的选择
+    - 如果改查的操作多，选择`ArrayList`。
+    - 如果增删的操作多，选择`LinkedList`.
+    - 一般来说，在程序中，80%~90%都是查询，因此大部分情况下选择`ArrayList`。
+    - 在一个项目中，根据业务灵活选择，不同的模块可以使用不同的集合类。
+    - 值得注意的是：**两者都是线程不安全的。**
+
+#### `Set`接口方法
+
+1. 基本介绍
+    - `Set`接口是无序的，添加和取出的顺序不一致，没有索引。
+    - 不允许重复元素，因此最多包含一个`null`。
+    - `JDK`API 中`Set`接口的实现类有：
+        `AbstractSet`、`ConcurrentSkipListSet`、`CopyOnWriteArraySet`、`EnumSet`、`HashSet`、`LinkedHashSet`、`TreeSet`、`JobStateReasons`。
+
+2. `Set`接口常用方法
+    `Set`接口是`Collection`子接口，常用方法和`Collection`相同。
+
+3. `Set`接口的遍历方式
+    - 可以使用迭代器。
+    - 可以使用增强for循环。
+    - 不能使用索引。
+4. `Set`接口的常用方法（以`HashSet`为例）
+    ```java
+    Set set = new HashSet();
+    System.out.println(set.add(1)); // return boolean
+    set.add(3);
+    set.add(null);
+    set.add(2);
+    set.add(1);                     // return False，因为对象已存在
+
+    // [null, 1, 2, 3]
+    // 添加和取出顺序不一致，但每次运行不会出现不同的输出
+    System.out.println(set);
+    ```
+
+#### `HashSet`
+
+1. 说明
+    - `HashSet`实现了`Set`接口。
+    - `HashSet`实际上是`HashMap`。（`HashMap`底层是数组+链表+红黑树）
+    - `HashSet`可以存放`null`，但只能存放一个。
+    - `HashSet`不保证元素是有序的，取决于hash后，再确定索引的结果。
+    - 不能有重复元素/对象。
+
+
+2. 【例程】简单的数组+链表结构
+    - 这里的数组是`Node[]`，链表是`Node[i]`。
+    - 使用链表的原因是为了存储更加高效（高于数组），当节点数组中某一索引达到一定长度时，选择使用树结构，这是一种比链表效率更高的数据结构。
+    ```java
+    public class HashSetStructure {
+        public static void main(String[] args) {
+            // 创建一个数组，类型为Node[]。
+            // Node[]被某些人称为“表”
+            Node[] table = new Node[16];
+
+            // 在index == 2 处设置 "john -> jack -> rose"
+            Node john = new Node("john", null);
+            table[2] = john;
+            Node jack = new Node("jack", null);
+            john.next = jack;
+            Node rose = new Node("rose", null);
+            jack.next = rose;
+            System.out.println(table);
+            
+            // 在index == 3 设置"lucy"
+            Node lucy = new Node("lucy", null);
+            table[3] = lucy;
+        }
+        static class Node {
+            Object item;
+            Node next;
+
+            public Node(Object item, Node next) {
+                this.item = item;
+                this.next = next;
+            }
+        }
+    }
+    ```
+
+3. `HashSet`底层机制
+    分析`HashSet`的添加元素底层是如何实现的（`hash()`+`equals()`）
+    步骤：
+    - `HashSet`底层是`HashMap`。
+    - 添加一个元素时，先得到hash值，然后将hash值转成索引。
+    - 找到存储数据表table，看这个索引是否已经存放有元素。
+    - 如果没有，直接加入。
+    - 如果有，调用`equals()`方法 **（这里可以由程序员控制）**，看两个元素是否相等。如果相同，放弃添加，如果不相同，添加到最后。
+    - 在java8中，如果一条链表的元素个数超过`TREEIFY_THRESHOLD`（默认值是8），且table大小>=`MIN_TREEIFY_CAPACITY`（默认值是64），就会进行树化。（红黑树）
+
+4. 扩容机制
+    ```java
+    HashSet set = new HashSet();
+    set.add("java");
+    set.add("cpp");
+    set.add("java");
+    System.out.println(set);
+    ```
+    - `HashSet()`
+        ```java
+        public HashSet() {
+            map = new HashMap<>();          // 底层是HashMap
+        }
+
+        public HashMap() {
+            this.loadFactor = DEFAULT_LOAD_FACTOR; // all other fields defaulted
+        }        
+        ```
+    
+    - `set.add()`
+        ```java
+        public boolean add(E e) {
+            // private static final Object PRESENT = new Object();
+            // put()会在键存在时替换返回当前值（这里是PRESENT），键不存在时返回null
+            // 因此，返回值为：true表示添加成功，false表示添加失败
+            return map.put(e, PRESENT)==null;
+        }
+
+        public V put(K key, V value) {
+            return putVal(hash(key), key, value, false, true);
+        }
+
+        static final int hash(Object key) {
+            int h;
+            // 按位异或和算术右移16位：可以增加哈希值的随机性，减少碰撞概率。
+            // **这里只需要知道哈希值并非简单的hashCode()即可，其还经过了一些处理
+            return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+        }
+
+        final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
+            // 定义辅助变量，Node数组 tab、节点 p、数组长度 n、索引 i
+            Node<K,V>[] tab; Node<K,V> p; int n, i;
+            // Node[] table
+            // 第一次扩容触发，将初始大小设置为16
+            // 将resize()方法返回的table赋给tab，并将大小赋给n
+            if ((tab = table) == null || (n = tab.length) == 0)
+                n = (tab = resize()).length;
+            // 我的理解：用(1111)与hash(key)进行按位与运算，得到索引i=[0,15]
+            // 当table扩容时，(1111)也会变成(11111)，以此类推
+            // 这里的p是当前索引位置对应链表的第一个Node
+            // 如果当前位置为null，触发节点创建
+            if ((p = tab[i = (n - 1) & hash]) == null)
+                tab[i] = newNode(hash, key, value, null);
+            else {
+                // 当索引位置有值时，分三种情况：
+                // 1. 新对象与索引位置首节点值相同。
+                // 2. 不满足1，但首节点是一个TreeNode（红黑树）。
+                // 3. 其他。
+
+                // 开发技巧：定义变量时，不建议将所有变量都在程序/函数开头定义好，而是在
+                // 对应代码块中定义，控制变量的生命周期。
+                Node<K,V> e; K k;
+                // 先判断哈希值是否相等，如果相等，考虑哈希碰撞，判断地址和值是否相等。
+                // 这是降低成本的一种短路设计，哈希不相等，对象必然不是一个，地址相等值一定相等（equals()一定为true）
+                if (p.hash == hash && ((k = p.key) == key || (key != null && key.equals(k))))
+                    e = p;
+
+                // 【待完善】红黑树查找算法，先按下不讲。
+                else if (p instanceof TreeNode)
+                    e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
+
+                // 其他情况
+                else {
+                    for (int binCount = 0; ; ++binCount) {
+                        // 当匹配到最后仍不存在，创建一个Node并将节点放到末尾。
+                        if ((e = p.next) == null) {
+                            p.next = newNode(hash, key, value, null);
+                            // 【待完善】如果链表大于等于7，执行树化
+                            // 树化还必须满足table.length >= 64（会在treeifyBin()中判断）
+                            // 也就是说，会优先将Node[] table的大小扩容到64
+                            if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                                treeifyBin(tab, hash);
+                            break;
+                        }
+                        // 对下一节点进行判断是否与待添加数据相等，逻辑与第一条分支相同
+                        if (e.hash == hash && ((k = e.key) == key || (key != null && key.equals(k))))
+                            break;
+                        p = e;      // 更新p来执行新的p.next()
+                    }
+                }
+
+                // 下面的代码会在添加失败时执行（即键匹配成功时）
+                if (e != null) { // existing mapping for key
+                    V oldValue = e.value;   // 获取旧值
+                    if (!onlyIfAbsent || oldValue == null)
+                        e.value = value;
+                    afterNodeAccess(e);
+                    // 输出 oldValue 表示添加失败。
+                    return oldValue;
+                }
+            }
+            ++modCount;         // 操作次数+1
+            // 如果大小触及门槛，触发扩容
+            if (++size > threshold)
+                resize();
+
+            // aafterNodeInsertion(true);这个方法为空，用来为HashMap子类留空，比如LinkedHashMap
+            afterNodeInsertion(evict);
+            // return null ，表示成功
+            return null;
+        }
+
+        final Node<K,V>[] resize() {
+            Node<K,V>[] oldTab = table;
+            // 当HashMap为空时，oldCap = 0；否则等于table的大小
+            int oldCap = (oldTab == null) ? 0 : oldTab.length;            
+            int oldThr = threshold;         // threshold , 扩容临界值，当达到这个大小，就要准备扩容
+            int newCap, newThr = 0;
+            if (oldCap > 0) {
+                if (oldCap >= MAXIMUM_CAPACITY) {
+                    threshold = Integer.MAX_VALUE;
+                    return oldTab;
+                }
+                else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
+                        oldCap >= DEFAULT_INITIAL_CAPACITY)
+                    newThr = oldThr << 1; // double threshold
+            }
+            else if (oldThr > 0) // initial capacity was placed in threshold
+                newCap = oldThr;
+            else {               // zero initial threshold signifies using defaults
+                // 初始化容量
+                newCap = DEFAULT_INITIAL_CAPACITY;      // DEFAULT_INITIAL_CAPACITY = 1 << 4 ，即16，这样写是因为移位运算更快。
+                newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
+            }
+            if (newThr == 0) {
+                float ft = (float)newCap * loadFactor;
+                newThr = (newCap < MAXIMUM_CAPACITY && ft < (float)MAXIMUM_CAPACITY ?
+                        (int)ft : Integer.MAX_VALUE);
+            }
+            threshold = newThr;
+            @SuppressWarnings({"rawtypes","unchecked"})
+            Node<K,V>[] newTab = (Node<K,V>[])new Node[newCap];
+            table = newTab;
+            if (oldTab != null) {
+                for (int j = 0; j < oldCap; ++j) {
+                    Node<K,V> e;
+                    if ((e = oldTab[j]) != null) {
+                        oldTab[j] = null;
+                        if (e.next == null)
+                            newTab[e.hash & (newCap - 1)] = e;
+                        else if (e instanceof TreeNode)
+                            ((TreeNode<K,V>)e).split(this, newTab, j, oldCap);
+                        else { // preserve order
+                            Node<K,V> loHead = null, loTail = null;
+                            Node<K,V> hiHead = null, hiTail = null;
+                            Node<K,V> next;
+                            do {
+                                next = e.next;
+                                if ((e.hash & oldCap) == 0) {
+                                    if (loTail == null)
+                                        loHead = e;
+                                    else
+                                        loTail.next = e;
+                                    loTail = e;
+                                }
+                                else {
+                                    if (hiTail == null)
+                                        hiHead = e;
+                                    else
+                                        hiTail.next = e;
+                                    hiTail = e;
+                                }
+                            } while ((e = next) != null);
+                            if (loTail != null) {
+                                loTail.next = null;
+                                newTab[j] = loHead;
+                            }
+                            if (hiTail != null) {
+                                hiTail.next = null;
+                                newTab[j + oldCap] = hiHead;
+                            }
+                        }
+                    }
+                }
+            }
+            return newTab;
+        }
+        ```
+
+5. `HashSet`扩容与转红黑树
+    - `HashSet`底层是`HashMap`，第一次添加时，table数组扩容到16，临界值是`默认值（16）*加载因子（0.75）=12`。
+    - 如果`table`数组使用到了临界值，会扩容到`16*2=32`（两倍扩容），新的临界值就是`32*0.75=24`，以此类推。
+    - 在Java8中，如果一条链表的元素个数达到`TREEIFY_THRESHOLD`（默认值8）且`table.length >= MIN_TREEIFY_CAPACITY`（默认值64），那么就会进行树化（红黑树），否则依然采用数组扩容机制。
+
+6. 自定义`equals()`和`hashCode()`
+    - 在IDEA的快捷生成中，选择生成`equals()和hashCode()`方法，可以进入生成向导。
+    - `Objects.hash`底层调用的`Arrays.hashCode()`方法。
+    ```java
+    public class HashSetExercise {
+        public static void main(String[] args) {
+            Set set = new HashSet();
+            set.add(new Employee("aha" , 22));
+            set.add(new Employee("aha" , 23));
+            set.add(new Employee("bhb" , 24));
+            set.add(new Employee("aha" , 22));
+            System.out.println(set.size());
+            System.out.println(set);
+        }
+    }
+
+    class Employee{
+        private String name;
+        private int age;
+
+        public Employee(String name, int age) {
+            this.name = name;
+            this.age = age;
+        }
+
+        @Override
+        public String toString() {
+            return "Employee{" +
+                    "name='" + name + '\'' +
+                    ", age=" + age +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof Employee)) return false;
+            Employee employee = (Employee) o;
+            return age == employee.age && Objects.equals(name, employee.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, age);
+        }
+    }
+    ```
+
+#### `LinkedHashSet`
+
+1. 说明
+    - `LinkedHashSet`是`HashSet`的子类。
+        ```java
+        public class LinkedHashSet<E>
+            extends HashSet<E>
+            implements Set<E>, Cloneable, java.io.Serializable
+        ```
+    - `LinkedHashSet`底层是一个`LinkedHashMap`，底层维护了一个数组+双向链表。
+    - `LinkedHashSet`根据元素的`hashCode()`值决定元素的存储位置，同时使用链表维护元素的持续，这使得元素看起来是以插入顺序保存的。
+        ![java_collection_set_linkedHashSet1](./img/java_collection_set_linkedHashSet1.png)
+    - `LinkedHashSet`的元素是唯一的，即不能有重复的元素。
+
+2. `LinkedHashSet`底层
+
+3. 源码解读
+    - 第一次创建时，table扩容至16，存放的节点类型是`LinkedHashMap$Entry`。
+    - 数组是`HashMap$Node[]`类型，数组中存放的数据是`LinkedHashMap$Entry`。
+        ```java
+        // 和Node一样，Entre是一个静态内部类
+        static class Entry<K,V> extends HashMap.Node<K,V> {
+            Entry<K,V> before, after;   // 相比Node，增加了保证顺序的链表结构
+            Entry(int hash, K key, V value, Node<K,V> next) {
+                super(hash, key, value, next);
+            }
+        }
+        ```
+
+### `Map` 接口
+
+#### 接口的基本使用
+
+1. `Map`接口实现类的特点
+    - 这里讲的是JDK8的Map接口
+    - `Map`与`Collection`并列存在，用于保存具有映射关系的数据`Key-Value`。
+    - `Map`中的`key`和`value`可以是任何引用类型数据，会封装到`HashMap$Node`对象中。
+    - `Map`中的`key`不能重复，原因与`HashSet`相同，之前章节有对应源码。
+    - `Map`中的`value`可以重复。
+    - `Map`中的`key`和`value`均可以是`null`，但`key`的`null`只能有一个，`value`的`null`可以有多个。
+    - 常用`String`类作为`Map`的`key`。
+    - `key`和`value`存在单向一对一关系，即通过指定的`key`总能找到对应的`value`。
+
+2. `key-value`底层
+    - k-v最后是`HashMap$Node node = newNode(hash, key, value, null);`
+    - 为方便程序员遍历，还会创建EntrySet集合，该集合存放Entry元素，一个Entry中含有k、v。`EntrySet<Entry<K,V>>`
+    - 但由于`HashMap$Node`实现了`Map.Entry`接口，所以`HashMap$Node`对象可以存放进EntrySet集合中。
+    - 方便遍历的原因：`Map.Entry`接口提供了两个方法：`K getKey()`、`V getValue()`。
+        ```java
+        for (Object obj : set){
+            Map.Entry entry = (Map.Entry) obj;
+            System.out.println(entry.getKey() + ":" + entry.getValue());
+        }
+        ```
+    - 常用内部类
+        - 总的来说，`HashMap.entry()`返回返回类型为`HashMap.EntrySet`的键值对集合。
+        - `HashMap.keySet()`返回类型为`HashMap.KeySet`的键集合。
+        - `HashMap.values()`返回类型为`HashMap.Values`的值集合。
+        ```java
+        public class HashMap01 {
+            public static void main(String[] args) {
+                HashMap map = new HashMap();
+                map.put("key", "value");
+                map.put("key2", "value2");
+                map.put("key3", "value");
+                map.put("key4", "value4");
+                for (Object object : map.entrySet()) {
+                    HashMap.Entry entry = (HashMap.Entry) object;
+                    System.out.println(entry.getKey() + " " + entry.getValue());
+                }
+
+                Set set = map.keySet();
+                System.out.println(set.getClass());
+                System.out.println(set);
+                System.out.println(map.values());
+            }
+        }
+        ```
+
+3. `Map`接口和常用方法
+    - `put(K key, V value)`：添加键值对，键不在则返回`null`，键在则返回旧值。
+    - `remove()`
+        - `remove(K key)`：删除指定键的键值对，返回旧值。
+        - `remove(K key, V value)`：删除指定键值对，返回boolean。
+    - `get(K key)`：返回键对应的值。
+    - `size()`：返回键值对数量。
+    - `isEmpty()`：判断是否为空。
+    - `clear()`：清空所有键值对。
+    - `containsKey()`：判断键是否存在。
+
+#### `Map`六大遍历方法
+
+1. 遍历涉及的方法
+    - `containsKey()`：查找键是否存在。
+    - `keySet()`：返回所有键。
+    - `entrySet()`：键值对集合。
+    - `values()`：返回所有值。
+
+2. 第一组：通过key遍历
+    ```java
+    // 增强for
+    for (K key : map.keySet()) {
+        System.out.println(key + ":" + map.get(key));
+    }
+
+    // 迭代器
+    Set set = map.keySet();
+    System.out.println(set.getClass());
+    System.out.println(set);
+    System.out.println(map.values());
+    
+    Iterator iterator = set.iterator();
+    while (iterator.hasNext()) {
+        Object next =  iterator.next();
+        System.out.println(next + "-" + map.get(next));        
+    }
+    ```
+
+3. 第二组：取出values
+    ```java
+    Collection values = map.values();
+    // 增强for，迭代器
+    ```
+
+3. 第三组：`EntrySet`
+    ```java
+    Set entrySet = map.entrySet();
+    // 增强for
+    for (Object entry : entrySet) {
+        Map.Entry entry1 = (Map.Entry) entry;
+        System.out.println(entry1.getKey() + "-" + entry1.getValue());
+    }
+
+    // 迭代器
+    Iterator iterator = entrySet.iterator();
+    while (iterator.hasNext()) {
+        Object entry = iterator.next();
+        Map.Entry entry1 = (Map.Entry) entry;
+        System.out.println(entry1.getKey() + "-" + entry1.getValue());
+    }
+    ```
+
+#### `HashMap`阶段小结
+
+1. 小结
+    - `Map`接口的常用实现类：`HashMap`、`HashTable`、`Properties`。
+    - `HashMap`是`Map`接口使用频率最高的实现类。
+    - `HashMap`是以`key-value`的方式来存储数据的。
+    - key值不能重复，但是值可以，允许使用`null`键和`null`值。
+    - 如果添加相同的key，则会覆盖原来的key-value，相当于修改。
+    - 和`HashSet`一样，不保证映射的顺序。
+    - `HashMap`，没有实现同步，是线程不安全的。
+
+#### `HashMap`底层源码
+
+1. 扩容机制（与`HashSet`一致）
+    - `HashMap`底层维护了`Node[] table`，默认为`null`。
+    - 当创建对象时，将加载因子`laoadFactor`设置为0.75。
+    - 当添加key-val时，通过key的哈希值得到在table的索引，并判断索引处是否有元素，如果没有元素直接添加。如果该索引处有元素，继续判断该元素的key和添加的key是否相等，如果相等则覆盖，不相等则判断是树结构还是链表结构，作出相应处理，如果添加时容量不够，则需要扩容。
+    - 第一次添加，需要扩容table容量为16，临界值`threshold = 12`。
+    - 之后扩容，table容量和threshold均为原来的两倍。
+    - 在JAVA8中，如果一条链表的元素个数超过`TREEIFY_THRESHOLD`（默认值8）时，且`table.length >= MIN_TREEIFY_CAPACITY`（默认值64）时，链表会转换成红黑树。
+
+2. 源码
+    ```java
+    public class HashMapSource01 {
+        public static void main(String[] args) {
+            Map map = new HashMap();
+            map.put("java", 10);
+            map.put("php", 10);
+            map.put("java", 20);
+
+            System.out.println(map);
+        }
+    }
+
+    public HashMap() {
+        // 初始化加载因子
+        // DEFAULT_LOAD_FACTOR = 0.75f;
+        this.loadFactor = DEFAULT_LOAD_FACTOR; // all other fields defaulted
+    }
+
+    public V put(K key, V value) {
+        return putVal(hash(key), key, value, false, true);
+    }
+
+    final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
+                   boolean evict) {
+        Node<K,V>[] tab; Node<K,V> p; int n, i;
+        if ((tab = table) == null || (n = tab.length) == 0)
+            n = (tab = resize()).length;
+        if ((p = tab[i = (n - 1) & hash]) == null)
+            tab[i] = newNode(hash, key, value, null);
+        else {
+            Node<K,V> e; K k;
+            if (p.hash == hash &&
+                ((k = p.key) == key || (key != null && key.equals(k))))
+                e = p;
+            else if (p instanceof TreeNode)
+                e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
+            else {
+                for (int binCount = 0; ; ++binCount) {
+                    if ((e = p.next) == null) {
+                        p.next = newNode(hash, key, value, null);
+                        if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                            treeifyBin(tab, hash);
+                        break;
+                    }
+                    if (e.hash == hash &&
+                        ((k = e.key) == key || (key != null && key.equals(k))))
+                        break;
+                    p = e;
+                }
+            }
+            if (e != null) { // existing mapping for key
+                V oldValue = e.value;
+                if (!onlyIfAbsent || oldValue == null)
+                    e.value = value;
+                afterNodeAccess(e);
+                return oldValue;
+            }
+        }
+        ++modCount;
+        if (++size > threshold)
+            resize();
+        afterNodeInsertion(evict);
+        return null;
+    }
+
+    final Node<K,V>[] resize() {
+        Node<K,V>[] oldTab = table;
+        int oldCap = (oldTab == null) ? 0 : oldTab.length;
+        int oldThr = threshold;
+        int newCap, newThr = 0;
+        if (oldCap > 0) {
+            if (oldCap >= MAXIMUM_CAPACITY) {
+                threshold = Integer.MAX_VALUE;
+                return oldTab;
+            }
+            else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
+                     oldCap >= DEFAULT_INITIAL_CAPACITY)
+                newThr = oldThr << 1; // double threshold
+        }
+        else if (oldThr > 0) // initial capacity was placed in threshold
+            newCap = oldThr;
+        else {               // zero initial threshold signifies using defaults
+            newCap = DEFAULT_INITIAL_CAPACITY;
+            newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
+        }
+        if (newThr == 0) {
+            float ft = (float)newCap * loadFactor;
+            newThr = (newCap < MAXIMUM_CAPACITY && ft < (float)MAXIMUM_CAPACITY ?
+                      (int)ft : Integer.MAX_VALUE);
+        }
+        threshold = newThr;
+        @SuppressWarnings({"rawtypes","unchecked"})
+        Node<K,V>[] newTab = (Node<K,V>[])new Node[newCap];
+        table = newTab;
+        if (oldTab != null) {
+            for (int j = 0; j < oldCap; ++j) {
+                Node<K,V> e;
+                if ((e = oldTab[j]) != null) {
+                    oldTab[j] = null;
+                    if (e.next == null)
+                        newTab[e.hash & (newCap - 1)] = e;
+                    else if (e instanceof TreeNode)
+                        ((TreeNode<K,V>)e).split(this, newTab, j, oldCap);
+                    else { // preserve order
+                        Node<K,V> loHead = null, loTail = null;
+                        Node<K,V> hiHead = null, hiTail = null;
+                        Node<K,V> next;
+                        do {
+                            next = e.next;
+                            if ((e.hash & oldCap) == 0) {
+                                if (loTail == null)
+                                    loHead = e;
+                                else
+                                    loTail.next = e;
+                                loTail = e;
+                            }
+                            else {
+                                if (hiTail == null)
+                                    hiHead = e;
+                                else
+                                    hiTail.next = e;
+                                hiTail = e;
+                            }
+                        } while ((e = next) != null);
+                        if (loTail != null) {
+                            loTail.next = null;
+                            newTab[j] = loHead;
+                        }
+                        if (hiTail != null) {
+                            hiTail.next = null;
+                            newTab[j + oldCap] = hiHead;
+                        }
+                    }
+                }
+            }
+        }
+        return newTab;
+    }
+    ```
+
+#### `Hashtable`
+
+1. 基本介绍
+    - `Hashtable`存放的是键值对`K-V`。
+    - `Hashtable`的键和值都不能为空，否则会抛出空指针异常`NullPointerException`。
+    - `Hashtable`使用方法和`HashMap`一样。
+    - **`Hashtable`是线程安全的（`synchronized`），`HashMap`是线程不安全的。**
+
+2. 继承关系
+    ```java
+    public class Hashtable<K,V>
+        extends Dictionary<K,V>
+        implements Map<K,V>, Cloneable, java.io.Serializable 
+    ```
+
+3. `Hashtable`底层
+    - 底层有数组`Hashtable$Entry[]`，初始化大小为11。
+        ```java
+        public Hashtable() {
+                this(11, 0.75f);
+            }
+        ```
+    - `Hashtable`的扩容机制：到达`threshold`后，扩容为原来的2倍+1。
+        ```java
+        int newCapacity = (oldCapacity << 1) + 1;
+        ```
+
+#### `Properties`
+
+1. 基本介绍
+    - `Properties`类，继承自`Hashtable`类，并实现`Map`接口。以键值对形式保存数据。
+    - 使用特点与`Hashtable`类似，比如不能有空键与空值。
+    - `Properties`类可用于从`*.properties`文件中加载数据到`Properties`对象中，并进行读取和修改。
+    - 工作中，`*.properties`文件通常作为配置文件，这个知识点在IO流举例。
+    - 相关文章：[旭东的博客：Java 读写Properties配置文件](https://www.cnblogs.com/xudong-bupt/p/3758136.html)
+
+#### `TreeSet`
+
+1. 无参构造器
+    - 会调用传入对象的`CompareTo()`方法进行排序，如果对象未实现`Comparable`接口，则抛出`ClassCastException`异常。
+    ```java
+    TreeSet set = new TreeSet();
+    set.add("jack");
+    set.add("tom");
+    set.add("sp");
+    set.add("a");
+
+    System.out.println(set);
+    ```
+
+2. 传入比较器的构造器
+    - 传入一个类型为`Comparator`的匿名内部类。
+    - 底层会调用`TreeMap`。
+    - 在存入元素时，通过调用比较器确定元素的位置，如果比较器返回0，会重新设置值。
+    - 不同的`Comparator`策略会影响排序和加入元素的结果。（比如按字符串长度排序，将无法加入长度相同的字符串）
+    ```java
+    TreeSet set = new TreeSet(new Comparator() {
+        @Override
+        public int compare(Object o1, Object o2) {
+            return ((String)o1).compareTo((String)o2);
+        }
+    });
+    set.add("jack");
+    set.add("tom");
+    set.add("jack");
+    set.add("sp");
+    set.add("aha");
+
+    System.out.println(set);
+    ```
+
+3. 【待完善】等我有空了回来追一遍源码。
+
+#### `TreeMap`
+
+1. 无参构造器
+    - 和`TreeSet`一样，使用无参构造器时，键不会排序。
+
+
+
+### 集合选型规则
+1. 先判断存储类型（一组对象-单列；一组键值对-双列）
+
+2. 一组对象：`Collection`接口
+    - 允许重复：`List`。
+        - 增删多：`LinkedList`（底层维护双向链表）
+        - 改查多：`ArrayList`（底层维护`Object`可变数组）
+    - 不允许重复：`Set`。
+        - 无序：`HashSet`，底层是`HashMap`，维护了哈希表（数组+链表+红黑树）
+        - 排序：`TreeSet`
+        - 插入和取出顺序一致：`LinkedHashSet`，底层维护数组+双向链表
+
+3. 一组键值对：`Map`接口
+    - 键无序：`HashMap`，底层是哈希表。
+    - 键排序：`TreeMap`。
+    - 键插入和取出顺序一致：`LinkedHashMap`，底层维护数组+双向链表。
+    - 读取文件：`Properties`。
+
+### `Collections`工具类
+
+1. 介绍
+    - `Collections`是一个操作`Set`、`List`、`Map`等集合的工具类。
+    - `Collections`类中提供了一系列静态方法对集合元素进行排序、查询和修改等操作。
+
+2. 排序操作
+    - `reverse(List)`：反转List中的元素顺序。
+    - `shuffle(List)`：对List集合元素进行随机排序。
+    - `sort(List)`：升序排序，本质上是调用`Comparable`接口的`compareTo()`方法。
+    - `sort(List, Comparator)`：自定义排序
+    - `swap(List, int, int)`：交换两个指定位置的元素
+
+3. 查找、替换
+    - `Object max(Collection)`：根据元素自然顺序，返回集合中最大的元素。
+    - `Object max(Collection, Comparator)`：根据自定义排序，返回最大元素。
+    - `Object min(Collection)`：
+    - `Object min(Collection, Comparator)`：
+    - `int frequency(Collection, Object)`：返回某元素在给定集合中的出现次数。
+    - `void copy(List dest, List src)`：复制List到指定位置。
+    - `boolean replaceAll (List list, Object oldval, Object newval)`：使用新值替换所有旧值。
+    
+
+## 泛型
+
+### 本章目录
+
+1. 泛型语法
+2. 自定义泛型
+    - 泛型类
+    - 泛型接口
+    - 泛型方法
+3. 泛型继承和通配符
+
+4. generic
+
+### 引例
+1. 需求
+    编写一个程序，在ArrayList中添加3个Dog对象。使用get方法输出。
+2. 传统解决方案
+    ```java
+    // main...
+    ArrayList arrayList = new ArrayList();
+    arrayList.add(new Dog("大黄1", 1));
+    arrayList.add(new Dog("大黄2", 2));
+    arrayList.add(new Dog("大黄3", 3));
+
+    for (Object obj : arrayList){       // 这里只接受Object类型的迭代对象
+        Dog dog = (Dog)obj;
+        System.out.println("name:" + dog.getName() + ",age:" + dog.getAge());
+    }
+    ```
+    - 这个解决方案有几个缺点。
+    - 需要向下转型，当数据量很大的时候，这行代码会造成明显的时间浪费。
+    - 当ArrayList出现非Dog对象时，会报错。
+3. 泛型引出
+    ```java
+    // main....
+    ArrayList<Dog> arrayList = new ArrayList<Dog>();
+    arrayList.add(new Dog("xiaoming", 1));
+    arrayList.add(new Dog("xiaohong", 2));
+    for (Dog dog : arrayList){
+        System.out.println("name:" + dog.getName() + ",age:" + dog.getAge());
+    }
+    ```
+    - `ArrayList<Dog>`表示ArrayList中存放的是Dog对象，编译器会检查是否是Dog对象，如果不是，则会报错。
+    - 使用泛型后，可以直接在遍历中获取Dog对象，而不是Object，不需要强转。
+
+### 基本介绍
+
+1. 泛型介绍
+    - 泛型又称参数化类型，是JDK5.0后的新特性，解决数据类型的安全性问题。
+    - 在类声明或实例化时，只要指定好需要的具体类型即可。
+    - Java泛型可以保证如果程序在编译时没有发生警告，运行时就不会抛出`ClassCastException`异常。
+    - 泛型的作用是：可以在类声明时通过一个标识标识类中某个属性的，类型，或者是某个方法的返回值类型，或者是参数类型。
+
+2. 泛型语法
+    - 声明
+        ```java
+        Interface IA <T> {}
+        class ClassA <K,V> {}
+        ```
+        - 一般用`T`（Type）、`K`（Key）、`V`（Value）表示。
+        - 理论上可以使用任意字母表示，吸管刷
+    - 实例化
+        ```java
+        List<String> list = new ArrayList<String>();
+        Iterator<Customer> iter = customers.iterator();
+        ```
+    
+3. 注意事项与细节
+    - 泛型只能是引用类型，不能是基本类型。（比如指定`int`，需要使用`<Integer>`，否则会报错`类型参数不能是基元类型`）。
+    - 在给泛型指定具体类型后，可以传入该类型或该类型的子类型。
+    - 泛型的使用形式
+        ```java
+        List<Integer> list1 = new ArrayList<Integer>(); 
+        List<Integer> list2 = new ArrayList<>();        // 【推荐】右侧泛型类型可以省略
+        List list3 = new ArrayList<>();                 // 不指定泛型，默认为Object类型
+        ```
+
+### 自定义泛型
+
+1. 基本语法
+    ```java
+    class 类名 <T, R...>{
+        // 成员
+    }
+    ```
+2. 注意细节
+    - 普通成员可以使用泛型（属性、方法）。
+    - 使用泛型的数组，不能初始化。（不能确定类型，无法在内存中开辟空间，不能`new`）
+    - 静态方法中不能使用类的泛型。（静态方法与类相关，类加载先于对象创建，如果静态方法使用泛型，JVM无法完成初始化）
+    - 泛型类的类型，是在创建对象时确定的。
+    - 如果在创建对象时，没有指定类型，默认为`Object`类型。
+
+3. 自定义泛型接口
+    ```java
+    interface 接口名 <T>{}
+    ```
+4. 接口细节
+    - 接口中，静态成员也不能使用泛型。
+        - 对于接口，无法用泛型定义属性，因为其属性都是`final static`修饰的。
+    - 泛型接口的类型在**继承接口**或者**实现接口**时确定。不写默认是`Object`。
+        - 继承接口
+            ```java
+            interface IA extends IB<Double, String>{...}
+            ```
+        - 实现接口
+            ```java
+            class A implements IB<Double, String>{...}
+            ```
+    - 没有指定类型，默认为`Object`类型。
+
+
+#### 自定义泛型方法
+
+1. 基本语法
+    ```java
+    修饰符 <T,R...> 返回类型 方法名(参数方法){}
+    ```
+
+2. 注意细节
+    - 泛型方法可以定义在普通类中，也可以定义在泛型类中。
+    - 当泛型方法被调用时，类型会确定。（不须显式传入泛型，编译器会根据传入的值确定泛型类型）
+    - 在下面的例子中，修饰符后没有泛型的方法不是泛型方法，只是使用了泛型。
+        ```java
+        public void eat(E e){}
+        ```
+
+3. 泛型方法举例
+    ```java
+    class Car{
+        public void run(){...}
+        public <T, R> void fly(T t, R r){...}
+
+    car.fly(1, "hello");// T = Integer, R = String
+    car.fly("hello", 1);// T = String, R = Integer
+    }
+    ```
+
+### 泛型继承与通配符
+
+1. 泛型不具备继承性
+    - 下面的例子中，虽然`String`继承自`Object`，但是`List<String>`不能继承`List<Object>`
+    ```java
+    List<Object> list = new ArrayList<String>();// 错误
+    ```
+
+2. 通配符
+    - `<?>`：支持任意类型的泛型。**可以将类型限定为单一类型，不像`<Object>`一样可以添加任意类型到同一列表中。**
+    - `<? extends A>`：支持A类及其子类，规定了泛型的上限。
+    - `<? super A>`：支持A类及其父类，规定了泛型的下限。
+    
+
+
+### 附加内容
+
+#### JUnit单元测试类
+
+1. 为什么需要JUnit
+    - 一个类有很多功能代码需要测试，为了测试，就需要写入到main方法中。
+    - 如果有多个功能代码测试，就需要来回注销，切换很麻烦。
+    - 如果可以直接运行一个方法，就方便很多，并且可以各处相关信息就好了。
+
+2. 基本介绍
+    - JUnit是Java语言的单元测试框架。
+    - 多数Java环境都已经集成了JUnit作为单元测试工具。
+
+3. 使用步骤
+    - 在需要测试的方法上方增加`@Test`。
+    - 注解位置此时会报红，在注解上按`Alt+Enter`选择适合的JUnit工具，这里我们选择`JUnit5.8.1`。
+        ![java_IDEA_JUnitUse2](./img/java_IDEA_JUnitUse2.png)
+        ![java_IDEA_JUnitUse3](./img/java_IDEA_JUnitUse3.png)
+        
+    - 此时IDEA对应方法左侧会出现一个绿色三角，点击即可运行。
+
+
+
+
 
