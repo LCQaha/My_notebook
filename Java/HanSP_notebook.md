@@ -7007,6 +7007,460 @@ new起到的是一个分配空间的作用，声明仅是定义的过程，此�
         
     - 此时IDEA对应方法左侧会出现一个绿色三角，点击即可运行。
 
+## 【项目】坦克大战（v1.0）
+
+### 项目内容简述
+
+1. 为什么写这个项目？
+    - 趣味性高。
+    - 涉及多种技术
+        - Java面向对象编程。
+        - Java多线程。
+        - 文件IO操作。
+        - 数据库。
+    - 巩固旧知识，学习新知识。
+
+### 素材绘制
+
+#### 程序主框架
+
+1. `TankGame02.java`
+    ```java
+    public class TankGame02 extends JFrame {
+        private MyPanel panel = null;
+
+        public static void main(String[] args) {
+            TankGame02 tankGame02 = new TankGame02();
+        }
+
+        public TankGame02() {
+            this.panel = new MyPanel();
+
+            this.add(panel);
+            this.addKeyListener(panel);
+            this.setSize(1000, 700);
+            this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            this.setVisible(true);
+        }
+    }
+    ```
+
+#### 完成坦克绘制
+
+1. `Tank.java
+    ```java
+    public class Tank {
+        private int x;
+        private int y;
+        private int direction;
+
+        public Tank(){
+            this(0,0);
+        }
+
+        public Tank(int x, int y) {
+            this.x = x;
+            this.y = y;
+            this.direction = 0;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public void setX(int x) {
+            this.x = x;
+        }
+
+        public int getY() {
+            return y;
+        }
+
+        public void setY(int y) {
+            this.y = y;
+        }
+
+        public int getDirection() {
+            return direction;
+        }
+
+        public void setDirection(int direction) {
+            this.direction = direction;
+        }
+    }
+    ```
+
+2. `EnemyTank.java`
+    ```java
+    public class EnemyTank extends Tank {
+        public EnemyTank(int x, int y) {
+            super(x, y);
+        }
+    }
+    ```
+
+3. `Hero.java`
+    ```java
+    public class Hero extends Tank {
+
+        public Hero(int x, int y) {
+            super(x, y);
+        }
+    }
+    ```
+
+4. `MyPanel.java`
+    ```java
+    public class MyPanel extends JPanel implements KeyListener {
+
+        Hero hero = null;
+
+        Vector<EnemyTank> enemyTanks = new Vector<>();
+        private static final int ENEMY_TANK_SIZE = 3;
+
+        public MyPanel() {
+            hero = new Hero(200, 400);
+            for (int i = 0; i < ENEMY_TANK_SIZE; i++) {
+                EnemyTank enemyTank = new EnemyTank(100 * (i + 1), 30);
+                enemyTank.setDirection(2);
+                enemyTanks.add(enemyTank);
+            }
+        }
+
+        @Override
+        public void paint(Graphics g) {
+            super.paint(g);
+            drawTank(hero, g, hero.getDirection(), 0);
+
+            for (EnemyTank enemyTank : enemyTanks) {
+                drawTank(enemyTank, g, enemyTank.getDirection(), 1);
+            }
+        }
+
+        /**
+         * @param tank
+         * @param g
+         * @param direction (0:上,1:右,2:下,3:左)
+         * @param type
+         */
+
+        public void drawTank(Tank tank, Graphics g, int direction, int type) {
+            int x = tank.getX();
+            int y = tank.getY();
+
+            switch (type) {
+                case 0:
+                    g.setColor(Color.cyan);
+                    break;
+                case 1:
+                    g.setColor(Color.yellow);
+                    break;
+            }
+
+            switch (direction) {
+                case 0:
+                    g.fill3DRect(x, y, 10, 60, false);
+                    g.fill3DRect(x + 10, y + 10, 20, 40, false);
+                    g.fill3DRect(x + 30, y, 10, 60, false);
+                    g.fillOval(x + 10, y + 20, 20, 20);
+                    g.drawLine(x + 20, y + 30, x + 20, y);
+                    break;
+                case 1:
+                    g.fill3DRect(x, y, 60, 10, false);
+                    g.fill3DRect(x + 10, y + 10, 40, 20, false);
+                    g.fill3DRect(x, y + 30, 60, 10, false);
+                    g.fillOval(x + 20, y + 10, 20, 20);
+                    g.drawLine(x + 30, y + 20, x + 60, y + 20);
+                    break;
+                case 2:
+                    g.fill3DRect(x, y, 10, 60, false);
+                    g.fill3DRect(x + 10, y + 10, 20, 40, false);
+                    g.fill3DRect(x + 30, y, 10, 60, false);
+                    g.fillOval(x + 10, y + 20, 20, 20);
+                    g.drawLine(x + 20, y + 30, x + 20, y + 60);
+                    break;
+                case 3:
+                    g.fill3DRect(x, y, 60, 10, false);
+                    g.fill3DRect(x + 10, y + 10, 40, 20, false);
+                    g.fill3DRect(x, y + 30, 60, 10, false);
+                    g.fillOval(x + 20, y + 10, 20, 20);
+                    g.drawLine(x + 30, y + 20, x, y + 20);
+                    break;
+
+            }
+        }
+
+        @Override
+        public void keyTyped(KeyEvent e) {
+
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_UP:
+                    hero.setDirection(0);
+                    hero.setY(hero.getY() - 10);
+                    break;
+                case KeyEvent.VK_LEFT:
+                    hero.setDirection(3);
+                    hero.setX(hero.getX() - 10);
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    hero.setDirection(1);
+                    hero.setX(hero.getX() + 10);
+                    break;
+                case KeyEvent.VK_DOWN:
+                    hero.setDirection(2);
+                    hero.setY(hero.getY() + 10);
+                    break;
+            }
+
+            this.repaint();
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+
+        }
+    }
+    ```
+
+#### 敌方坦克
+1. 分析
+    - 因为敌人坦克在`MyPanel`中，所以坦克绘制在`MyPanel`中。
+    - 因为敌人的坦克后期会有特殊方法，所以可以单开一个`Enemy`类继承`Tank`类。
+    - 敌人坦克数量多，考虑多线程问题，使用线程安全的`Vector`类。
+
+### 附加内容
+
+#### Java绘图坐标体系
+
+1. 介绍
+    - 坐标原点位于左上角，坐标以像素为单位
+    - 向右为x正方向，向下为y正方向，数值表示离原点的水平/垂直像素量。
+
+2. 快速入门-绘制一个圆
+    ```java
+    public class DrawCircle extends JFrame {
+
+        private MyPanel panel = null;
+
+        public static void main(String[] args) {
+            DrawCircle drawCircle = new DrawCircle();
+            System.out.println("Finish!!!");
+        }
+
+        public DrawCircle() {
+            panel = new MyPanel();      // 创建画板
+
+            this.add(panel);            // 将画板加入窗口
+            this.setSize(1920, 1080);     // 初始化窗口大小
+            this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // 设置为关闭窗口即程序结束
+            this.setVisible(true);                  // 可以显示
+        }
+    }
+
+    class MyPanel extends JPanel {
+
+        @Override
+        public void paint(Graphics g) {
+            super.paint(g);     // 完成面板初始化
+            // 输出日志，当持续改变窗口大小时，日志会不断输出。
+            System.out.println("paint be used\t"+
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").
+                            format(LocalDateTime.now()));
+
+            // 绘制一个椭圆，xy决定外接矩形的左上顶点，width和height决定外接矩形的大小。
+            g.drawOval(10,10,1000,1000);
+        }
+    }
+    ```
+    - `Component` 类提供了来年各个和绘图相关最重要的方法：
+        - `void paint(Graphics g)`：绘制组件外观。
+        - `repaint()`：刷新组件外观。
+    - 当组件第一次在屏幕上显示时，会自动调用`paint()`方法。
+    - 下列情况发生时，`paint()`方法会再次调用：
+        - 窗口最小化，再最大化。
+        - 窗口的大小发生变化。
+        - `repaint()`方法被调用。
+    - 在本例中：
+        - `MyPanel`类继承自`JPanel`，相当于一个画板，而`Graphics g`相当于一支画笔。
+        - `Graphics`对象封装了所有绘制的方法。
+    - **绘图框架解读**：
+        - 主类继承`JFrame`（窗口）类，并创建一个`MyPanel`（画板）对象作为属性。
+        - 通过主类构造器完成窗口基本设置与画板的指定。
+        - 创建`MyPanel`类并重写`paint(Graphic g)`方法（画笔），用`Graphic`类完成绘图。
+
+3. `Graphic`类的常用方法
+    - `drawLine(int x1, int y1, int x2, int y2)`：画直线。
+    - `drawRect(int x, int y, int width, int height)`：画矩形。
+    - `drawOval(int x, int y, int width, int height)`：画圆。
+    - `fillRect(int x, int y, int width, int height)`：填充矩形。
+    - `fillOval(int x, int y, int width, int height)`：填充圆。
+    - `drawImage(Image img, int x, int y)`：画图片。
+    - `drawString(String str, int x, int y)`：画字符串，此时的坐标为文字的**左下角**。
+    - `setFont(Font font)`：设置字体。
+    - `setColor(Color color)`：设置颜色。
+    ```java
+    public class Draw02 extends JFrame {
+
+        private DrawPanel02 drawPanel02 = null;
+        public static void main(String[] args) {
+            Draw02 draw02 = new Draw02();
+            System.out.println("Finish!!!");
+        }
+
+        public Draw02() throws HeadlessException {
+            drawPanel02 = new DrawPanel02();
+
+            this.add(drawPanel02);
+            this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            this.setSize(1920, 1080);
+            this.setVisible(true);
+        }
+    }
+
+    class DrawPanel02 extends JPanel {
+        @Override
+        public void paint(Graphics g) {
+            super.paint(g);
+
+            System.out.println("paint be used\t"+
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").
+                            format(LocalDateTime.now()));
+
+            g.drawOval(10,10,100,100);
+            g.drawLine(0,60,120,60);
+            g.drawRect(10,10,100,100);
+
+            // 图片路径为out/production/project_name/test.png
+            Image img = Toolkit.getDefaultToolkit().getImage(Panel.class.getResource("/test.png"));
+            g.drawImage(img, 130, 10, 500, 500, this);
+
+            g.setColor(Color.red);
+            g.setFont(new Font("Times New Roman", Font.BOLD, 20));
+            g.drawString("Hello World", 10, 200);
+        }
+    }
+    ```
+
+#### Java事件处理机制
+
+1. 基本说明
+    - Java事件处理是采取“委派事件模型”。当事件发生时，产生事件的对象会把此信息传递给“事件监听者”处理。
+    - 这里所说的“信息”，实际上就是`java.awt.event`事件类库里某个类创建的对象，把它称为“事件的对象”。
+
+2. 事件处理机制详解
+    - 下面介绍事件源、事件、时间监听器等概念。
+    - 事件源：一个产生事件的对象，比如按钮、窗口等。
+    - 事件：承载事件源状态改变时的对象，如键盘事件、鼠标事件、窗口事件等，会生成一个事件对象，该对象保存着当前事件很多信息，比如`KeyEvent`对象包含被按下键的`Code`值。`java.awt.event`和`javax.swing.event`包里定义了各种事件类型。
+
+3. 常见事件类型
+    |事件类|说明|
+    |:---:|:---:|
+    |`ActionEvent`|通常在按下按钮，<br>或双击一个列表项，<br>或选中某个菜单时发生|
+    |`AdjustmentEvent`|当操作一个滚动条时发生|
+    |`ComponentEvent`|当一个组件隐藏、移动、改变大小时发生|
+    |`ContainerEvent`|当一个组件从容器中加入或者删除时发生|
+    |`FoucusEvent`|当一个组件获得或失去焦点时发生|
+    |`ItemEvent`|当一个复选框或是列表被选中时，<br>当一个选择框或选择菜单被选中时发生|
+    |`KeyEvent`|当键盘按键被按下/松开时发生|
+    |`MouseEvent`|当鼠标被拖动、移动、点击、按下时发生|
+    |`TextEvent`|当文本区和文本域的文本发生改变时发生|
+    |`WindowEvent`|当一个窗口激活、关闭、失效、恢复、最小化时发生|
+    
+4. 事件监听器接口
+    - 当事件源产生一个事件，可以传送给事件监听者处理。
+    - 事件监听者实际就是一个类，该类实现了某个事件监听器的接口，比如在下面的示例中，`MyPanel`类实现了`KeyListener`接口。
+    - 事件监听器接口有多种，不同的事件监听器接口可以监听不同的事件，一个类可以实现多个监听接口。
+    - 这些接口在`java.awt.event`和`javax.swing.event`包中定义，具体请自行查阅JDK文档。
+
+5. 【示例】控制小球移动
+    ```java
+    public class BallMove extends JFrame {
+        MyPanel panel = null;
+
+        public static void main(String[] args) {
+            BallMove ballMove = new BallMove();
+            System.out.println("Finish!!!");
+        }
+
+        public BallMove() throws HeadlessException {
+            panel = new MyPanel();
+
+            this.add(panel);
+            this.setSize(800, 600);
+            this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            this.setVisible(true);
+
+            this.addKeyListener(panel);     // 将对键盘的监听加入JFrame窗口
+        }
+    }
+
+    class MyPanel extends JPanel implements KeyListener {
+
+        int x = 10;
+        int y = 10;
+
+        @Override
+        public void paint(Graphics g) {
+            super.paint(g);
+            g.fillOval(x, y, 20, 20);
+        }
+
+
+        @Override
+        public void keyTyped(KeyEvent e) {  // 字符输出时触发
+            System.out.println((char) e.getKeyCode() + " keyout!!!");
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {    // 键盘按下时触发
+            System.out.println((char) e.getKeyCode() + " keyPressed!!!");
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_UP:
+                    y--;
+                    break;
+                case KeyEvent.VK_DOWN:
+                    y++;
+                    break;
+                case KeyEvent.VK_LEFT:
+                    x--;
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    x++;
+                    break;
+            }
+            repaint();
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {   // 键盘释放时触发
+            System.out.println((char) e.getKeyCode() + " keyReleased!!!");
+        }
+    }
+
+    ```
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
