@@ -4176,7 +4176,7 @@ new起到的是一个分配空间的作用，声明仅是定义的过程，此�
     - abstract只能修饰类和方法，不能修饰属性和其他。
     - 抽象类可以有任意成员（抽象类本质还是类，可以拥有非抽象方法、构造器、静态属性等）
     - 抽象方法不能有主体，即不能实现。
-    - 如果一个类继承了抽象类，则它必须实现抽象类中的所有抽象方法，除非它自己也声明为抽象类。
+    - **如果一个类继承了抽象类，则它必须实现抽象类中的所有抽象方法**，除非它自己也声明为抽象类。
     - **抽象方法不能用private、final、static修饰。他们和重写相违背。**
 
 #### 抽象类的最佳实践——模板设计模式
@@ -8013,4 +8013,609 @@ synchronized (lock2) { // 先占lock2
     - 线程执行同步方法或同步代码块时，程序调用了`Thread.sleep()`、`Thread.yield()`等方法时。暂停当前线程，不会释放锁。
     - 线程执行同步方法或同步代码块时，程序调用了`suspend()`方法将线程挂起，不会释放锁。
 
+## 【项目】坦克大战（v2.0）
+
+### 发射子弹
+
+1. 基本思路
+    - 发射一颗子弹相当于启动一个线程。
+    - Hero有子弹的对象，当按下J时，就启动一个发射行为（线程），让子弹不停移动，形成一个射击效果。
+    - `MyPanel`需要不断重绘子弹。
+    - 当子弹移动到边界时，应销毁。（销毁对应线程）
+
+### 敌方发射子弹
+
+1. 增加功能
+    - 让敌人坦克也能发射子弹。
+    - 当我方坦克击中敌人坦克时，敌人的坦克消失。（进阶：做出爆炸效果）
+    - 让敌人的坦克可以自由随机的上下左右移动
+    - 控制我方坦克和敌人的坦克在规定的范围移动。
+
+2. 解决方案
+    - 对于敌人坦克类，使用Vector保存多个Shot。
+    - 当创建一个敌人坦克对象，给该敌人坦克对象初始化一个shot对象，同时启动shot。
+    - 在绘制变量敌人坦克对象时，需要变量：敌人坦克对象Vector、绘制所有子弹、当isLive==false时，从Vector删除。
+
+### 遇到的问题
+
+1. 不要在增强for中更改`Collection`集合，若如此做，会因为改变集合修改次数导致增强for抛出异常。
+
+
+## IO流
+
+### 章节目录
+
+1. 文件
+    - 概念
+    - 常用操作
+2. IO流原理及流的分类
+3. 节点流和处理流
+4. 输入流
+    - `InputStream`
+        - `FileInputStream`
+        - `BufferedInputStream`
+        - `ObjectInputStream`        
+    - `Reader`
+        - `FileReader`
+        - `BufferedReader`
+        - `InputStreamReader`
+5. 输出流
+    - `OutputStream`    
+        - `FileOutputStream`
+        - `BufferedOutputStream`
+        - `ObjectOutputStream`
+    - `Writer`
+        - `FileWriter`
+        - `BufferedWriter`
+        - `OutputStreamWriter`
+6. `Properties`类
+
+### 文件概念
+
+1. 什么是文件
+    文件就是保存数据的地方。
+    如：Word、Excel、txt文件等。
+
+2. 文件流
+    - 文件在程序中以流的形式来操作。
+    - 将文件数据读进程序（内存）的过程称为输入流，将文件数据从程序（内存）写入文件的过程称为输出流。
+
+#### 常用文件操作
+
+1. 创建文件对象相关的构造器和方法
+    - `new File(String pathname)`：根据路径构建一个`File`对象。
+    - `new File(File parent, String child)`：根据父目录和子路径构建一个`File`对象。
+    - `new File(String parent, String child)`：根据父目录和子路径构建一个`File`对象。
+
+2. 获取文件信息
+    - `getName()`：获取文件名/目录（路径最后一段）。
+    - `getAbsolutePath()`：获取绝对路径。
+    - `getParent()`：获取父目录。
+    - `length()`：获取文件大小（对象为目录或不存在则为0）。
+    - `exists()`：文件/目录是否存在。
+    - `isFile()`：对象是不是文件。
+    - `isDirectory()`：对象是不是目录。
+
+3. 目录操作与文件删除
+    - `mkdir()`：创建一级目录。
+    - `mkdirs()`：创建多级目录。
+    - `delete()`：删除文件/目录。（只能删除空目录）
+    ```java
+    @Test
+    public void testDelete() {
+        String filePath = "E:\\code\\HSPJava\\IntelliJ\\ch19\\file";
+        File file = new File(filePath, "1.txt");
+
+        if (file.exists()) {
+            if (file.delete()) {
+                System.out.println("delete success");
+            } else {
+                System.out.println("delete fail");
+            }
+        } else {
+            System.out.println("file does not exist");
+        }
+    }
+
+    @Test
+    public void testDirection01() {
+        String filePath = "E:\\code\\HSPJava\\IntelliJ\\ch19\\file";
+        File file = new File(filePath, "aha");
+        if (file.exists()) {
+            if (file.delete()) {
+                System.out.println("delete success");
+            } else {
+                System.out.println("delete fail");
+            }
+        } else {
+            System.out.println("file does not exist");
+        }
+    }
+
+    @Test
+    public void testDirection02() {
+        String filePath = "E:\\code\\HSPJava\\IntelliJ\\ch19\\file";
+        File file = new File(filePath, "a\\b\\c\\d\\e");
+
+        if (file.exists()) {
+            System.out.println("file exists");
+        } else {
+            if (file.mkdirs()) {
+                System.out.println("mkdirs " + file + " success");
+            } else {
+                System.out.println("mkdirs " + file + " fail");
+            }
+        }
+    }
+    ```
+
+### IO 流原理及流的分类
+
+1. Java IO流原理
+    - I/O 是Input/Output的缩写，即输入/输出。
+    - I/O技术是非常实用的技术，用于处理数据传输，如读写文件、网络通讯等。
+    - Java程序中，对于数据的输入/输出操作以“流（Stream）”的方式进行。
+    - `java.io`包下提供了各种“流”类和接口，用以获取不同种类的数据，并通过方法输入或输出数据。
+
+2. 流分类
+    - 按操作数据单位不同分为：字节流（8bit）、字符流（按字符，和编码相关）。
+        - **注意：使用字节流时，单位为byte，所以要用字节或字节数组处理数据；同理，字符流要用字符或字符数组处理数据。**
+    - 按数据流的流向不同分为：输入流、输出流。
+    - 按流的角色的不同分为：节点流、处理流/包装流。
+    
+    |抽象基类|字节流|字符流|
+    |:---:|:---:|:---:|
+    |输入流|`InputStream`|`Reader`|
+    |输出流|`OutputStream`|`Writer`|
+
+3. 关系图
+    ![java_ioStream_structure](./img/java_ioStream_structure.png)
+
+#### `InputStream`字节输入流
+
+1. 介绍
+    - `InputStream`抽象类是所有字节输入流的基类。
+
+2. `InputStream`字节输入流常用子类
+    - `FileInputStream`：文件输入流。
+    - `BufferedInputStream`：缓冲输入流。
+    - `ObjectInputStream`：对象输入流。
+    - 继承关系图
+        ![java_ioStream_InputStream_extends](./img/java_ioStream_InputStream_extends.png)
+
+3. 构造方法
+    - `FileInputStream(String name)`
+    - `FileInputStream(File file)`
+    - `FileInputStream(FileDescriptor fd)`
+
+4. 示例
+    - `read()`方法每次从流中读取一个字节。    
+        ```java
+        @Test
+        public void testFileInputStream01() {
+            File file = new File("E:\\code\\HSPJava\\IntelliJ\\ch19\\file\\hello.txt");
+            int readData = 0;
+            FileInputStream fileInputStream = null;
+
+            try {
+                fileInputStream = new FileInputStream(file);
+
+                while ((readData = fileInputStream.read()) != -1)
+                    System.out.print((char) readData);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    fileInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        ```
+    - `read(byte[] b)`：从该输入流读取最多`b.length`字节的数据到字节数组。此方法将阻塞，直到某些输入可用。        
+        返回值为实际读取的字节数，如果返回-1，则表示已经到达流的末尾。
+        ```java
+        @Test
+            public void testFileInputStream02() {
+                File file = new File("E:\\code\\HSPJava\\IntelliJ\\ch19\\file\\hello.txt");
+                int readLen = 0;
+                byte[] buffer = new byte[8];
+
+                FileInputStream fileInputStream = null;
+                try {
+                    fileInputStream = new FileInputStream(file);
+
+                    while ((readLen = fileInputStream.read(buffer)) != -1)
+                        System.out.print(new String(buffer, 0, readLen));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        fileInputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        ```
+
+#### `FileOutputStream`
+
+1. 继承关系图
+
+2. 方法摘要
+    - `FileOutputStream(File file)`：创建一个向指定`File`对象表示的文件中写入数据的文件输出流。
+    - `FileOutputStream(File file, boolean append)`：创建一个向指定`File`对象表示的文件中写入数据的文件输出流。
+    - `FileOutputStream(String name)`：创建一个向具有指定名称的文件中写入数据的文件输出流。
+    - `FileOutputStream(String name, boolean append)`：创建一个向具有指定名称的文件中写入数据的文件输出流。
+    - `FileOutputStream(FileDescriptor fd)`：创建一个向指定文件描述符写入数据的文件输出流。
+
+3. 【示例】复制文件
+
+    ```java
+    public class FileCopy {
+        public static void main(String[] args) {
+            File file = new File("E:\\code\\HSPJava\\IntelliJ\\ch19\\file\\java_classthis.png");
+            File file1 = new File("E:\\code\\HSPJava\\IntelliJ\\ch19\\file\\a\\java_class_this.png");
+
+            copyFile(file, file1);
+        }
+
+        public static void copyFile(File source, File dest) {
+            
+            // 源文件不存在就报错，目标文件不存在就创建
+            if (!source.exists()) {
+                throw new RuntimeException(source.toString() + " does not exist");
+            }
+            if (!dest.exists()) {
+                try {
+                    dest.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            FileInputStream fis = null;
+            FileOutputStream fos = null;
+
+            try {
+                // 创建输入输出流，输出流为追加模式
+                fis = new FileInputStream(source);
+                fos = new FileOutputStream(dest,true);
+
+                // 创建中间变量，保存每次读取到的数据和读取的长度
+                byte[] buffer = new byte[1024];
+                int length;
+
+                while ((length = fis.read(buffer) )!= -1){
+                    // 按照读取的长度写到输出流中
+                    // 注意，不能使用fos.write(buffer)
+                    fos.write(buffer,0,length);
+                }
+                System.out.println("复制完成");
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (fis != null) {
+                        fis.close();
+                    }
+                    if (fos != null) {
+                        fos.close();
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        }
+    }
+    ```
+
+#### 文件字符流
+
+1. `FileReader`、`FileWriter`介绍
+    - 两者为字符流，即按照字符来操作IO。
+    - 继承关系图
+        ![java_ioStream_Reader](./img/java_ioStream_Reader.png)
+        ![java_ioStream_Writer](./img/java_ioStream_Writer.png)
+
+2. `FileReader`相关方法
+    - `new FileReader(file/String)`
+    - `read()`：读取一个字符，返回读取的字符，如果已经读完，则返回-1。
+    - `read(char[] cbuf)`：读取字符数组，返回读取的字符个数，如果已经读完，则返回-1。
+    - 相关API
+        - `new String(char[])`：将字符数组转换成字符串。
+        - `new String(char[], start, length)`：将字符数组转换成字符串。
+
+3. `FileWriter`常用方法
+    - `new FileWriter(file/String)`：覆盖模式，创建一个字符输出流，将数据写入到文件中。
+    - `new FileWriter(file/String, boolean append)`：追加模式，创建一个字符输出流，将数据写入到文件中。
+    - `write(int c)`：写入一个字符。
+    - `write(char[] cbuf)`：写入字符数组。
+    - `write(String str)`：写入一个字符串。
+    - `write(String str, off, len)`：写入字符串的指定部分。
+    - 相关API：
+        - `String.toCharArray()`：将字符串转换成字符数组。
+    
+    - **注意：FileWriter使用后，必须关闭（close）或刷新（flush），否则写入不到指定的文件。**
+        FileWriter会将数据写入数据缓冲区（而非硬盘，此举是为了减少硬盘的访问次数，提高性能），调用`flush()`和`close()`方法可以强制将缓冲区数据写入硬盘。如果程序结束时仍未执行此操作，缓冲区数据会丢失。
+
+
+### 节点流和处理流
+
+1. 基本介绍
+    - 节点流可以从一个特定的数据源读写数据，如`FileReader`、`FileWriter`。
+    - 处理流（也叫包装流）是“连接”在已存在的流（节点流或处理流）之上，为程序提供更为强大的读写功能，如`BufferedReader`、`BufferedWriter`。
+    - 各种流的表格
+        ![java_ioStream_streamList](./img/java_ioStream_streamList.png)
+
+2. 节点流简介
+    - 节点流要对一个数据源进行操作，之前学的内容中，都是文件相关的流，数据源是文件。
+    - 节点流还可以操作别的对象，如字符数组（`CharArrayInputStrean`、`CharArrayOutputStream`）、字节数组（`ByteArrayInputStream`、`ByteArrayOutputStream`）、字符串流（`StringReader`、`StringWriter`）、管道流（`PipedInputStream`、`PipedOutputStream`）等。
+
+3. 处理流简介
+    - `BufferedReader`类的源码中包含一个`Reader`对象，可以存放一个`Reader`的子类。`BufferedWriter`类同理。
+    - 包装流构造器为`BufferedReader(Reader reader)`和`Bufferedreader(Reader reader, int size)`。`BufferedWriter`同理。
+    - **关闭处理流时，只需要关闭外层流即可。**
+
+3. 节点流和处理流的区别和联系
+    - 节点流是底层流、低级流，直接和数据源相接。
+    - 处理流包装节点流，既可以消除不同节点流的实现差异，也可以提供更方便的方法来完成输入输出。
+    - 处理流（包装流）对节点流进行包装，使用了修饰器设计模式，不会直接与数据源相连。
+
+4. 处理流的功能主要体现在以下方面：
+    - 性能提高：主要以增加缓冲的方式来提高输入输出的效率。
+    - 操作便捷：处理流可能提供了一系列便捷的方法来一次输入输出大批量的数据，使用更加灵活方便。
+
+5. 字符处理流示例
+    ```java
+    public class BufferedWriter01 {
+        public static void main(String[] args) {
+            BufferedWriter bufferedWriter = null;
+
+            try {
+                bufferedWriter = new BufferedWriter(new FileWriter(
+                        "E:\\code\\HSPJava\\IntelliJ\\ch19\\file\\testBuffer.txt")); // 这里加true就是追加模式
+
+                bufferedWriter.write("aaa");
+                bufferedWriter.newLine();
+                bufferedWriter.write("bbb");
+                bufferedWriter.newLine();
+                bufferedWriter.write("ccc");
+                bufferedWriter.newLine();
+                
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    bufferedWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    ```
+
+#### 对象处理流
+
+1. 需求
+    - 将`int num = 100`这个数据保存到文件中，这里的100不是数字，而是 `int 100`，并且能直接从文件中恢复`int 100`。
+    - 将`Dog dog = new Dog("张三", 6)`这个dog对象保存到文件中，并可以从文件中恢复。
+    - 上面的要求，就是能够将基本数据类型或对象进行**序列化或反序列化**。
+
+2. 序列化和反序列化
+    - 序列化就是在保存数据时，保存数据的值和数据类型。
+    - 反序列化就是在恢复数据时，恢复数据的值和数据类型。
+    - 需要让某个对象支持序列化机制，则必须让其类是可序列化的，为了让某个类是可序列化的，该类必须实现如下两个接口之一：
+        - `java.io.Serializable`：这是一个没有方法的标记接口。
+        - `java.io.Externalizable`
+    
+3. 基本介绍
+    - 提供了对基本类型或对象类型的序列化和反序列化的方法。
+    - `ObjectOutputStream`：提供了对对象进行序列化的方法。
+    - `ObjectInputStream`：提供了对对象进行反序列化的方法。
+
+4. 继承关系图
+    ![java_ioStream_ObjectOutputStream](./img/java_ioStream_ObjectOutputStream.png)
+    ![java_ioStream_ObjectInputStream](./img/java_ioStream_ObjectInputStream.png)
+
+5. 示例代码
+    ```java
+    public static void writeDat(Object src, String dest) {
+        File file = new File(dest);
+        ObjectOutputStream oos = null;
+
+        try {
+            oos = new ObjectOutputStream(new FileOutputStream(file));
+            oos.writeInt(100);
+            oos.writeBoolean(true);
+            oos.writeChar('a');
+            oos.writeDouble(100.5);
+            oos.writeUTF("aaa");
+            oos.writeObject(src);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if (oos != null) {
+                    oos.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+    ```
+
+6. 注意事项
+    - 读写顺序要一致。
+        - 在上面的例子中，在使用一个`ObjectInputStream ois`读取数据时，要依次使用`readInt()`、`readBoolean()`、`readChar()`、`readDouble()`、`readUTF()`、`readObject()`读取数据。
+    - 要求实现序列化或反序列化对象，需要实现`Serializable`接口。
+    - 序列化的类中建议添加`SerialVersionUID`，提高版本兼容性。
+        - 在类中添加属性`private static final long serialVersionUID = 1L;`
+        - 当版本号不变时，即使里面有新的属性，程序也不会认为这是一个全新的类，会兼容这个修改但同版本的类。
+    - 序列化对象时，默认将里面所有的属性都进行序列化，除了`static`和`transient`修饰的属性（这两种属性只会显示为null）。
+    - **序列化对象时，要求里面属性的类型也要实现序列化接口。否则会抛出异常：`java.io.NotSerializableException`**
+    - 序列化具有可继承性，一个序列化了的类的子类均视为可序列化。
+
+#### 标准输入输出流
+
+1. 介绍
+    |代码|类型|默认数据|
+    |:---:|:---:|:---:|
+    |`System.in`|`InputStream`|键盘输入|
+    |`System.out`|`PrintStream`|控制台输出|
+
+2. `System.in`
+    - 底层为：`public final static InputStream in = null;`
+    - 编译类型是`InputStream`，运行类型是`BufferedInputStream`
+
+3. `System.out`
+    - 底层为：`public final static PrintStream out = null;`
+    - 编译类型是`PrintStream`，运行类型是`PrintStream`
+
+#### 转换流
+
+1. 文件乱码问题
+    - 使用`FileReader`读取文件时，默认按照UTF-8进行读取。
+    - 但此时如果读取的文件是别的编码，比如ANSI（GBK），就会出现乱码。
+    - 此时可以通过转换流，按照字节读取信息，然后按照编码输出。
+
+2. 介绍
+    - `InputStreamReader`：`Reader`的子类，可以将字节流`InputStream`包装为字符流`Reader`。
+    - `OutputStreamWriter`：`Writer`的子类，可以将字符流`OutputStream`包装为字节流`Writer`。
+    - 当处理纯文本数据时，如果使用字符流，效率更高，且可以有效解决中文问题，所以建议将字节流转换成字符流。
+    - 可以在使用时指定编码格式（如utf-8、gbk、GB2312、ISO8859-1等）
+        ```java
+        
+        InputStreamReader(InputStream in, String charsetName /*编码*/){}
+        ```
+        `OutputStreamWriter`​​：接收字符流 → ​​编码为字节​​ → 写入底层字节流。
+        `​​InputStreamReader​`​：读取底层字节流 → ​​解码为字符​​ → 输出字符流。
+
+3. 示例
+    ```java
+    public static void main(String[] args) throws Exception {
+            String filepath = "E:\\code\\HSPJava\\IntelliJ\\ch19\\file\\人民英雄永垂不朽.txt";
+            // 字节流->转换流->处理流
+            InputStreamReader gbk = new InputStreamReader(new FileInputStream(filepath), "utf-8");
+            BufferedReader br = new BufferedReader(gbk);
+
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                System.out.println(line);
+            }
+            br.close();
+        }
+    ```
+
+#### 打印流
+
+1. 介绍
+    - 打印流包含`PrintStream`和`PrintWriter`。
+    - `PrintStream`是字节打印流，`PrintWriter`是字符打印流。
+
+2. 示例
+    ```java
+    public static void main(String[] args) throws IOException {
+        PrintStream out = System.out;
+
+        /*
+        public void println(String x) {
+            synchronized (this) {
+                print(x);
+                newLine();
+            }
+        }
+
+        public void print(String s) {
+            if (s == null) {
+                s = "null";
+            }
+            write(s);
+        }
+         */
+
+        out.println("hi~");
+        out.write("aha".getBytes());
+        out.close();
+
+        System.setOut(new PrintStream("E:\\code\\HSPJava\\IntelliJ\\ch19\\file\\SystemOut.txt"));
+        for (int i = 0; i < 100; i++) {// 从这里开始会输入内容到指定文件，而非控制台。
+            System.out.println("i=" + i);
+        }
+    }
+    ```
+
+3. `PrintWriter`示例
+    ```java
+    PrintWriter printWriter = new PrintWriter("E:\\code\\HSPJava\\IntelliJ\\ch19\\file\\PrintWriter.txt");
+    printWriter.println("hello world");
+    printWriter.close();
+    ```
+
+#### `Properties`
+
+1. 基本介绍
+    - `Properties`是专门用于读写配置文件的集合类
+    - 配置文件的格式：`key=value`
+    - **注意：键值对不需要有空格，值不需要用引号引起来，默认类型为`String`。**
+
+2. 常见方法
+    - `load()`：加载配置文件的键值对到`Properties`对象中。
+    - `list()`：将数据显示到指定设备。
+    - `getProperty(key)`：根据键获取值。
+    - `setProperty(key,value)`：设置键值对到`Properties`对象中。
+    - `store()`：将`Properties`对象中的键值对保存到配置文件中。在IDEA中，如果含有中文，会存储为unicode编码。
+    
+
+### 附加内容
+
+#### 修饰器模式
+
+1. 介绍
+    - 这里提及修饰器模式，是为了简单模拟处理流类的设计方式，以更好的了解处理流（包装流）
+    - 装饰器模式（Decorator Pattern），也称为修饰器模式或包装器模式（Wrapper Pattern），是一种​​结构型设计模式​​，核心思想是通过组合而非继承，动态地为对象添加新功能，同时保持原有对象的接口不变。
+
+2. 示例
+    ```java
+    public abstract class Reader_ {
+        // 仅做示意，实际上就只有read方法
+        public void readFile(){
+            System.out.println("readFile");
+        }
+        public void readString(){
+            System.out.println("readString");
+        }
+    }
+
+    public class FileReader_ extends Reader_ {}
+
+    public class StringReader_ extends Reader_ {}
+
+    public class BufferedReader_ extends Reader_ {
+        private Reader_ reader_;
+
+        public BufferedReader_(Reader_ reader_) {
+            this.reader_ = reader_;
+        }
+
+        // 重复读取文件
+        public void readFile(int num) {
+            for (int i = 0; i < num; i++) {
+                reader_.readFile();
+            }
+        }
+
+        public void readString(int num) {
+            for (int i = 0; i < num; i++) {
+                reader_.readString();
+            }
+        }
+    }
+    ```
 
