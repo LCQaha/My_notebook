@@ -8619,3 +8619,366 @@ synchronized (lock2) { // 先占lock2
     }
     ```
 
+## 网络编程
+
+### 章节目录
+
+1. 网络基础
+2. InetAddress
+3. Socket
+4. TCP编程
+5. UDP编程
+
+### 网络基础
+
+#### 网络相关概念
+
+1. 网络通信
+    - 概念：两台设备之间通过网络实现数据传输。
+    - 网络通信：将数据通过网络从一台设备传输到另一台设备。
+    - `java.new`包提供了一系列接口供程序员使用，完成网络通信。
+
+2. 网络
+    - 概念：两台或多台设备通过一定物理设备连接起来，构成了网络。
+    - 根据网络的覆盖范围不同，对网络进行分类：
+        - 局域网：覆盖范围小，紧急覆盖一个教室或一个机房。
+        - 城域网：覆盖范围较大，可以覆盖一个城市。
+        - 广域网：覆盖范围最大，可以覆盖全国，甚至全球，万维网是广域网的代表。
+
+3. ip地址
+    - 概念：用于唯一标识网络中的每台计算机。
+    - 查看ip地址：`ipconfig`（linux下为：`ifconfig`）。
+    - IP地址的表示形式：点分十进制：`xxx.xxx.xxx.xxx`。
+    - 每一个十进制数的范围：0-255。
+    - ip地址的组成：网络地址+主机地址。如：`192.168.1.1`。
+    - ipv6是互联网工程任务组涉及的用于替代IPv4的下一代IP协议，号称能给每一粒沙子编一个地址。
+    - 由于IPv4最大的问题在于网络地址资源有限，严重制约了互联网的应用和发展。IPv6的使用不仅能解决网络地址资源数量的问题，也解决了多种接入设备连入互联网的障碍。
+    - IPv4地址分类
+        |类型|组成|
+        |:-:|:-:|
+        |A类|`0`+网络号（7位）+主机号（24位）|
+        |B类|`10`+网络号（14位）+主机号（16位）|
+        |C类|`110`+网络号（21位）+主机号（8位）|
+        |D类|`1110`+多播组号（28位）|
+        |E类|`11110`+留待后用（27位）|
+    
+4. 域名
+    - 举例：`www.baidu.com`。
+    - 好处：方便记忆，解决记IP的困难。
+    - 概念：将IP地址映射成域名。
+
+5. 端口号
+    - 概念：用于标识计算机上某个特定的网络程序。
+    - 表示形式：以整数形式，范围：0-65535。
+    - 0-1024已经被占用，如：`80`-HTTP协议，`21`-FTP协议，`22`-SSH协议。
+    - 常见网络程序的端口号：`8080`-Tomcat，`3306`-MySQL，`1521`-Oracle，`1433`-SQL Server。
+    
+6. 网络通信协议
+    - 协议（TCP/IP）
+        - TCP/IP（Transport Control Protocol/Internet Protocol），中文译为传输控制协议/因特网互联协议，又叫网络通信协议，这个协议是Internet最基本的协议、Internet国际互联网络的基础，简单地说，就是由网络层的ip协议和传输层的tcp协议组成的。
+        - 举个例子，人和人交流需要通过语言传递信息，但计算机是听不懂人话的，计算机只能接受和输出二进制数据。因此也需要一种语言来规范计算机之间的交流形式，我们称其为**协议**。
+    - 数据进入协议栈时的封装过程
+        ![java_net_dataPackage](./img/java_net_dataPackage.png)
+    - 网络通信协议模型
+        ![java_net_protocolModel](./img/java_net_protocolModel.png)
+
+7. TCP和UDP
+    - TCP协议
+        - 使用TCP协议前，必须建立TCP连接，形成传输数据通道。
+        - 传输前，采用“三次握手”方式，是可靠的。
+        - TCP协议进行通信的两个应用进程：客户端、服务端。
+        - 在连接中可进行大数据量的传输。
+        - 传输完毕，需释放已建立的连接，效率低。
+    - UDP协议
+        - 将数据、源、目的封装成数据包，不需要建立连接。
+        - 每个数据包的大小限制在64KB以内。
+        - 无需连接，不可靠。
+        - 发送数据结束时无需释放资源（因为不是面向连接的），速度快。
+
+### `InetAddress`
+
+1. 相关方法
+    - `getLocalHost()`: 获取本机地址。（`InetAddress`对象）
+    - `getByName()`：根据指定主机名/域名获取ip地址对象。
+    - `getHostName()`：获取`InetAddress`对象对应的主机名。
+    - `getHostAddress()`：获取`InetAddress`对象对应的地址。
+    ```java
+    public static void main(String[] args) throws UnknownHostException {
+        InetAddress addr1 = InetAddress.getLocalHost();
+        System.out.println("InetAddress.getLocalHost() -> " + addr1);
+
+        InetAddress addr2 = InetAddress.getByName("DESKTOP-I2R11PK");
+        System.out.println("InetAddress.getByName(\"DESKTOP-I2R11PK\") -> " + addr2);
+
+        InetAddress addr3 = InetAddress.getByName("www.baidu.com");
+        System.out.println("InetAddress.getByName(\"www.baidu.com\") -> " + addr3);
+
+        System.out.println(addr3.getHostName());
+        System.out.println(addr3.getHostAddress());
+
+    //  InetAddress.getLocalHost() -> DESKTOP-I2R11PK/192.168.218.1
+    //  InetAddress.getByName("DESKTOP-I2R11PK") -> DESKTOP-I2R11PK/192.168.218.1
+    //  InetAddress.getByName("www.baidu.com") -> www.baidu.com/180.101.49.44
+    //  www.baidu.com
+    //  180.101.49.44
+    }
+    ```
+
+2. 类关系图
+    ![java_net_InetAddressClass](./img/java_net_InetAddressClass.png)
+
+### `Socket`
+
+1. 基本介绍
+    - 套接字（Socket）开发网络应用程序被广泛采用，以至于称为事实上的标准。
+    - 通信的两端都要有Socket，是两台机器间通信的端点。
+    - 网络通信其实就是Socket间的通信。
+    - Socket允许程序把网络连接当成一个流，数据在两个Socket间通过IO传输。
+    - 一般主动发起通信的应用程序属客户端，等待通信请求的为服务端。
+
+2. 需要通讯时的操作
+    - 客户端和网络端都创建一个Socket对象，需要通讯时，通过下面的两个方法获取数据流。
+    - `socket.getInputStream()`
+    - `socket.getOutputStream()`
+
+3. 两种编程方式
+    - TCP编程（可靠）
+    - UDP编程（不可靠）
+
+4. 简单的Socket理解（按步骤，不是完全准确，具体内容见后文）
+    1. 服务端等待通信请求，客户端主动发起通信。
+    2. 客户端创建`socket.getOutputStream()`，准备进行数据传输。
+    3. 服务端创建`socket.getInputStream()`，准备接收数据。
+    4. 服务端将数据写入`socket.getOutputStream()`，并等待客户端的接收。
+    5. 客户端将数据写入`socket.getInputStream()`。
+    6. 传输完毕，双方关闭Socket
+    - 图解
+        ![java_net_socketPath](./img/java_net_socketPath.png)
+
+#### TCP网络通信编程
+
+1. 基本介绍
+    - 基于客户端-服务端的网络通信。
+    - 底层使用的是TCP/IP协议。
+    - 应用场景举例：客户端发送数据，服务端接收并显示。
+    - 基于Socket的TCP编程。
+
+2. 案例
+    - 编写`SocketTCP01Server`类和`SocketTCP01Client`类（一个客户端和一个服务端）
+    - 服务端在9999端口监听。
+    - 客户端连接到服务器端，发送数据"HelloServer"给服务端，然后退出。
+    - 服务器接收到客户端发送的信息，输出，然后退出。
+    - `SocketTCP01Client.java`
+    ```java
+    public class SocketTCP01Client {
+        public static void main(String[] args) throws IOException {
+            // 创建Socket对象，构造方法中指定服务器的IP和端口号（这里是本机）
+            Socket socket = new Socket(InetAddress.getLocalHost(), 9999);
+            System.out.println("client:"+socket.getClass());
+            OutputStream outputStream = socket.getOutputStream();
+            
+            // 输出流写数据
+            outputStream.write("hello,server".getBytes());
+            
+            // 程序执行完后要关闭流和socket
+            outputStream.close();
+            socket.close();
+            System.out.println("client: exit");
+        }
+    }
+    ```
+    - `ScoketTCP01Server.java`
+    ```java
+    public static void main(String[] args) throws IOException {
+        /**
+         * 1. 要求目标端口（9999）未被占用
+         * 2. 可以通过socket.accept()返回多个Socket对象，这就是多并发的原理
+         */
+        ServerSocket serverSocket = new ServerSocket(9999);
+        System.out.println("9999端口等待中...");
+        // accept()会阻塞程序，直到有客户端连接
+        Socket socket = serverSocket.accept();
+        System.out.println("server:已建立链接" + socket.getClass());
+
+        // 获取输入流
+        InputStream inputStream = socket.getInputStream();
+        byte[] bytes = new byte[2];
+        int read = 0;
+        while ((read = inputStream.read(bytes)) != -1) {
+            System.out.println(new String(bytes, 0, read));
+        }
+
+        // 客户端需要关闭流和两个Socket
+        inputStream.close();
+        socket.close();
+        serverSocket.close();
+    }
+    ```
+
+3. 在2的基础上，添加服务器回传信息。
+    - 如果客户端输出流不关闭，服务端输入流的读取会阻塞，因此，需要在客户端加一句`socket.shutdownOutput();`。
+
+4. 在3的基础上，改成字符流。
+    - 改成字符流，可以使用其他的停止标记，比如`writer.newLine();`。
+    - 记住，字符流在写完后，需要`flush()`。
+    - socket并不能直接提供字符流，需要借助转换流和`BufferedReader`和`BufferedWriter`。
+
+5. 【未完善】网络传文件相关代码未直接写出，因为和之前的代码有很多重复。
+
+#### `netstat`
+
+1. 作用
+    - `netstat -an`：查看当前主机网络情况，包括端口监听情况和网络连接情况。
+        `-a`显示所有连接和监听端口，`-n`用数字形式显示地址和端口而不解析域名，`-b`显示创建连接的可执行程序。
+    - `netstat -an | more`：分页显示网络情况。（空格下一页，回车下一个）
+    - 在显示的内容中，包含协议、本地地址、外部地址、状态。
+        - 协议
+        - 本地地址：监听的端口号，可以理解为服务端。
+        - 外部地址：连接的端口号，可以理解为客户端。
+        - 状态：`LISTENING`表示监听中，`ESTABLISHED`表示已连接。
+    - 在9999端口上监听，分配了50529端口。
+        ```sh
+        TCP    192.168.218.1:9999     192.168.218.1:50529    ESTABLISHED
+        [java.exe]
+        TCP    192.168.218.1:50522    192.168.218.1:50523    ESTABLISHED
+        [java.exe]
+        TCP    192.168.218.1:50523    192.168.218.1:50522    ESTABLISHED
+        [idea64.exe]
+        TCP    192.168.218.1:50529    192.168.218.1:9999     ESTABLISHED
+        [java.exe]
+        ```
+
+#### UDP网络通信编程
+
+1. 基本介绍
+    - 类`DatagramSocket`和`DatagramPacket`实现了基于UDP协议网络程序。
+    - UDP数据报通过数据报套接字`DatagramSocket`发送和接收，系统不保证数据报一定能够安全送到目的地，也不能确定什么时候可以抵达。
+    - `DatagramPacket`类封装了UDP数据报，在数据报中包含了发送端的IP地址和端口号以及接收端的IP地址和端口号。
+    - UDP协议中，每个数据报都给出了完整的地址信息，因此无需建立发送方和接收方的连接。
+
+2. 基本流程
+    - 核心的两个类/对象：`DatagramSocket`和`DatagramPacket`
+    - 建立发送端和接收端。
+    - 建立数据包。
+    - 调用`DatagramSocket`的发送接收方法。
+    - 关闭`DatagramSocket`。
+
+3. 说明
+    - 没有明确的服务端和客户端，演变成数据的发送端和接收端。
+    - 接收和发送数据通过`DatagramSocket`对象完成。
+    - 将数据封装到`DatagramPacket`对象中发送。
+    - 接收到`DatagramPacket`对象，需要进行拆包，取出数据。
+    - `DatagramSocket`可以指定在哪个接口接收数据。
+
+4. 示例
+    - 接收端A
+        ```java
+        public static void main(String[] args) throws IOException {
+            DatagramSocket datagramSocket = new DatagramSocket(9999);
+
+
+            byte[] bytes = new byte[64 * 1024];// UDP 数据包最大为64k
+            DatagramPacket p = new DatagramPacket(bytes, bytes.length);
+            System.out.println("waiting...");
+            datagramSocket.receive(p);//阻塞等待
+
+            // 拆包并输出
+            System.out.println("data received");
+            System.out.println(new String(p.getData(), 0, p.getLength()));
+
+            String s = "I'm get!!";
+            System.out.println("===========================");
+            System.out.println(p.getAddress());
+            System.out.println(p.getPort());
+            System.out.println(new String(p.getData(), 0, p.getLength()));
+            System.out.println(p.getLength());
+            System.out.println(p.getOffset());
+            System.out.println(p.getSocketAddress());
+            System.out.println(p.getClass());
+            System.out.println("===========================");
+            datagramSocket.send(new DatagramPacket(s.getBytes(), s.length(), p.getAddress(), p.getPort()));
+
+            System.out.println("send done");
+
+            datagramSocket.close();
+        }
+        ```
+    - 发送端B
+        ```java
+        public static void main(String[] args) throws IOException {
+            DatagramSocket datagramSocket = new DatagramSocket(9998);
+
+            String s = "你好，我是UDPB。";
+            DatagramPacket packet = new DatagramPacket(s.getBytes(), s.getBytes().length, InetAddress.getLocalHost(), 9999);
+            datagramSocket.send(packet);
+
+            System.out.println("waiting return...");
+
+            DatagramPacket datagramPacket = new DatagramPacket(new byte[64 * 1024], 64 * 1024);
+            datagramSocket.receive(datagramPacket);
+
+            System.out.println(new String(datagramPacket.getData(), 0, datagramPacket.getLength()));
+
+            datagramSocket.close();
+        }
+        ```
+    
+#### 几个重要的例子
+
+1. 发送与回答
+    - 服务端
+        ```java
+        public static void main(String[] args) throws IOException, InterruptedException {
+            ServerSocket serverSocket = new ServerSocket(9999);
+
+            System.out.println("9999 is waiting for client...");
+            Socket socket = serverSocket.accept();
+            System.out.println("client connected");
+
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
+            String s;
+            switch (bufferedReader.readLine()) {
+                case "name":
+                    bufferedWriter.write("我是lcq");
+                    break;
+                case "hobby":
+                    bufferedWriter.write("aha");
+                    break;
+                default:
+                    bufferedWriter.write("what can I say");
+            }
+            bufferedWriter.newLine();
+
+            System.out.println("wait 5s");
+            Thread.sleep(5000);             // 可以发现，数据是在休眠结束后送出的，如果没flush，就必须等close
+            bufferedWriter.close();
+
+            bufferedReader.close();
+            socket.close();
+            serverSocket.close();
+            System.out.println("exit");
+        }
+        ```
+    - 客户端
+        ```java
+        public static void main(String[] args) throws IOException {
+            Socket socket = new Socket(InetAddress.getLocalHost(), 9999);
+
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
+            bufferedWriter.write("hello");
+            bufferedWriter.newLine();       // 没有newLine，会导致readLine()方法无效
+            bufferedWriter.flush();         // flush可以将数据立刻送出，而不是等到流关闭
+
+            System.out.println("waiting return...");
+            System.out.println(bufferedReader.readLine());
+
+            bufferedWriter.close();
+            bufferedReader.close();
+            socket.close();
+            System.out.println("exit");
+        }
+        ```
