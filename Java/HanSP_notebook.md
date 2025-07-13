@@ -8982,3 +8982,824 @@ synchronized (lock2) { // 先占lock2
             System.out.println("exit");
         }
         ```
+
+## 【项目】多用户通信系统
+
+### 项目介绍
+
+1. 涉及知识点
+    - 网络编程
+    - 多线程
+    - 面向对象编程
+    - 原生态通讯底层
+    - 项目框架设计
+    - IO流
+    - MySQL（还没学，这里使用集合充当数据库）
+    - （界面部分会弱化）
+
+### 项目开发流程
+
+1. 流程
+    - 需求分析
+    - 设计阶段
+    - 编码实现
+    - 测试阶段
+    - 实施阶段
+
+2. 需求分析
+    - 需求分析师：懂技术、懂行业。
+    - 出具需求分析报告（白皮书）
+    - 确定项目需求、客户具体要求。
+
+3. 设计阶段
+    - 架构师/项目经理
+    - 设计工作（UML类图、流程图、模块设计、数据库、架构）
+    - 原型开发
+    - 组建团队
+
+4. 实现阶段
+    - 程序员/码农
+    - 完成架构师的模块功能
+    - 测试自己模块
+
+5. 测试阶段
+    - 测试工程师
+    - 单元测试、测试用例、白盒测试、黑盒测试、集成测试
+
+6. 实施阶段
+    - 实施工程师（开发能力要求不高，环境配置部署能力很重要）
+    - 将项目正确的部署到客户的平台，并保证运行正常。
+    - 测试客户是否正常使用。
+    - 经常出差。
+
+7. 维护阶段
+    - 发现Bug并解决。
+    - 项目升级。
+
+8. 职业推荐路线：开发向管理过渡
+
+9. 其他
+    - 项目标的越大，需求分析占比越大。（盖房子图纸画不好，房子就塌了）
+    - 项目标的越小，需求分析占比越小。
+
+### 需求分析
+
+1. 需求
+    - 用户登录
+    - 拉取在线用户列表
+    - 无异常退出
+    - 私聊
+    - 群聊
+    - 发文件
+    - 服务器推送新闻
+
+#### 功能实现-用户登录
+
+1. 实现方式
+    - 由于暂时没有接触数据库，故人为规定：用户名/id = 100，密码=123456可以登陆，其他用户不能登陆。
+    - 后面使用hashmap模拟数据库实现多用户登录。
+
+2. 框架图
+    ![java_project_qq_loginStructure](./img/java_project_qq_loginStructure.png)
+
+3. 实现思路
+    - 由前端界面`QQView`输入用户名和密码，将数据发给`UserClientService`验证。
+    - `UserClientService`将用户信息发给服务器，并通过`message.getMessageType().equals(MessageType.MESSAGE_LOGIN_SUCCESS)`对服务器返回的消息进行判断，若登陆失败则关闭和服务器的连接，若成功则启动线程`ClientConnectServerThread`与服务器保持连接。
+    - 与服务器保持连接后，将连接的线程保存到`ManageClientConnectServerThread`中。
+    
+### 代码实现
+
+1. 说明
+    - 服务器推送和离线相关功能未实现
+    - 相比于课程讲的代码，做出了一些改动。
+
+#### 重要改动与特点
+
+1. 重复创建对象处理流相关问题
+    - 原代码中，所有的服务都会创建一个新的对象处理流，这种行为是不合理的，因为每次创建新流都会传送一个标记，多次创建新流就会创建多个标记，导致另一端的数据解析错误。
+    - 在我的代码中，我采用的方案是：在验证登录信息有效后，就创建输入和输出的对象处理流，并用`get()`和`set()`方法调用，这样就可以规避重复创建的问题。
+
+2. 代码并未对异常退出做处理
+    - 如果不是在主界面按9退出，另一端的线程会因为不断循环和catch错误，而不断抛出错误。
+
+3. 离线用户bug
+    - 由于没有添加验证用户是否在线的代码，且没有编写离线用户处理代码，向离线用户发送信息可能导致程序崩溃。
+
+#### 共有代码
+
+1. `com.lcq.qq.common.Message`
+    ```java
+    package com.lcq.qq.common;
+
+    import java.io.Serializable;
+
+    /**
+     * @author lcq
+     * @version 1.0
+     * 发送的信息，可序列化
+     */
+    public class Message implements Serializable,MessageType {
+        private static final long serialVersionUID = 1L;
+
+        private String sender;      // 发送
+        private String receiver;    // 接收
+        private String content;     // 内容
+        private String time;        // 时间
+        private String messageType;
+        private byte[] fileBytes;
+        private String fileName;
+
+        public String getFileName() {
+            return fileName;
+        }
+
+        public void setFileName(String fileName) {
+            this.fileName = fileName;
+        }
+
+        public byte[] getFileBytes() {
+            return fileBytes;
+        }
+
+        public void setFileBytes(byte[] fileBytes) {
+            this.fileBytes = fileBytes;
+        }
+
+        public String getMessageType() {
+            return messageType;
+        }
+
+        public void setMessageType(String messageType) {
+            this.messageType = messageType;
+        }
+
+        public String getSender() {
+            return sender;
+        }
+
+        public void setSender(String sender) {
+            this.sender = sender;
+        }
+
+        public String getReceiver() {
+            return receiver;
+        }
+
+        public void setReceiver(String receiver) {
+            this.receiver = receiver;
+        }
+
+        public String getContent() {
+            return content;
+        }
+
+        public void setContent(String content) {
+            this.content = content;
+        }
+
+        public String getTime() {
+            return time;
+        }
+
+        public void setTime(String time) {
+            this.time = time;
+        }
+    }
+    ```
+
+2. `com.lcq.qq.common.MessageType`
+    ```java
+    public interface MessageType {
+        String MESSAGE_LOGIN_SUCCESS = "1";
+        String MESSAGE_LOGIN_FAIL = "2";
+        String MESSAGE_COMM_MES = "3";              // 普通信息包
+        String MESSAGE_GET_ONLINE_FRIENDS = "4";    // 获取在线用户列表
+        String MESSAGE_RET_ONLINE_FRIENDS = "5";    // 返回在线用户列表
+        String MESSAGE_CLIENT_EXIT = "6";           // 客户端请求退出
+        String MESSAGE_MESS_TO_ALL = "7";
+        String MESSAGE_FILE_MES = "8";
+    }
+    ```
+
+3. `com.lcq.qq.common.User`
+    ```java
+    public class User implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        private String userId;
+        private String password;
+
+    //    public User() {}
+
+        public User(String userId, String password) {
+            this.userId = userId;
+            this.password = password;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public String getUserId() {
+            return userId;
+        }
+
+        public void setUserId(String userId) {
+            this.userId = userId;
+        }
+    }
+    ```
+
+#### 服务端
+
+1. `com.lcq.qq.server.frame.QQFrame`
+    ```java
+    public class QQFrame {
+        public static void main(String[] args) {
+            QQServer qqServer = new QQServer();
+        }
+    }
+    ```
+
+2. `com.lcq.qq.server.service.ManageServerConnectClientThread`
+    ```java
+    public class ManageServerConnectClientThread {
+    public static HashMap<String,ServerConnectClientThread> serverConnectClientThreadHashMap = new HashMap<>();
+
+    public static void addServerConnectClientThread(String userId,ServerConnectClientThread serverConnectClientThread) {
+        serverConnectClientThreadHashMap.put(userId,serverConnectClientThread);
+    }
+
+    public static void removeServerConnectClientThread(String userId) {
+        serverConnectClientThreadHashMap.remove(userId);
+    }
+
+    public static ServerConnectClientThread getServerConnectClientThread(String userId) {
+        return serverConnectClientThreadHashMap.get(userId);
+    }
+
+        public static HashMap<String, ServerConnectClientThread> getServerConnectClientThreadHashMap() {
+            return serverConnectClientThreadHashMap;
+        }
+
+        public static String getOnlineFriendsList() {
+        Set<String> strings = serverConnectClientThreadHashMap.keySet();
+        StringBuilder stringBuilder = new StringBuilder(strings.size() * 10);
+        for (String string : strings) {
+            stringBuilder.append(string).append(" ");
+        }
+        return stringBuilder.toString();
+    }
+    }
+    ```
+
+3. `com.lcq.qq.server.service.ServerConnectClientThread`
+    ```java
+    public class ServerConnectClientThread extends Thread {
+        private Socket socket;
+        private String userId;
+        private ObjectOutputStream oos;
+        private ObjectInputStream ois;
+
+        public ServerConnectClientThread(Socket socket, String userId) {
+            this.socket = socket;
+            this.userId = userId;
+        }
+
+        public Socket getSocket() {
+            return socket;
+        }
+
+        public void setSocket(Socket socket) {
+            this.socket = socket;
+        }
+
+        public String getUserId() {
+            return userId;
+        }
+
+        public void setUserId(String userId) {
+            this.userId = userId;
+        }
+
+        public ObjectOutputStream getOos() {
+            return oos;
+        }
+
+        public ObjectInputStream getOis() {
+            return ois;
+        }
+
+        public void setOos(ObjectOutputStream oos) {
+            this.oos = oos;
+        }
+
+        public void setOis(ObjectInputStream ois) {
+            this.ois = ois;
+        }
+
+        @Override
+        public void run() {
+
+
+            Message message = null;
+
+            boolean loop = true;
+            while (loop) {
+                try {
+                    System.out.println("keep connecting with userId: " + userId + " ...");
+
+                    message = (Message) ois.readObject();
+                    switch (message.getMessageType()) {
+                        case MessageType.MESSAGE_GET_ONLINE_FRIENDS:
+                            System.out.println(userId + " want to get online friends ...");
+                            // 获取并包装信息
+                            String onlineFriendsList = ManageServerConnectClientThread.getOnlineFriendsList();
+                            Message message1 = new Message();
+                            message1.setMessageType(MessageType.MESSAGE_RET_ONLINE_FRIENDS);
+                            message1.setContent(onlineFriendsList);
+                            message1.setReceiver(message.getSender());
+                            // send
+
+                            oos.writeObject(message1);
+                            break;
+                        case MessageType.MESSAGE_CLIENT_EXIT:
+                            System.out.println(userId + " want to exit ...");
+                            Thread.sleep(5);    // 防止客户端EOF错误
+                            ManageServerConnectClientThread.removeServerConnectClientThread(userId);
+                            socket.close();
+                            loop = false;
+                            break;
+                        case MessageType.MESSAGE_COMM_MES:
+                            System.out.println("\n" + userId + " want to send message to " + message.getReceiver() + "...");
+                            ObjectOutputStream objectOutputStream = ManageServerConnectClientThread.getServerConnectClientThread(message.getReceiver()).getOos();
+                            objectOutputStream.writeObject(message);
+                            break;
+                        case MessageType.MESSAGE_MESS_TO_ALL:
+                            System.out.println("\n" + userId + " want to send message to all...");
+                            HashMap<String, ServerConnectClientThread> serverConnectClientThreadHashMap = ManageServerConnectClientThread.getServerConnectClientThreadHashMap();
+                            Iterator<String> iterator = serverConnectClientThreadHashMap.keySet().iterator();
+                            while (iterator.hasNext()) {
+                                String next = iterator.next();
+                                if (!next.equals(userId)) {
+                                    ObjectOutputStream objectOutputStream1 = ManageServerConnectClientThread.getServerConnectClientThread(next).getOos();
+                                    objectOutputStream1.writeObject(message);
+                                }
+                            }
+                            break;
+                        case MessageType.MESSAGE_FILE_MES:
+                            System.out.println("\n" + userId + " want to send a file...");
+                            ObjectOutputStream oos1 = ManageServerConnectClientThread.getServerConnectClientThread(message.getReceiver()).getOos();
+                            oos1.writeObject(message);
+                            break;
+                        default:
+                            System.out.println("Message type not recognized: " + message.getMessageType());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    ```
+
+4. `com.lcq.qq.server.service.QQServer`
+    ```java
+    public class QQServer {
+        private ServerSocket serverSocket = null;
+
+        private static HashMap<String, User> validUsers = new HashMap<>();
+
+        static {
+            validUsers.put("100", new User("100", "123456"));
+            validUsers.put("101", new User("101", "123456"));
+            validUsers.put("102", new User("102", "123456"));
+            validUsers.put("103", new User("103", "123456"));
+        }
+
+
+        public QQServer() {
+            // 端口可以写进配置文件
+            try {
+                serverSocket = new ServerSocket(9999);
+                while (true) {
+                    System.out.println("waiting for client on port 9999...");
+                    Socket socket = serverSocket.accept();
+                    System.out.println("a client connected");
+
+                    ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+                    User user = (User) objectInputStream.readObject();
+
+                    Message message = new Message();
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+
+
+                    // test
+                    if (checkUser(user.getUserId(), user.getPassword())) {
+                        // send message SUCCESS
+                        message.setMessageType(MessageType.MESSAGE_LOGIN_SUCCESS);
+                        objectOutputStream.writeObject(message);
+
+                        // 启动保持连接的线程
+                        ServerConnectClientThread serverConnectClientThread = new ServerConnectClientThread(socket, user.getUserId());
+
+                        serverConnectClientThread.setOis(objectInputStream);
+                        serverConnectClientThread.setOos(objectOutputStream);
+
+                        serverConnectClientThread.start();
+
+                        // 添加线程到哈希表
+                        ManageServerConnectClientThread.addServerConnectClientThread(user.getUserId(), serverConnectClientThread);
+
+                    } else {
+                        message.setMessageType(MessageType.MESSAGE_LOGIN_FAIL);
+                        objectOutputStream.writeObject(message);
+                        socket.close();
+                    }
+
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    serverSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        private boolean checkUser(String userId, String password) {
+            return validUsers.get(userId) != null &&
+                    validUsers.get(userId).getPassword().equals(password);
+        }
+    }
+    ```
+
+#### 客户端
+
+1. `com.lcq.qq.client.view.QQView`
+    ```java
+    public class QQview {
+
+        private boolean loop = true;
+        private String key = "";
+
+        private UserClientService userClientService = new UserClientService();
+        private MessageClientService messageClientService = new MessageClientService();
+        private FileClientService fileClientService = new FileClientService();
+
+        public static void main(String[] args) {
+            QQview qqView = new QQview();
+            qqView.mainMenu();
+            System.out.println("进程结束");
+        }
+
+        private void mainMenu() {
+            while (loop) {
+                System.out.println("=========================系统主页==========================");
+                System.out.println("\t\t 1 登录系统");
+                System.out.println("\t\t 9 退出系统");
+
+                System.out.print("输入选择：");
+                key = Utility.readString(1);
+
+                switch (key) {
+                    case "1":
+                        System.out.println("登录");
+                        System.out.print("用户名：");
+                        String userId = Utility.readString(10);
+                        System.out.print("密码：");
+                        String password = Utility.readString(10);
+                        //略：用户验证逻辑...
+                        if (userClientService.checkUser(userId, password)) {       // test
+                            System.out.println("登陆成功");
+                            while (loop) {
+                                System.out.println("=========================二级菜单（用户 " + userId + " ）==========================");
+                                System.out.println("\t\t 1 显示在线用户列表");
+                                System.out.println("\t\t 2 群发消息");
+                                System.out.println("\t\t 3 私聊消息");
+                                System.out.println("\t\t 4 发送文件");
+                                System.out.println("\t\t 9 退出系统");
+
+                                System.out.print("输入选择：");
+                                key = Utility.readString(1);
+                                switch (key) {
+                                    case "1":
+                                        System.out.println("显示在线用户列表");
+                                        userClientService.onlineFriendList();
+                                        break;
+                                    case "2":
+                                        System.out.println("群发消息");
+                                        System.out.print("输入群发内容：");
+                                        String content2 = Utility.readString(100);
+
+                                        messageClientService.sendMessageToAll(content2, userId);
+
+                                        break;
+                                    case "3":
+                                        System.out.println("私聊消息");
+                                        System.out.print("输入用户号（必须在线）：");
+                                        String getterId = Utility.readString(10);
+                                        System.out.print("输入发送内容：");
+                                        String content = Utility.readString(100);
+
+                                        messageClientService.sendMessageToOne(content, userId, getterId);
+                                        break;
+                                    case "4":
+                                        System.out.println("发送文件");
+                                        System.out.print("输入文件接受者ID（必须在线）：");
+                                        String id = Utility.readString(10);
+                                        System.out.print("输入文件路径：");
+                                        String src = Utility.readString(100);
+                                        fileClientService.sendFileToOne(userId, id, src);
+                                        break;
+                                    case "9":
+                                        System.out.println("退出系统");
+                                        loop = false;
+                                        userClientService.logout();
+                                        break;
+                                }
+                            }
+
+
+                        } else {
+                            System.out.println("登录失败！！！！");
+                        }
+                        break;
+                    case "9":
+                        System.out.println("退出");
+                        loop = false;
+                        break;
+
+                }
+            }
+        }
+    }
+    ```
+
+2. `com.lcq.qq.client.service.ClientConnectServerThread`
+    ```java
+    public class ClientConnectServerThread extends Thread {
+
+        private Socket socket;
+        private ObjectInputStream objectInputStream;
+        private ObjectOutputStream objectOutputStream;
+
+        public ClientConnectServerThread(Socket socket) {
+            this.socket = socket;
+        }
+
+
+        @Override
+        public void run() {
+            Message message = null;
+
+            while (true) {
+                System.out.println("wait message from server...");
+                try {
+
+                    message = (Message) objectInputStream.readObject();
+                    // 处理收到的信息
+                    switch (message.getMessageType()) {
+                        case MessageType.MESSAGE_RET_ONLINE_FRIENDS:
+                            String[] s = message.getContent().split(" ");
+
+                            System.out.println("\n=============online friends=============");
+                            for (int i = 0; i < s.length; i++) {
+                                System.out.println("用户：" + s[i]);
+                            }
+                            break;
+                        case MessageType.MESSAGE_COMM_MES:
+                            System.out.println("\n" + message.getSender() + " 对 " + message.getReceiver() + " 说：" + message.getContent());
+                            break;
+                        case MessageType.MESSAGE_MESS_TO_ALL:
+                            System.out.println("\n" + message.getSender() + " 对 所有人 说：" + message.getContent());
+                            break;
+                        case MessageType.MESSAGE_FILE_MES:
+                            System.out.println("\n" + message.getSender() + " 对 " + message.getReceiver() + " 发送了文件 " + message.getFileName());
+                            File file = new File("E:\\code\\HSPJava\\IntelliJ\\ch22-qqClient\\file");
+                            File file1 = new File(file, message.getReceiver() + File.separator + message.getFileName());
+                            if (!file1.exists()) {
+                                file1.createNewFile();
+                            }
+                            FileOutputStream fileOutputStream = new FileOutputStream(file1);
+                            fileOutputStream.write(message.getFileBytes());
+                            fileOutputStream.close();
+                            System.out.println("文件已保存，文件路径："+file1.getAbsolutePath());
+                            break;
+                        default:
+                            System.out.println("接收的信息未定义");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        public Socket getSocket() {
+            return socket;
+        }
+
+        public ObjectInputStream getObjectInputStream() {
+            return objectInputStream;
+        }
+
+        public ObjectOutputStream getObjectOutputStream() {
+            return objectOutputStream;
+        }
+
+        public void setObjectInputStream(ObjectInputStream objectInputStream) {
+            this.objectInputStream = objectInputStream;
+        }
+
+        public void setObjectOutputStream(ObjectOutputStream objectOutputStream) {
+            this.objectOutputStream = objectOutputStream;
+        }
+    }
+    ```
+
+3. `com.lcq.qq.client.service.ManageClientConnectServerThread`
+    ```java
+    public class ManageClientConnectServerThread {
+    private static HashMap<String,ClientConnectServerThread> clientConnectServerThreadHashMap = new HashMap<>();
+
+        public static void addClientConnectServerThread(String userId, ClientConnectServerThread clientConnectServerThread) {
+            clientConnectServerThreadHashMap.put(userId,clientConnectServerThread);
+        }
+
+        public static void removeClientConnectServerThread(String userId) {
+            clientConnectServerThreadHashMap.remove(userId);
+        }
+
+        public static ClientConnectServerThread getClientConnectServerThread(String userId) {
+            return clientConnectServerThreadHashMap.get(userId);
+        }
+    }
+    ```
+
+4. `com.lcq.qq.client.service.UserClientService`
+    ```java
+    public class UserClientService {
+
+        private User user;
+        private Socket socket;
+
+        public boolean checkUser(String userId, String password) {
+            user = new User(userId, password);
+
+            try {
+                socket = new Socket(InetAddress.getLocalHost(), 9999);
+                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                out.writeObject(user);
+
+                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                Message message = (Message) in.readObject();
+
+                if (message.getMessageType().equals(MessageType.MESSAGE_LOGIN_SUCCESS)) {
+                    ClientConnectServerThread clientConnectServerThread = new ClientConnectServerThread(socket);
+
+                    clientConnectServerThread.setObjectInputStream(in);
+                    clientConnectServerThread.setObjectOutputStream(out);
+                    clientConnectServerThread.start();
+
+
+                    ManageClientConnectServerThread.addClientConnectServerThread(userId, clientConnectServerThread);
+
+                    return true;
+
+                } else {
+                    socket.close();
+
+                    return false;
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return false;
+        }
+
+        public void onlineFriendList() {
+            Message message = new Message();
+            message.setMessageType(MessageType.MESSAGE_GET_ONLINE_FRIENDS);
+
+            try {
+                // 获得当前线程的
+            //    ObjectOutputStream objectOutputStream = new ObjectOutputStream(
+            //            ManageClientConnectServerThread.getClientConnectServerThread(user.getUserId()).
+            //                    getSocket().getOutputStream());
+                ObjectOutputStream objectOutputStream = ManageClientConnectServerThread.getClientConnectServerThread(user.getUserId()).getObjectOutputStream();
+                objectOutputStream.writeObject(message);
+            } catch (IOException e) {
+            //    throw new RuntimeException(e);
+                e.printStackTrace();
+            }
+        }
+
+        public void logout() {
+            Message message = new Message();
+            message.setMessageType(MessageType.MESSAGE_CLIENT_EXIT);
+            message.setSender(user.getUserId());
+
+            try {
+        //        ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+                ObjectOutputStream objectOutputStream = ManageClientConnectServerThread.getClientConnectServerThread(user.getUserId()).getObjectOutputStream();
+                objectOutputStream.writeObject(message);
+                System.out.println(user.getUserId() + "退出了");
+                System.exit(0);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    ```
+
+5. `com.lcq.qq.client.service.FileClientService`
+    ```java
+    public class FileClientService {
+        public void sendFileToOne(String senderId, String ReciverId, String src) {
+            FileInputStream fileInputStream = null;
+
+            Message message = new Message();
+            message.setSender(senderId);
+            message.setReceiver(ReciverId);
+            message.setMessageType(MessageType.MESSAGE_FILE_MES);
+
+
+            try {
+                File file = new File(src);
+                fileInputStream = new FileInputStream(file);
+                byte[] bytes = new byte[(int) file.length()];
+                fileInputStream.read(bytes);
+
+                message.setFileBytes(bytes);
+                message.setFileName(file.getName());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (fileInputStream != null) {
+                        fileInputStream.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            System.out.println("\n" + senderId + " 向 " + ReciverId + " 发送文件 " + src);
+
+            ObjectOutputStream objectOutputStream = ManageClientConnectServerThread.getClientConnectServerThread(senderId).getObjectOutputStream();
+            try {
+                objectOutputStream.writeObject(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    ```
+
+6. `com.lcq.qq.client.service.MessageClientService`
+    ```java
+    public class MessageClientService {
+
+        public void sendMessageToOne(String content, String senderId, String receiverId) {
+            Message message = new Message();
+            message.setMessageType(MessageType.MESSAGE_COMM_MES);
+            message.setContent(content);
+            message.setSender(senderId);
+            message.setReceiver(receiverId);
+            message.setTime(new Date().toString());
+            System.out.println(senderId + " 对 " + receiverId + " 说 " + content);
+
+            try {
+                ObjectOutputStream objectOutputStream = ManageClientConnectServerThread.getClientConnectServerThread(senderId).getObjectOutputStream();
+                objectOutputStream.writeObject(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void sendMessageToAll(String content, String senderId) {
+            Message message = new Message();
+            message.setMessageType(MessageType.MESSAGE_MESS_TO_ALL);
+            message.setContent(content);
+            message.setSender(senderId);
+            message.setTime(new Date().toString());
+            System.out.println(senderId + " 对 所有人 说：" + content);
+
+            ObjectOutputStream objectOutputStream = ManageClientConnectServerThread.getClientConnectServerThread(senderId).getObjectOutputStream();
+            try {
+                objectOutputStream.writeObject(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    ```
