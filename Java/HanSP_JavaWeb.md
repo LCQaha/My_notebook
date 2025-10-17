@@ -3680,6 +3680,7 @@
     - 可以在这里选择运行的浏览器。
     - 配置按图中所示配置
     - 若端口有更改，需要改掉这里的8080
+    - **为了应对可能出现的控制台乱码情况，可以在`虚拟机选项`中填入`-Dfile.encoding=UTF-8`**
 
     ![javaweb_TomCat_IDEA_config05](./img/javaweb_TomCat_IDEA_config05.png)
 
@@ -4298,7 +4299,51 @@
     - 获取当前的工程路径，格式: /工程路径
     - 获取工程部署后在服务器硬盘上的绝对路径
 
-2. 代码实现
+2. xml参数
+    ```xml
+    <context-param>
+        <param-name>name</param-name>
+        <param-value>aha</param-value>
+    </context-param>
+    ```
+
+3. 代码实现
+    ```java
+    package com.lcq.servlet;
+
+    import javax.servlet.ServletContext;
+    import javax.servlet.ServletException;
+    import javax.servlet.annotation.WebServlet;
+    import javax.servlet.http.HttpServlet;
+    import javax.servlet.http.HttpServletRequest;
+    import javax.servlet.http.HttpServletResponse;
+    import java.io.IOException;
+
+    @WebServlet(urlPatterns = {"/sc"})
+    public class ServletContext01 extends HttpServlet {
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            ServletContext servletContext = this.getServletContext();
+            String name = servletContext.getInitParameter("name");
+            System.out.println("name:" + name);
+            String contextPath = servletContext.getContextPath();
+            System.out.println("contextPath:" + contextPath);
+            String contextPath1 = req.getContextPath();
+            System.out.println("contextPath1:" + contextPath1);
+            String realPath = servletContext.getRealPath("/");
+            System.out.println("realPath:" + realPath);
+            //name:aha
+            //contextPath:/http
+            //contextPath1:/http
+            //realPath:E:\code\IntelliJ\http\out\artifacts\http_war_exploded\
+        }
+
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            this.doGet(req, resp);
+        }
+    }
+    ```
 
 
 #### 应用实例 2-简单的网站访问次数计数器
@@ -4306,6 +4351,358 @@
     - 需求: 完成一个简单的网站访问次数计数器：
     - 使用 Chrome 访问 Servlet01, 每访问一次，就增加 1 访问次数，在后台输出，并将结果返回给浏览器显示
     - 使用火狐访问 Servlet02，每访问一次，就增加 1 访问次数，在后台输出，并将结果返回给浏览器显示
+
+2. 注意事项
+    - **访问次数不能使用初始的参数，而是在java中配置属性。**
+
+2. 示例
+    ```java
+    package com.lcq.servlet;
+    
+    import javax.servlet.ServletContext;
+    import javax.servlet.ServletException;
+    import javax.servlet.annotation.WebServlet;
+    import javax.servlet.http.HttpServlet;
+    import javax.servlet.http.HttpServletRequest;
+    import javax.servlet.http.HttpServletResponse;
+    import java.io.IOException;
+    import java.io.PrintWriter;
+    
+    @WebServlet(urlPatterns = {"/sc02", "/sc03"})
+    public class ServletContext02 extends HttpServlet {
+    
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            this.doGet(req, resp);
+        }
+    
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            ServletContext servletContext = this.getServletContext();
+            Object visit_count = servletContext.getAttribute("visit_count");
+    
+            if (visit_count == null) {
+                visit_count = 1;
+                servletContext.setAttribute("visit_count", visit_count);
+            } else {
+                visit_count = Integer.parseInt(visit_count.toString()) + 1;
+                servletContext.setAttribute("visit_count", visit_count);
+            }
+    
+            resp.setContentType("text/html;charset=utf-8");
+            PrintWriter writer = resp.getWriter();
+            writer.println("<h1>访问次数：" + visit_count + "<h1>");
+            System.out.println("访问次数：" + visit_count);
+            writer.flush();
+            writer.close();
+        }
+    }
+    ```
+
+3. 改进版   
+    - 将获取访问次数的过程包装成方法
+    ```java
+    public class WebUtils {
+        public static Object visitCount(ServletContext servletContext){
+            Object visit_count = servletContext.getAttribute("visit_count");
+
+            if (visit_count == null) {
+                visit_count = 1;
+                servletContext.setAttribute("visit_count", visit_count);
+            } else {
+                visit_count = Integer.parseInt(visit_count.toString()) + 1;
+                servletContext.setAttribute("visit_count", visit_count);
+            }
+            return visit_count;
+        }
+    }
+    ```
+
+### `HttpServletRequest`
+
+#### 基本介绍
+
+1. 介绍
+    - `HttpServletRequest` 对象代表客户端的请求
+    - 当客户端/浏览器通过 HTTP 协议访问服务器时，HTTP 请求头中的所有信息都封装在这个对象中
+    - 通过这个对象的方法，可以获得客户端这些信息。
+
+2. 继承关系
+    ```java
+    public interface HttpServletRequest extends ServletRequest
+    ```
+
+3. HttpServletRequest 常用方法
+    - `getRequestURI()` 获取请求的资源路径 `/servlet/loginServlet`
+    - `getRequestURL()` 获 取 请 求 的 统 一 资 源 定 位 符 （ 绝 对 路 径 ）`http://localhost:8080/servlet/loginServlet`
+    - `getRemoteHost()` 获取客户端的主机（完整主机名）, `getRemoteAddr()`获取客户端IP
+    - `getHeader()` 获取请求头
+    - `getParameter()` 获取请求的参数，**表单`name`属性对应的标签**。
+    - `getParameterValues()` 获取请求的参数（多个值的时候使用） , 比如 checkbox, 返回的数组。
+    - `getMethod()` 获取请求的方式 GET 或 POST
+    - `setAttribute(key, value)`; 设置域数据
+    - `getAttribute(key)`; 获取域数据，**这两个方法区别于`getParameter()`，这是将属性绑定到请求对象上，用于在不同服务间流转这些参数。**
+    - `getRequestDispatcher()` 获取请求转发对象, 请求转发的核心对象
+
+#### HttpServletRequest 应用实例
+1. 需求: 
+    - 说明： 在一个表单提交数据给 Servlet
+    - 然后在 Servlet 通过 HttpServletRequest对象获取相关数据
+
+
+2. 综合案例
+    ```java
+    @WebServlet(urlPatterns = {"/registerOk2"})
+    public class HttpServletreq02 extends HttpServlet {
+        protected void doPost(HttpServletRequest request, HttpServletResponse response)
+                throws ServletException, IOException {
+            //这里我们使用 request 对象，获取表单提交的各种数据
+            System.out.println("HttpServletRequestMethods doPost() 被调用..");
+            /*
+            获取和 http 请求头相关信息
+            */
+            System.out.println("请求的资源路径 URI= " + request.getRequestURI());
+            //http://主机/uri
+            System.out.println(" 请 求 的 统 一 资 源 定 位 符 （ 绝 对 路 径 ） URL= " +
+                    request.getRequestURL());
+            System.out.println("请求的客户端 ip 地址= " + request.getRemoteAddr());//本地就是 127.0 .01
+
+            //思考题：如发现某个 ip 在 10s 中，访问的次数超过 100 次，就封 ip
+            //实现思路：1 用一个集合 concurrentHashmap[ip:访问次数] 2[线程/定时扫描]3 做成处理
+            // 获取 http 请求头的信息，可以指定其他，比如 User-Agent , Host 等待
+            System.out.println("http 请求头 HOST= " + request.getHeader("Host"));
+            // 说 明 ， 如 果 我 们 希 望 得 到 请 求 的 头 的 相 关 信 息 ， 可 以 使 用
+            //request.getHeader("请求头字段")
+            System.out.println("该请求的发起地址是= " + request.getHeader("Referer"));
+            // 请获取访问网站的浏览器是什么？
+            String userAgent = request.getHeader("User-Agent");
+            System.out.println("User-Agent= " + userAgent);
+            // 取出 FireFox, 取出最后
+            String[] s = userAgent.split(" ");
+            System.out.println("浏览器=" + s[s.length - 1].split("/")[0]);
+            //课堂练习: 要求同学们取出 Windows NT 10.0 和 Win64
+            // 主要是 Get / Post
+            System.out.println("http 请求方式~= " + request.getMethod());
+            /*
+            获取和请求参数相关信息, 注意要求在返回数据前，获取参数
+            */
+            //1. 获取表单的数据[单个数据]
+            //username=tom&pwd=&hobby=hsp&hobby=spls
+            String username = request.getParameter("username");
+            String pwd = request.getParameter("pwd");
+            //2. 获取表单一组数据
+            String[] hobbies = request.getParameterValues("hobby");
+            System.out.println("username= " + username);
+            System.out.println("pwd= " + pwd);
+            //增强 for 循环的快捷键 iter->回车即可 , 能使用快捷键，就使用快捷键
+            for (String hobby : hobbies) {
+                System.out.println("hobby=" + hobby);
+            }
+            //推而广之, 如果是 单选 , 下拉框 等等. => 作业布置
+        }
+
+        protected void doGet(HttpServletRequest request, HttpServletResponse
+                response) throws ServletException, IOException {
+            doPost(request, response);
+        }
+    }
+    ```
+
+#### 使用细节
+
+1. 解决中文乱码问题
+    - 由于请求使用的url编码，而控制台使用utf8编码，直接读取传进来的中文数据会出现乱码。
+    ```java
+    req.setCharacterEncoding("utf-8");
+    ```
+
+2. 数据回送
+    ```java
+    resp.setContentType("text/html;charset=utf-8");
+    resp.getWriter();
+    //...
+    ```
+
+3. 再次理解`content-type`
+    - 如果回送数据格式设置为`text/html`，html代码就会被解析，比如：`<h1>你好</h1>`
+    - 如果回送数据格式为`text/plain`，则不会解析，转而直接输出原始文本。
+    - 同理，`appication/x-tar`表明响应是一个文件，浏览器会弹出下载窗口。
+
+### 请求转发
+
+#### 基本内容
+
+1. 为什么需要请求转发
+    - 目前我们学习的都是一次请求，对应一个 Servlet。
+    - 但是在实际开发中，往往业务比较复杂，需要在一次请求中，使用到多个 Servlet 完成一个任务(Servlet 链, 流水作业)。
+    - 比如一个管理页面，经过权限验证，分发给不同权限对应的下级Servlet。
+
+2. 请求转发说明
+    - 实现请求转发：请求转发指一个 web 资源收到客户端请求后，通知服务器去调用另外一个 web 资源进行处理
+    - `HttpServletRequest` 对象(也叫 Request 对象)提供了一个`getRequestDispatcher`（调度器） 方法，该方法返回一个 `RequestDispatcher` 对象，调用这个对象的 `forward` 方法可以实现请求转发。
+    - request 对象同时也是一个域对象，开发人员通过 request 对象在实现转发时，把数据通过 request 对象带给其它 web 资源处理
+        - `setAttribute`方法
+        - `getAttribute`方法
+        - `removeAttribute`方法
+        - `getAttributeNames`方法
+
+3. 请求转发原理示意图
+    ![javaweb_Servlet_DispatcherUML](./img/javaweb_Servlet_Dispatcher01.png)
+
+#### 请求转发应用实例
+1. 需求说明：
+    - 如果是 tom，提示为管理员，其它是普通用户
+    - 使用`login.html`发送请求。
+
+2. `CheckServlet.java`
+    ```java
+    package com.lcq.servlet.check;
+
+    import javax.servlet.RequestDispatcher;
+    import javax.servlet.ServletException;
+    import javax.servlet.annotation.WebServlet;
+    import javax.servlet.http.HttpServlet;
+    import javax.servlet.http.HttpServletRequest;
+    import javax.servlet.http.HttpServletResponse;
+    import java.io.IOException;
+
+    @WebServlet(urlPatterns = {"/check"})
+    public class CheckServlet extends HttpServlet {
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            this.doGet(req, resp);
+        }
+
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String username = req.getParameter("username");
+
+            if ("tom".equals(username)) {
+                req.setAttribute("role", "管理员");
+            } else {
+                req.setAttribute("role", "普通用户");
+            }
+
+            RequestDispatcher requestDispatcher = req.getRequestDispatcher("/manage");
+            requestDispatcher.forward(req, resp);
+        }
+    }
+    ```
+
+3. `ManageServlet.java`
+    ```java
+    package com.lcq.servlet.check;
+    
+    import javax.servlet.ServletException;
+    import javax.servlet.annotation.WebServlet;
+    import javax.servlet.http.HttpServlet;
+    import javax.servlet.http.HttpServletRequest;
+    import javax.servlet.http.HttpServletResponse;
+    import java.io.IOException;
+    import java.io.PrintWriter;
+    
+    @WebServlet(urlPatterns = {"/manage"})
+    public class ManagerServlet extends HttpServlet {
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            this.doGet(req, resp);
+        }
+    
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String username = req.getParameter("username");
+            Object role = req.getAttribute("role");
+    
+            resp.setContentType("text/html;charset=utf-8");
+            PrintWriter writer = resp.getWriter();
+            writer.println("<h1>"+username+":"+role+"</h1>");
+        }
+    }
+    ```
+
+#### 注意事项和细节
+
+1. 在请求转发的过程中，浏览器的地址不会发生改变。
+    - 区别于重定向。
+    - 整个过程中浏览器只发出了一次HTTP请求，收到了一次HTTP响应。
+
+2. 关于HTTP请求
+    - 在同一次HTTP请求中，进行多次转发，仍然是一次HTTP请求。
+    - 在同一次HTTP请求中，进行多次转发，多个Servlet可以共享request域/对象数据，即request域/对象数据（参数-属性）的作用域是在一次HTTP请求中有效
+
+3. 可以转发到`WEB-INF`目录下
+4. **不能访问当前WEB工程外的资源。**
+5. 因为浏览器地址栏停止在第一个Servlet，如果刷新页面，会再次发出请求（并带数据），所以在支付页面情况下会造成重复支付，不要使用请求转发，而使用重定向。
+
+### `HttpServletResponse`
+
+#### 基本内容
+
+1. 介绍
+    - 每次 HTTP 请求，Tomcat 会创建一个 HttpServletResponse 对象传递给 Servlet 程序去使用。
+    - HttpServletRequest 表示请求过来的信息，HttpServletResponse 表示所有响应的信息，如果需要设置返回给客户端的信息，通过 HttpServletResponse 对象来进行设置即可。
+
+2. 常用方法
+    - `setStatus(int)`：设置状态码。
+    - `setHeader(String, String)`：设置响应头。
+    
+
+3. 向客户端返回数据方法
+    - 字节流 `getOutputStream()`; 常用于下载（处理二进制数据）
+    - 字符流 `getWriter()`; 常用于回传字符串
+    - 细节：**两个流同时只能使用一个。 使用了字节流，就不能再使用字符流，反之亦然，否则就会报错。**
+
+#### 注意事项和细节
+
+1. 处理中文乱码问题（方法1）
+    ```java
+    //设置服务器字符集为UTF-8
+    resp.setCharacterEncoding("UTF-8");
+    //通过响应头，设置浏览器也使用UTF-8字符集
+    resp.setHeader("Content-Type", "text/html; charset=UTF-8");
+    ```
+
+2. 处理中文乱码问题（方法2）
+    ```java
+    /*
+    1.setContentType会设置服务器和客户端都用utf-8字符集，还设置了响应头
+    2.setContentType要在获取流对象(getWriter)之前调用才有效*/
+    response.setContentType("text/html;charset=utf-8"); 
+    PrintWriter writer = response.getWriter();
+    ```
+
+#### 请求重定向
+
+1. 流程示意图
+    ![javaweb_Servlet_Redirect](./img/javaweb_Servlet_Redirect.png) 
+
+2. 请求重定向注意事项和细节
+    - 最佳应用场景：网站迁移，比如原域名是 `www.lcq.com` 迁移到 `www.lcq.cn` ，但是百度抓取的还是原来网址. 
+    - 浏览器地址会发生变化，本质是两次 http 请求. 
+    - **不能共享 Request 域中的数据**，本质是两次 http 请求，会生成两个 HttpServletRequest对象
+    - **不能重定向到 `/WEB-INF` 下的资源**
+    - 可以重定向到 Web 工程以外的资源， 比如 到`www.baidu.com`
+    - 重定向有两种方式, 推荐使用第 1 种（`sendRedirect()`）。
+
+3. 另一种重定向方法
+    ```java
+    resp.setStatus("302");
+    resp.setHeader("Location", "http://www.baidu.com");
+    ```
+
+4. 动态获取web应用地址
+    - `this.getServletContext().getContextPath()`方法可以获得web应用的URI
+    - 这是在 Servlet 中获取 Web 应用上下文路径（Context Path）的有效方式之一
+    ```java
+    resp.sendRedirect(this.getServletContext().getContextPath() + "/serv01");
+    ```
+
+#### 实例演示：文件下载
+
+1. 需求
+    - 创建`DownloadServlet`和`FileServlet`。
+    - 由前者重定向到后者，并完成资源下载。（仅弹出下载框）  
+
 
 ## Web开发通信协议——HTTP
 
@@ -4754,7 +5151,6 @@
 
 2. POST请求有哪些
     - `<form>`标签，`method="post"`
-    ● POST 请求有哪些
 
 3. HTTP 请求中怎样选择 Get 和 Post 方式
     - 在大部分情况下，我们不需要考虑这个问题，因为业务本身就会自动区别，比如你要显示图片，引入 css/js 这个天然的就是 get 请求，比如你登录，发帖，上传文件，你就会使用 post(感情的自然流露)
