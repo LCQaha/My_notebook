@@ -5293,3 +5293,197 @@
     | GZIP文件             | `.gz`                       | `application/x-gzip`         |
     | TAR文件              | `.tar`                      | `application/x-tar`           |
 
+## TomCat与Servlet底层机制与实现
+
+### MAVEN
+
+#### 简介
+
+1. 传统java项目的弊端
+    需要引入jar包时：
+    - 需要程序员自己找jar包。
+    - jar包版本匹配问题。
+    - 包之间版本冲突问题。
+    - 包之间依赖关系问题。
+
+2. maven方案
+    - 将需要的jar包放进名为`pom.xml`文件中。
+        - 在这个文件中配置自己需要的jar包
+        - 有自己的规则。
+        - 当配置刷新时，自动导入需要的包。
+    - 下载的包会被放到maven指定的位置。
+        - maven中央仓库：https://mvnrepository.com
+        - maven镜像：如阿里云（）
+
+#### 创建一个maven项目
+
+1. 参考内容
+    - [【B站资源】25版IDEA创建MAVEN JavaWeb工程](https://www.bilibili.com/video/BV1qH23YnE8o)
+
+2. 配置路径
+    - 打开`设置-构建、执行、部署-构建工具-MAVEN`
+    - MAVEN主路径：这里的MAVEN为IDEA自带的，也可以自己配置。
+    - 用户配置文件路径：这个路径是IDEA读取配置的路径。
+    - 本地仓库：这个路径决定了从MAVEN下载下来的包存储在什么位置。
+    - **第一次使用MAVEN构建项目前，需检查并修改这几个路径。**
+    - **需要先`文件-关闭项目`执行关闭操作，修改的配置才会对所有项目生效。**
+
+    ![javaweb_maven_create011](./img/javaweb_maven_create011.png)
+
+    ![javaweb_maven_create012](./img/javaweb_maven_create012.png)
+
+3. 配置镜像源
+    - [阿里云云效MAVEN配置指南](https://maven.aliyun.com/mvn/guide)
+    - 在MAVEN目录下的`conf/setting.xml`中增加如下内容：
+        ```xml
+        <mirror>
+        <id>aliyunmaven</id>
+        <mirrorOf>*</mirrorOf>
+        <name>阿里云公共仓库</name>
+        <url>https://maven.aliyun.com/repository/public</url>
+        </mirror>
+        ```
+    - 需要将原配置注释。
+    - **建议对原配置文件进行备份。**
+    
+
+3. 创建项目并选择创建方式为MAVEN（一般方法）
+    - 设置组ID（GroupId）：一般设置为公司名，如`com.baidu`。
+    - 设置工件ID（Artifaction）：一般与项目名称相同。
+    - 两者统称为**坐标**，用于唯一标识一个组织结构。
+    - 当MAVEN项目打包为JAR或WAR后，别人可以通过坐标和版本号获取你的包。
+
+    ![javaweb_maven_create02](./img/javaweb_maven_create02.png)
+
+
+4. 使用MAVEN模板（MAVEN Archetype）创建JavaWeb工程
+    - 在创建项目界面，选择`MAVEN Archetype`，然后依次选择项目名称、路径和所用模板。
+    - 模板选择`org.apache.maven.archetypes:maven-archetype-webapp`
+    - 模板是MAVEN提供的预设，可以规避很多潜在的问题。
+
+5. 添加java目录
+    ![javaweb_maven_create031](./img/javaweb_maven_create031.png)
+
+    ![javaweb_maven_create032](./img/javaweb_maven_create032.png)
+
+5. 问题解决
+    - [No archetype found in remote catalog. Defaulting to internal catalog](https://blog.csdn.net/m0_48170265/article/details/129973357)
+    - 如果对配置进行修改后报错，可以通过重新加载MAVEN补齐缺失的资源。
+
+#### `pom.xml`简述
+
+1. `pom.xml`
+    ```xml
+    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+        <modelVersion>4.0.0</modelVersion>
+        <groupId>com.lcq</groupId>
+        <artifactId>mytomcat01</artifactId>
+        <packaging>war</packaging>
+        <version>1.0-SNAPSHOT</version>
+        <name>mytomcat01 Maven Webapp</name>
+        <url>http://maven.apache.org</url>
+        <dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>3.8.1</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+        <build>
+            <finalName>mytomcat01</finalName>
+        </build>
+    </project>
+    ```
+
+2. `<dependency>`
+    这个标签组唯一地定位并控制一个外部库（JAR包等）在项目中的使用方式
+    - `<groupId>`：定依赖项所属的组织、公司、团队或项目。通常采用Java包名的命名规范（反向域名），以确保全球唯一性。`com.companyname.project`(你所在公司的项目)
+    - `<artifactId>`：指定依赖项的具体项目或模块名称。通常使用短横线(-)分隔的小写字母，描述项目的功能。`spring-core`(Spring框架核心模块)
+    - `<version>`：指定需要引入的依赖项的具体版本。通常遵循 `主版本号.次版本号.增量版本号-限定符`的格式。`5.3.27.RELEASE`(Spring常用的发布版格式)
+        - ​​SNAPSHOT​​：表示处于开发阶段的快照版本。Maven会定期检查远程仓库是否有更新的快照，适合联调。
+        - RELEASE/LATEST​​：表示稳定的发布版本（但 LATEST已不推荐使用）。
+    - `<scope>`
+
+        | 作用域 | 含义 | 是否参与打包 | 典型应用场景 |
+        | :--- | :--- | :--- | :--- |
+        | **compile** | **默认值**。编译、测试、运行所有阶段都有效。 | ✅ 是 | 项目核心依赖，如 `spring-core`, `dom4j` |
+        | **provided** | 表示容器或JDK**已提供**。编译和测试有效，**运行时不打包**。 | ❌ 否 | 容器提供的依赖，如 `servlet-api`, `jsp-api`。避免与Tomcat自带jar冲突。 |
+        | **runtime** | 编译时不需要，但**测试和运行时需要**。 | ✅ 是 | 运行时的驱动或实现，如 `MySQL Connector/J` |
+        | **test** | **仅用于测试阶段**。编译和运行测试代码时有效。 | ❌ 否 | 测试框架，如 `JUnit`, `Mockito` |
+        | **system** | 与 `provided` 类似，但必须通过 `systemPath` 显式指定本地jar路径。**不推荐使用**。 | ❌ 否 | 本地系统中一个不在Maven仓库中的JAR包。 |
+        | **import** | 仅用于 `dependencyManagement` 部分，表示从另一个POM中导入依赖管理配置。 | - | 在父POM中管理多模块项目的公共依赖版本。 |
+    
+### TomCat底层架构详解
+
+#### 简介
+
+1. TomCat三种运行模式
+    - BIO、NIO、APR
+
+1. BIO (Blocking I/O) 模式：同步阻塞I/O
+    BIO 是 Tomcat 早期版本的默认模式，其工作方式非常直观，可以概括为 **“一个连接，一个线程”**。
+    - **工作机制**：
+        - **监听与接收**：由一个名为 `Acceptor` 的线程在指定端口上**阻塞地**监听（调用 `ServerSocket.accept()` 方法等待）。当有新的客户端连接请求到达时，`Acceptor` 会接收这个连接，获取到一个 Socket 对象。
+        - **任务分配**：`Acceptor` 不会自己处理这个连接，而是将这个 Socket 对象交给一个工作线程池（`Worker Thread Pool`）去处理。
+        - **请求处理**：工作线程池中的某个空闲线程会接手这个 Socket。从此，这个线程的生命周期就与该连接绑定。它会**阻塞地**读取输入流（等待客户端发送数据），解析 HTTP 请求，处理业务逻辑，最后返回响应。在整个过程中，该线程会一直被占用，直到连接关闭。
+        - **资源释放**：连接关闭后，这个工作线程被释放，回到线程池中等待分配下一个任务。
+
+    - **核心特点**：
+        - **模型简单**：编程模型直观易懂，非常适合学习和理解 Servlet 容器的基本工作原理。
+        - **资源消耗大**：每个连接都需要一个独立的线程来维护。当并发连接数很高时，线程数量会急剧增长，线程的创建、销毁以及上下文切换会消耗大量 CPU 和内存资源，成为性能瓶颈。
+        - **适用场景**：适用于连接数不多、且连接时间较短的场景。**在 Tomcat 8.0 及以后版本中，BIO 模式已被移除。**
+
+        
+
+2. NIO (Non-blocking I/O) 模式：同步非阻塞I/O
+
+    NIO 是 Tomcat 8 及以后版本的默认模式，其核心思想是 **“一个请求，一个线程”**，用更少的线程处理更多的连接。
+
+    - **工作机制**：
+        - **监听与接收**：`Acceptor` 线程同样负责接收新的连接。但与 BIO 不同，它接收连接后，会立即将连接（SocketChannel）设置为**非阻塞模式**，并将其注册到一个名为 `Poller` 的组件。
+        - **事件轮询**：`Poller` 线程的核心是一个 `Selector`（选择器）。它会不断地轮询所有注册在其上的连接，检查是否有**事件发生**（例如，某个连接上有数据可读了）。
+        - **任务分配**：当 `Poller` 发现某个连接上有数据可读（即一个完整的 HTTP 请求到达）时，它不会自己处理，而是将这个“就绪”的连接放入一个任务队列。
+        - **请求处理**：工作线程池中的线程从任务队列中获取到这些“就绪”的连接，然后进行请求解析和业务处理。处理完成后，线程立即释放，回到线程池，**而原来的连接依然由 `Poller` 监控**，等待下一次请求。一个连接上可以有多个请求依次处理。
+
+    - **核心特点**：
+        - **高并发**：通过 `Selector` 实现了 I/O 多路复用，可以用少量线程管理成千上万的连接。线程不再被空闲的连接所阻塞，而是只处理真正有数据传输的请求，极大地提高了线程利用率。
+        - **性能更优**：非常适合处理大量长连接（如 Comet、WebSocket）或高并发短连接的现代 Web 应用。
+        - **模型复杂**：其基于“事件驱动”的编程模型比 BIO 复杂，但 Tomcat 已经将其封装好，对 Servlet 开发者是透明的。    
+
+3. APR (Apache Portable Runtime) 模式：原生运行时库
+    APR 模式并非纯粹的 Java 实现，而是通过 **JNI（Java Native Interface）** 方式调用 Apache 可移植运行时库，直接使用操作系统级别的原生特性来提升性能。
+
+    - **工作机制**：
+        - **原生库调用**：Tomcat 启动时会加载 APR 本地库（如 `tcnative-1.dll` 或 `.so` 文件）。在处理网络 I/O（连接、发送、接收数据）和 SSL 加密等操作时，不再使用 Java 标准库，而是直接调用这些更高效的原生代码。
+        - **利用操作系统特性**：APR 库能够更好地利用操作系统的高性能 I/O 机制，如 Windows 上的 I/O Completion Ports（IOCP）或 Linux 上的 epoll。
+        - **独立于线程模型**：APR 本身提供了强大的 I/O 处理能力，它可以与类似 NIO 的事件驱动模型结合，实现极高的处理效率。
+
+    - **核心特点**：
+        - **性能最高**：在处理静态资源、SSL 握手和大文件传输时，性能通常远高于纯 Java 的 NIO 和 BIO 模式，因为减少了 JVM 层面的开销。
+        - **依赖复杂**：需要额外的配置。必须在服务器操作系统上安装 APR 库和 OpenSSL 等原生组件，部署和维护相对麻烦。
+        - **适用场景**：对性能有极致要求的极端生产环境，尤其是在需要处理大量静态内容或高吞吐量 SSL 加密请求时。
+
+4. **总结一下**：
+    - **BIO** 是易于理解的“一个连接一个线程”模型，但资源效率低。
+    - **NIO** 是高效的“一个请求一个线程”模型，通过事件驱动实现高并发，是现代 Tomcat 的默认选择。
+    - **APR** 是追求极致性能的“原生库”模式，通过 JNI 调用操作系统底层功能，性能最强但配置复杂。
+
+### 手动实现底层
+
+#### 编写TomCat，实现向浏览器返回数据
+
+1. 需求分析
+    - 技术栈：HTTP协议、Socket网络编程、IO流
+    - 基于Socket开发服务端。
+    - 实现BIO模式
+
+2. 开发流程
+    - 建立监听
+    - 等待链接
+    - 创建Socket链接
+    - 获取输入输出流
+    - 关闭Socket
+
+3. 

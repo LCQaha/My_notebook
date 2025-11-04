@@ -8450,7 +8450,6 @@ synchronized (lock2) { // 先占lock2
                 e.printStackTrace();
             }
         }
-
     }
     ```
 
@@ -10271,6 +10270,9 @@ synchronized (lock2) { // 先占lock2
     port=3306
     character_set_server=utf8
     #跳过安全检查
+    #此选项仅应在忘记root密码进行紧急恢复时临时使用，
+    #解决问题后必须立即注释掉（行首加#）或删除该行，
+    #并重启MySQL服务，否则会带来严重的安全风险​​。
     skip-grant-tables
     ```
 6. 以管理员身份运行命令行（在安装目录的`bin`目录下运行）
@@ -10469,6 +10471,7 @@ synchronized (lock2) { // 先占lock2
 
 3. 指令
     - **备份文件的本质，创建这些被备份数据库的指令的集合，因此也可以通过将文件中所有指令逐条执行来恢复数据库。**
+    - 使用参数`-B`或`--database`，可以将备份整个数据库，不加这个参数则备份的是某数据库的特定的表。
     ```sql
     # 备份数据库（需要在Dos下执行）
     mysqldump -u username -p -B db1 [db2 db3 ...] > db_backup.sql   
@@ -12244,6 +12247,7 @@ synchronized (lock2) { // 先占lock2
     - 类加载时静态代码块已经注册了一个驱动。
     - 这也是推荐的方式。
     - 在MySQL5.1.6之后，可以不需要类加载`forName()`。在JDK1.5之后，jdbc4自动调用驱动jar包下的`META-INF\services\java.sql.Driver`完成注册。**但仍然建议完成这个操作。**
+    - 这是基于方法3的简化，具体注册步骤在相关类的静态代码块中，这就是为什么要实现类加载。
     ```java
     Class.forName("com.mysql.jdbc.Driver");
 
@@ -12402,7 +12406,7 @@ synchronized (lock2) { // 先占lock2
     }
     ```
 
-### `PreparedStatement`
+#### `PreparedStatement`
 
 1. 基本介绍
     - `PreparedStatement`执行的SQL语句中的参数用问号`?`表示，调用`setXxx()`方法来设置这些参数。
@@ -12455,13 +12459,13 @@ synchronized (lock2) { // 先占lock2
     - `executeUpdate()`：执行dml语句。
     - `executeQuery()`：执行查询，返回`ResultSet`对象。
     - `execute()`：执行任意sql语句。
-    - `setXxx(index, value)`：解决SQL注入问题。
+    - `setXxx(index, value)`：解决SQL注入问题。`Xxx`为数据类型。
     - `setObject(index, value)`：按对象方式赋值。
 
 5. `ResultSet`结果集
     - `next()`：向下移动一行，如果没有下一行，返回false。
     - `previous()`：向上移动一行。
-    - `getXxx(col_index)`、`getXxx(col_name)`：获取对应位置的值。
+    - `getXxx(col_index)`、`getXxx(col_name)`：获取对应位置/字段的值。
     - `getObject(col_index)`、`getObject(col_name)`：按对象获取。
 
 #### 封装`JDBCUtils`工具类
@@ -13094,6 +13098,13 @@ synchronized (lock2) { // 先占lock2
     - `KeyedHandler(name)`: 将结果集中的每行数据都封装到Map里，再把这些map存到一个map里，其key为指定的key。
     - `MapHandler`: 将结果集中的第一行数据封装到一个Map里，key是列名，value就是对应的值。
     - `MapListHandler`: 将结果集中的每一行数据都封装到一个Map里，然后再存放到List。
+    - 可能这里比较难以理解，这里做个小结：`Array`、`Bean`、`Map`是三种存储数据的方式，`Column`和`Keyed`可以理解为特殊方法
+        - `Array`：直接用一个`Object[]`数组按顺序将搜索结果的字段填入，适合快速获取记录。
+        - `Bean`适用于长期使用且结构固定的Query
+        - `Map`适合不想创建JavaBean，表结构不固定的情况。
+        - `Column`可以获取某一列信息，比如特定成绩区间的所有姓名。
+        - `Keyed`适用于创建索引，一般采用不重复的字段。
+        - `ScalarHandler​​`获取结果集​​第一行第一列​​（或指定列）的值。用于查询单值，如记录数量（`COUNT(*)`）。
 
 4. 应用实例
     - 使用DBUtils和数据连接池方式，完成对表actor的CRUD
@@ -13121,6 +13132,7 @@ synchronized (lock2) { // 先占lock2
     }
     ```
 5. 源码分析
+    - 若忽略参数`Connection`，则会自动获取一个链接，这在普通的CRUD中是允许的，**但如果是进行一个事务，则需要手动获取链接**。
     ```java
     public <T> T query(Connection conn, String sql, ResultSetHandler<T> rsh, Object... params) throws SQLException {
         PreparedStatement stmt = null;  // 预处理SQL
@@ -13282,4 +13294,489 @@ synchronized (lock2) { // 先占lock2
             }
         }
     }
+    ```
+
+## 【项目】满汉楼
+
+### 基本介绍
+
+#### 功能
+
+1. 完成登录、订座、点餐、结账、查看账单等功能。
+
+2. 登录
+    - 登录选项（账号密码）
+    - 退出选项
+
+3. 二级菜单
+    - 显示餐桌状态
+    - 预定餐桌
+    - 显示所有菜品
+    - 点餐服务
+    - 查看账单
+    - 结账
+    - 退出
+
+### 实现大纲
+
+### 附加内容
+
+#### UUID类
+
+1. 简介
+    - 用于生成唯一的十六进制码值，可用于订单编号。
+2. 除了订单编号，UUID还非常适用于以下场景：
+    - 分布式系统会话标识（Session ID）
+    - 文件系统内的唯一文件名
+    - 作为数据库主键（尤其在微服务架构中，需要在客户端生成ID时）
+2. 使用
+    ```java
+    import java.util.UUID; 
+
+    //...
+    public boolean orderMenu(int menuId, int nums, int diningTableId) {
+        String billId = UUID.randomUUID().toString();
+        //language=MySQL
+        String sql = "insert into bill (billId, menuId, nums, money, diningTableId, billDate, state) \n" +
+                "VALUES (?,?,?,?,?,now(),'未结账');";
+        int update = billDAO.update(sql, billId, menuId, nums,
+                menuService.getMenuById(menuId).getPrice() * nums, diningTableId);
+
+        if (update <= 0) {
+            return false;
+        }
+
+        boolean updateDiningTableState = diningTableService.updateDiningTableState(diningTableId, "就餐中");
+        return updateDiningTableState;
+    }
+    ```
+
+#### domain类的构造器
+
+1. 运作原理
+    - 当使用`apache-utils`工具类进行Query操作时，若以Bean方式返回对象，则会优先调用相关domain的无参构造器创建对象，然后用setter方式赋值。
+
+2. 注意事项
+    - 必要性：当您的domain类中只定义了带参数的构造器时，编译器将不再自动提供无参构造器。此时，必须显式地编写一个无参构造器，否则DbUtils等框架在尝试实例化时会抛出异常。
+    - 实用写法：一个常见的做法是，即使domain类有其他全参构造器，也习惯性地显式定义一个公共的无参构造器。如果使用Lombok，可以通过@NoArgsConstructor注解来简化。
+
+
+## 正则
+
+### 章节目录
+
+1. 快速入门
+2. 正则表达式基本语法
+3. 三个常用类
+    - `Pattern`
+    - `Matcher`
+    - `PatternSyntaxException`
+4. 分组、捕获、反向引用
+5. 元字符
+    - 限定符
+    - 选择匹配符
+    - 分组组合和反向引用符
+    - 特殊字符
+    - 字符匹配符
+    - 定位符
+6. 应用实例
+
+### 为什么要学习正则表达式
+
+#### 极速体验
+
+1. 场景
+    - 提取文章中的所有英文单词。
+    - 提取文章中所有数字。
+    - 提取文章中所有英文单词和数字。
+    - 提取百度热榜标题
+
+    ```java
+    package com.lcq.regexp;
+
+    import java.util.regex.Matcher;
+    import java.util.regex.Pattern;
+
+    public class Regexp01 {
+        public static void main(String[] args) {
+            String str = "1995年，互联网的蓬勃发展给了Oak机会。业界为了使死板、" +
+                    "单调的静态网页能够“灵活”起来，急需一种软件技术来开发一种程序，" +
+                    "这种程序可以通过网络传播并且能够跨平台运行。" +
+                    "于是，世界各大IT企业为此纷纷投入了大量的人力、物力和财力。这个时候，" +
+                    "Sun公司想起了那个被搁置起来很久的Oak，并且重新审视了那个用软件编写的试验平台，" +
+                    "由于它是按照嵌入式系统硬件平台体系结构进行编写的，所以非常小，" +
+                    "特别适用于网络上的传输系统，而Oak也是一种精简的语言，程序非常小，" +
+                    "适合在网络上传输。Sun公司首先推出了可以嵌入网页并且可以随同网页在网络上传输的Applet（" +
+                    "Applet是一种将小程序嵌入到网页中进行执行的技术），并将Oak更名为Java。5月23日，" +
+                    "Sun公司在Sun world会议上正式发布Java和HotJava浏览器。IBM、Apple、DEC、Adobe、" +
+                    "HP、Oracle、Netscape和微软等各大公司都纷纷停止了自己的相关开发项目，" +
+                    "竞相购买了Java使用许可证，并为自己的产品开发了相应的Java平台。 [9-10]";
+
+
+            // 创建一个模式对象Pattern
+            Pattern pattern = Pattern.compile("[a-zA-Z]+");
+            // 匹配所有数字        
+            Pattern pattern1 = Pattern.compile("[0-9]+");
+            // 匹配所有数字或单词
+            Pattern pattern2 = Pattern.compile("([a-zA-Z]+)|([0-9]+)");
+            // 在百度首页匹配热搜词条
+            Pattern pattern3 = Pattern.compile("<a target=\"_blank\" title=\"(\\S*)\"");
+            // 匹配IP地址
+            Pattern pattern4 = Pattern.compile("\\d+\\.\\d+\\.\\d+\\.\\d+");
+            // 创建匹配器对象
+            Matcher matcher = pattern.matcher(str);
+            // Oak,IT,Sun,Oak,Oak,Sun,Applet,Applet,Oak,Java,Sun,Sun,
+            // world,Java,HotJava,IBM,Apple,DEC,Adobe,HP,Oracle,Netscape,Java,Java,
+            while (matcher.find()) {
+                System.out.print(matcher.group(0)+",");
+            }
+        }
+    }
+    ```
+
+3. 【场景2】在一个文章/字符串中：
+    - 匹配所有四个数字连在一起的字符串
+    - 要求1、4位相同，2、3位相同
+    
+4. 登录与注册
+    - 验证输入的邮箱格式是否满足电子邮件格式。
+    - 验证输入的手机号是否符合手机号格式。
+
+5. 解决之道
+    - 为了解决上述问题，Java提供了正则表达式技术，专门用于处理类似的文本处理问题。
+    - 简单来说，正则表达式是对字符串执行模式匹配的技术。
+    - 英文：regular expression
+    - 简写：RegExp
+
+### 基本内容
+
+1. 介绍
+    - 正则表达式，就是用某种模式去匹配字符串的一个公式。
+    - 虽然语法有别于当前学习的一些知识，但学会后可以大幅提高文本处理效率。
+    - 正则表达式并非java独有，多种编程语言均支持。
+
+1. 元字符（Metacharacter）
+    想要灵活运用正则表达式，必须了解其中各种元字符的功能，元字符分为：
+    - 限定符
+    - 选择匹配符
+    - 分组组合和反向引用符
+    - 特殊字符
+    - 字符匹配符
+    - 定位符
+
+#### 底层实现
+
+1. 问题
+    - 在以下字符串中找到四个数字连在一起的子串。
+    ```text
+    1998年12月8日，第二代Java平台的企业版J2EE发布。1999年6月，Sun公司发布了第二代Java平台（简称为Java2）的3个版本：J2ME（Java2 Micro Edition，Java2平台的微型版），应用于移动、无线及有限资源的环境；J2SE（Java 2 Standard Edition，Java 2平台的标准版），应用于桌面环境；J2EE（Java 2Enterprise Edition，Java 2平台的企业版），应用于3443基于Java的应用服务器。Java 2平台的发布，是Java发展过程中最重要的一个里9889程碑，标志着Java的应用开始普及。9999
+    ```
+
+2. 例程
+    ```java
+    public static void main(String[] args) {
+        String content = "1998年12月8日，第二代Java平台的企业版J2EE发布。" +
+                "1999年6月，Sun公司发布了第二代Java平台（简称为Java2）的3个版本：" +
+                "J2ME（Java2 Micro Edition，Java2平台的微型版），应用于移动、" +
+                "无线及有限资源的环境；J2SE（Java 2 Standard Edition，Java 2平台的标准版），" +
+                "应用于桌面环境；J2EE（Java 2Enterprise Edition，Java 2平台的企业版），" +
+                "应用于34436574基于Java的应用服务器。Java 2平台的发布，是Java发展过程中最重要的一个里9889程碑，" +
+                "标志着Java的应用开始普及。9999";
+
+        // 匹配四个数字
+        // \d\d\d\d
+        String reg="\\d\\d\\d\\d";
+
+        Pattern pattern = Pattern.compile(reg);
+
+        Matcher matcher = pattern.matcher(content);
+
+        //public String group(int group) {
+        //    if (first < 0)
+        //        throw new IllegalStateException("No match found");
+        //    if (group < 0 || group > groupCount())
+        //        throw new IndexOutOfBoundsException("No group " + group);
+        //    if ((groups[group*2] == -1) || (groups[group*2+1] == -1))
+        //        return null;
+        //    return getSubSequence(groups[group * 2], groups[group * 2 + 1]).toString();
+        //}
+        while (matcher.find()) {
+            System.out.println(matcher.group(0));
+        }
+
+    }
+    ```
+
+3. `matchet.find()`工作原理
+    - 根据制定规则，定位满足规则的子字符串（记录子串的起始位置）。
+    - 找到后，将子字符串的索引记录到matcher对象的属性`int[] groups`中，以记录的第一个子串位置为例，`groups[0]`记录起始位置，`groups[1]`记录结束位置索引值+1，`groups[2]`记录第二个子串的起始位置，以此类推... 同时记录oldLast作为索引+1的值，作为下一次查找`find()`方法的起点
+    - 索引值用于切割字符串。`String.substring(group[0],group[1]);`（左闭右开）
+    - `matcher.group(0)`会返回整个正则表达式的匹配结果，如果表达式中有小括号，则每队小括号的结果从左到右依次存于`group(1)`,`group(2)`... 此时，groups数组会存储多对起始/结束索引
+    - 使用`match.group(i)`时，不能越界，否则抛出异常。
+
+
+### 元字符
+
+#### 转义符
+
+1. 转义号`\\`
+    - 在使用正则表达式去检索某些特殊字符时，需要用到转义符号，否则检索不到结果。
+    - 例：在字符串`abc$(`中检索`(`
+        - 括号在正则表达式中有特殊用途。
+        - java中的斜杠也需要转义。
+        ```java
+        // "\("
+        Pattern.compile("\\(");
+        ```
+
+#### 字符匹配符
+
+1. 分类
+    | 符号 | 含义 | 示例 | 解释 |
+    |:----:|:----:|:----:|:----:|
+    | `[ ]` | 可接收的字符列表 | `[efgh]` | e、f、g、h中的任意1个字符 |
+    | `[^]` | 不接收的字符列表 | `[^abc]` | 除a、b、c之外的任意1个字符，包括数字和特殊符号 |
+    | `-` | 连字符 | `A-Z` | 任意单个大写字母 |
+    | `.` | 匹配除换行符(`\n`)以外的任何字符 | `a..b` | 以a开头，b结尾，中间包括2个任意字符的长度为4的字符串 | - |
+    | `\d` | 匹配单个数字字符，相当于`[0-9]` | `\d{3,4}` | 包含3个或4个数字的字符串 | `123`、`9876` |
+    | `\D` | 匹配单个非数字字符，相当于`[^0-9]` | `\D(\d)*` | 以单个非数字字符开头，后接任意个数字字符串 | - |
+    | `\w` | 匹配单个数字、大小写字母、下划线字符，相当于`[0-9a-zA-Z_]` | `\d{3}\w{4}` | 以3个数字字符开头的长度为7的数字字母字符串 | - |
+    | `\W` | 匹配单个非数字、大小写字母、下划线字符，相当于`[^0-9a-zA-Z_]` | `\W+\d{2}` | 以至少1个非数字字母字符开头，2个数字字符结尾的字符串 | `#29`、`\?@10` |
+    | `\s` |匹配任何空白字符，如制表符、空格等|`[123]\s[456]`||`2 4`|
+    | `\S` |与`\s`相反，匹配任意非空白字符|
+
+2. 取消区分大小写的几种方法
+    - `(?i)abc`：abc三个字符均不区分大小写
+    - `a(?i)bc`：bc不区分大小写
+    - `a((?i)b)c`：仅b区分大小写
+    - 通过java令表达式不区分大小写
+        ```java
+        Pattern pattern = Pattern.compile(regEx, Pattern.CASE_INSENSITIVE);
+        ```
+
+#### 选择匹配符
+
+1. 介绍
+    - 在匹配某个字符串时有选择性，既可以以正则A匹配，也可以以正则B匹配，可以用到选择匹配符。
+
+2. 使用
+    - `[ab|cd]`：匹配`ab`或`cd`
+
+#### 限定符
+
+1. 介绍
+    - 用于指定其前面的字符和组合项连续出现多少次。
+    - Java默认贪婪匹配，尽可能匹配长的字串。
+2. 分类
+
+    | 符号 | 含义 | 示例 | 说明 | 匹配输入 |
+    |:------:|:------:|:------:|:------:|:------:|
+    | `*` | 指定字符重复 **0 次** 或 **n 次**（零到多） | `(abc)*` | 仅包含任意个 abc 的字符串 | `""`、`abc`、`abcabc` |
+    | `+` | 指定字符重复 **1 次** 或 **n 次**（一到多） | `m+(abc)*` | 以至少 1 个 m 开头，后接任意个 abc 的字符串 | `m`、`mabc`、`mmabcabc` |
+    | `?` | 指定字符重复 **0 次** 或 **1 次**（零或一） | `m+abc?` | 以至少 1 个 m 开头，后接 ab 或 abc 的字符串 | `mab`、`mabc`、`mmab` |
+    | `{n}` | 只能重复 **n 次**（精确次数） | `[abc]{3}` | 由字母 a、b、c 任意组合的 3 个字符长度的字符串 | `abc`、`aab`、`ccc` |
+    | `{n,}` | 重复 **n 次** 或 **更多次**（至少 n 次） | `[abc]{3,}` | 由字母 a、b、c 组成的长度至少为 3 的字符串 | `abc`、`aabbcc`、`aaabbbccc` |
+    | `{n,m}` | 重复 **n 到 m 次**（包含 n 和 m） | `[abc]{3,5}` | 由字母 a、b、c 组成的长度在 3 到 5 之间的字符串 | `abc`、`aabb`、`aaabbb`（若不超过5字符） |
+
+#### 定位符
+
+1. 介绍
+    定位符，规定要匹配的字符串出现的位置，比如在字符串的开始还是结束位置。
+
+2. 分类
+    | 符号 | 含义 | 示例 | 说明 | 匹配输入 |
+    |:------:|:------:|:------:|:------:|:------:|
+    | `^` | 指定**起始字符** | `^[0-9]+[a-z]*` | 以至少1个数字开头，后接任意个小写字母的字符串 | `123`、`6aa`、`555edf` |
+    | `$` | 指定**结束字符** | `^[0-9]\\-[a-z]+$` | 以1个数字开头后接连字符"-"，并以至少1个小写字母结尾的字符串 | `1-a` |
+    | `\b` | 匹配目标字符串的**边界** | `han\b` | 字符串的边界指的是子串间有空格，或者是目标字符串的结束位置 | `hanshunping` 、`sphan nnhan` |
+    | `\B` | 匹配目标字符串的**非边界** | `han\B` | 和`\b`的含义相反，匹配不在边界的位置 | `hanshunping` 中的"han" |
+
+### 分组、捕获、反向引用
+
+#### 分组
+
+1. 常用分组
+    - `(pattern)`：	**非命名捕获**，捕获匹配的子字符串。编号为零的第一个捕获是由整个正则表达式模式匹配的文本，其它捕获结果则根据左括号的顺序从1开始自动编号。
+    - `(?<name>pattern)`：**命名捕获**，将匹配的子字符串捕获到一个组名称或编号名称中。用于name的字符串不能包含任何标点符号，并且不能以数字开头。可以使用单引号替代尖括号，例如`(?'name')`。
+
+2. 特别分组
+    - `(?:pattern)` 匹配 `pattern` 但不捕获该匹配的子表达式，即它是一个非捕获匹配，不存储供以后使用的匹配。这对于用"or"字符(|)组合模式部件的情况很有用。例如，`industr(?:y|ies)` 是比 `industry|industries` 更经济的表达式。**这个写法不能被`matcher.group()`获取**
+    - `(?=pattern)` 它是一个非捕获匹配。例如，`Windows(?=95|98|NT|2000)` 匹配`"Windows 2000"`中的`"Windows"`，但不匹配`"Windows 3.1"`中的`"Windows"`。
+    - `(?!pattern)` 该表达式匹配不处于匹配 `pattern` 的字符串的起始点的搜索字符串。它是一个非捕获匹配。例如，`Windows(?!95|98|NT|2000)` 匹配`"Windows 3.1"`中的`"Windows"`，但不匹配`"Windows 2000"`中的`"Windows"`。**验证所有条件均不符合，即匹配成功**
+
+#### 非贪婪匹配
+
+1. 介绍
+    - 正则默认为贪婪匹配。
+    - 在限定符后添加符号`?`可以转换为非贪婪匹配，匹配尽可能少的字符。
+
+2. 举例
+    - 对于`[a]+?`，遇到`aaaaa`每次只匹配一个。
+    - 如果是`*?`则会匹配但不显示
+
+#### 反向引用
+
+1. 引例
+    给你一段文本，找出片段，要求满足：
+    - 四个数字
+    - 1、4位相同
+    - 2、3位相同
+    - 如：`1221`,`3443`
+
+2. 基本概念介绍
+    - 分组：用圆括号组成一个比较复杂的匹配模式，一个圆括号的内部部分可以看做一个子表达式/分组。
+    - 捕获：将分组匹配的内容以数组编号或显式命名的方式存储，方便后续引用。
+    - 反向引用：圆括号内的内容被捕获后，可以在这个括号后被重复使用，称为反向引用。这种引用可以是在正则表达式内部，也可以是外部，内部反向引用`\\`分组号，外部反向引用`$`分组号。
+
+3. 举例
+    ```re
+    (\d)\1{4}       # 匹配5个相同的数字
+    (\d)(\d)\2\1    # 匹配诸如'1221','1331'这样的字串   
+    ```
+
+### 正则表达式三个常用类
+#### 包结构
+1. `java.util.regex` 包主要包括以下三个类：
+    - Pattern 类
+    - Matcher 类  
+    - PatternSyntaxException 类
+#### `Pattern`类
+1. 介绍
+    - Pattern 对象是一个正则表达式对象
+    - Pattern 类没有公共构造方法
+    - 要创建一个 Pattern 对象，需要调用其公共静态方法，该方法接受一个正则表达式作为它的第一个参数，示例：`Pattern r = Pattern.compile(pattern);`
+
+2. 示例
+    ```java
+    public static void main(String[] args) {
+        String content = "lcqaha";
+        String regExp = "^lcq.*$";
+
+        boolean matches = Pattern.matches(regExp, content);
+        System.out.println(matches);
+    }
+    ```
+
+#### `Matcher`类
+1. 介绍
+    - Matcher 对象是对输入字符串进行解释和匹配的引擎。
+    - 与 Pattern 类一样，Matcher 也没有 public 构造方法，需要调用 Pattern 对象的 matcher 方法来获得一个 Matcher 对象。
+
+2. 方法一览
+    - `public int start()`：返回以前匹配的初始索引。
+    - `public int start(int group)`：返回在以前的匹配操作期间，由给定组所捕获的子序列的初始索引
+    - `public int end()`：返回最后匹配字符之后的偏移量。
+    - `public int end(int group)`：返回在以前的匹配操作期间，由给定组所捕获子序列的最后字符之后的偏移量。
+    - `public boolean lookingAt()`：尝试将从区域开头开始的输入序列与该模式匹配。
+    - `public boolean find()`：尝试查找与该模式匹配的输入序列的下一个子序列。
+    - `public boolean find(int start)`：重置此匹配器，然后尝试查找匹配该模式、从指定索引开始的输入序列的下一个子序列。
+    - `public boolean matches()`：尝试将整个区域与模式匹配。通常用于校验一个完整的字符串是否满足规则。
+    - `public Matcher appendReplacement(StringBuffer sb, String replacement)`： 实现非终端添加和替换步骤。
+    - `public StringBuffer appendTail(StringBuffer sb)`：实现终端添加和替换步骤。
+    - `public String replaceAll(String replacement)`： 替换模式与给定替换字符串相匹配的输入序列的每个子序列。
+        - **返回的是替换后的字符串，原字符串不发生改变。**
+    - `public String replaceFirst(String replacement)`： 替换模式与给定替换字符串匹配的输入序列的第一个子序列。
+    - `public static String quoteReplacement(String s)`：返回指定字符串的字面替换字符串。这个方法返回一个字符串，就像传递给Matcher类的 appendReplacement 方法一个字面字符串一样工作。
+    - `public Matcher appendReplacement(StringBuffer sb, String replacement)`：实现非终端添加和替换步骤。
+        ```java
+        Pattern p = Pattern.compile("cat");
+        Matcher m = p.matcher("one cat two cats in the yard");
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            m.appendReplacement(sb, "dog");
+        }
+        m.appendTail(sb);
+        System.out.println(sb.toString()); // 输出: "one dog two dogs in the yard"
+        ```
+    - `public StringBuffer appendTail(StringBuffer sb)`：实现终端添加和替换步骤。
+
+2. 表格
+
+| 方法类别 | 方法名 | 核心功能简述 |
+| :--- | :--- | :--- |
+| **匹配判断** | `matches()` | 尝试将**整个**字符串与模式进行匹配。 |
+| | `lookingAt()` | 尝试从字符串**开头**开始与模式进行匹配。 |
+| | `find()` | 在字符串中**查找下一个**匹配模式的子序列。 |
+| **信息获取** | `group()` / `group(int group)` | 返回**匹配到的内容**（整个匹配或指定捕获组）。 |
+| | `start()` / `start(int group)` | 返回匹配的**起始索引**。 |
+| | `end()` / `end(int group)` | 返回匹配的**结束索引**（最后字符索引+1）。 |
+| **替换操作** | `replaceAll(String replacement)` | **替换所有**匹配到的子序列。 |
+| | `replaceFirst(String replacement)` | **替换第一个**匹配到的子序列。 |
+| | `appendReplacement(StringBuffer sb, String replacement)` | 实现**渐进式**的查找和替换。 |
+| | `appendTail(StringBuffer sb)` | 将最后一次匹配后**剩余的字符串**添加至StringBuffer。 |
+| **状态控制** | `reset()` / `reset(CharSequence input)` | **重置**匹配器状态，以便重新使用。 |
+| | `region(int start, int end)` | 设置匹配的**范围**。 |
+
+#### `PatternSyntaxException`类
+1. 介绍
+    - PatternSyntaxException 是一个非强制异常类，它表示一个正则表达式模式中的语法错误
+
+### 应用练习
+
+1. 匹配汉字
+    ```re
+    ^[\u0391-\uffe5]$
+    ```
+
+2. 验证QQ号（1-9开头的5-10位数字）
+    ```re
+    ^[1-9]\d{4,9}$
+    ```
+
+3. 验证URL
+    - 示例：`https://www.bilibili.com/video/BV1UDWszZEu6/?spm_id_from=333.1007.tianma.1-1-1.click&vd_source=2963fff54c215d534bbfe7539a8c4d57`
+    
+    ```re
+    ^https?://[a-zA-Z0-9-]+\.[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(/[^\s?#]*)?(\?\S*)?$
+    ^(?:https?:\/\/)?(?:[a-zA-Z0-9-]+\.)*([a-zA-Z0-9-]+)\.([a-zA-Z]{2,}).*
+    ```
+
+4. 结巴去重
+    ```java
+    String content = "我...我....要学学学学编程java";
+
+    content = Pattern.compile("[.]").matcher(content).replaceAll("");
+    content = Pattern.compile("(.)\\1+").matcher(content).replaceAll("$1");
+    System.out.println(content);
+    ```
+
+5. 替换功能
+    - 将某段文字中的`JDK1.3`、`JDK1.4`替换成`JDK`。
+    ```java
+    // String类
+    // public String replaceAll(String regex, String replacement)
+    content = content.replaceAll("JDK1\\.(3|4)", "JDK")
+    ```
+
+6. 判断功能
+    - 验证手机号(138或139开头)
+    - 这个方法是整体匹配。
+    ```java
+    // String类
+    // public boolean matches(String regex){}
+    boolean b = content.matches("13(8|9)\\d{8}");
+    ```
+
+7. 分割功能
+    - 可以指定多种分隔符号
+    ```java
+    public static void main(String[] args) {
+
+        String content = "lcqaha#nvksjknvkjn-lngsignjso~325lknflsr4n22";
+        String regExp = "[#-]|\\d+";
+        String[] split = content.split(regExp);
+        //lcqaha
+        //        nvksjknvkjn
+        //lngsignjso~
+        //        lknflsr
+        //n
+        for (String s : split) {
+            System.out.println(s);
+        }
+    }
+    ```
+
+8. 电子邮件去重
+    ```re
+    ^[\w\-]+@([a-zA-Z]+\.)+[a-zA-Z]{2,}$
     ```
