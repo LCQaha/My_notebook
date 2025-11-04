@@ -21,5 +21,9 @@
 ## 课程笔记
 
 [1] [韩顺平JAVA学习笔记](./HanSP_notebook.md)
-[2] [【尚硅谷】韩顺平数据结构与算法](./HanSP_dataStructuresAndAlgorithms.md)
-[3] [韩顺平JavaWeb基础](./HanSP_JavaWeb.md)
+
+
+[2] [韩顺平JavaWeb学习笔记](./HanSP_JavaWeb.md)
+
+[3] [【尚硅谷】韩顺平数据结构与算法](./HanSP_dataStructuresAndAlgorithms.md)
+
