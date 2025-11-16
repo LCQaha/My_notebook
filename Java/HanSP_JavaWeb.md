@@ -3759,7 +3759,7 @@
     - 在 web.xml 中去配置 servlet 程序的访问地址
 3. 开始实操
     - 创建 JavaWeb工程，并配置好Tomcat。
-    - 添加servlet-api.jar(在tomcat/lib下) 到工程，放在`web/WEB-INF/lib`目录下。现在项目可以进行Servlet开发了。
+    - **添加servlet-api.jar(在tomcat/lib下) 到工程，放在`web/WEB-INF/lib`目录下**。现在项目可以进行Servlet开发了。
     - 在src中的`HelloServlet.java`实现Servlet接口。
     ```java
     package com.lcq.servlet;
@@ -5486,4 +5486,1306 @@
     - 获取输入输出流
     - 关闭Socket
 
+3. 示例
+    - 使用火狐浏览器可以获取输出。
+    ```java
+    public static void main(String[] args) throws IOException {
+        ServerSocket serverSocket = new ServerSocket(8080);
+        System.out.println("Listening on port 8080");
+
+        while (!serverSocket.isClosed()) {
+            Socket socket = serverSocket.accept();
+            InputStream inputStream = socket.getInputStream();
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+
+            String line = null;
+
+            /*
+            GET /mytomcat01/cal.html HTTP/1.1
+            Host: localhost:8080
+            User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0
+            Accept: text/html,application/xhtml+xml,application/xml;q=0.9,* /*;q=0.8
+            Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+            Accept-Encoding: gzip, deflate, br, zstd
+            Referer: http://localhost:8080/mytomcat01/
+            Connection: keep-alive
+            Cookie: JSESSIONID=4C1D2F5EC97A7F257554AB09C12A76DC; Idea-e0c37dd3=7f4f7749-282f-455b-8e3d-292e8ce0f3d2
+            Upgrade-Insecure-Requests: 1
+            Sec-Fetch-Dest: document
+            Sec-Fetch-Mode: navigate
+            Sec-Fetch-Site: same-origin
+            Sec-Fetch-User: ?1
+            If-Modified-Since: Sun, 19 Oct 2025 06:03:14 GMT
+            If-None-Match: W/"332-1760853794969"
+            Priority: u=0, i
+
+             */
+
+            while ((line = bufferedReader.readLine()) != null) {
+                System.out.println(line);
+                if (line.length() == 0) {
+                    break;
+                }
+            }
+
+            String respHead = "HTTP/1.1 200 OK\r\n" +
+                    "Server: Apache-Coyote/1.1\r\n" +
+                    "Accept-Ranges: bytes\r\n" +
+                    "ETag: W/\"332-1760853794969\"\r\n" +
+                    "Last-Modified: Sun, 19 Oct 2025 06:03:14 GMT\r\n" +
+                    "Content-Type: text/html\r\n" +
+                    "Content-Length: 332\r\n" +
+                    "Date: Tue, 04 Nov 2025 13:15:23 GMT\r\n\r\n";
+            String resp = respHead + "hello!";
+            OutputStream outputStream = socket.getOutputStream();
+            outputStream.write(resp.getBytes(StandardCharsets.UTF_8));
+            outputStream.flush();
+
+            outputStream.close();
+            socket.close();
+            bufferedReader.close();
+        }
+    }
+    ```
+
+#### 使用BIO线程模型，支持多线程
+
+1. BIO线程模型
+    - 方式1：创建线程完成任务。
+    - 方式2：创建线程池完成任务。
+
+2. 需求分析 
+    - 服务器请求`http://localhost:8080`
+    - 服务端返回`hi!`
+    - 后台使用BIO线程模型，支持多线程
+
+3. 解决思路
+    - 收到请求后，创建线程执行后续操作。
+    - 用线程`MyRequestHandler`持有Socket。
+
+4. 小结
+    - 这个版本可以在谷歌浏览器里运行了。
+    - 不是所有的线程都需要无限循环，这里线程的作用就是完成一次响应，完成后即销毁。
+    - 每次使用浏览器进行访问时，都会有多次请求接入，因为浏览器通常至少访问两个资源，即小图标和内容。
+    - 如果响应头和响应体之间没有使用空行隔开，浏览器将无法识别。
+
+4. `MyTomCatV2`
+    ```java
+    public class MyTomCatV2 {
+        public static void main(String[] args) {
+            ServerSocket serverSocket = null;
+            try {
+                serverSocket = new ServerSocket(8080);
+                while (!serverSocket.isClosed()) {
+                    System.out.println("waiting for client ...");
+                    Socket socket = serverSocket.accept();
+                    MyRequestHandler myRequestHandler = new MyRequestHandler(socket);
+                    new Thread(myRequestHandler).start();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+    }
+    ```
+
+5. `MyRequestHandler`
+    ```java
+    /**
+    * 用于处理HTTP请求
+    */
+    public class MyRequestHandler implements Runnable {
+        Socket socket = null;
+
+        public MyRequestHandler(Socket socket) {
+            this.socket = socket;
+        }
+
+        @Override
+        public void run() {
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+            BufferedReader bufferedReader = null;
+            try {
+                inputStream = socket.getInputStream();
+                outputStream = socket.getOutputStream();
+                bufferedReader = new BufferedReader(
+                        new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+
+                String message = null;
+                while ((message = bufferedReader.readLine()) != null) {
+                    if(message.length() == 0){
+                        break;
+                    }
+                    System.out.println(message);
+                }
+
+                // 构建HTTP响应头
+                String respHead = "HTTP/1.1 200 OK\r\n" +
+                        "Content-Type: text/html\r\n\r\n";
+                String resp = respHead + "hi!!!";
+
+                System.out.println(resp);
+
+                outputStream.write(resp.getBytes(StandardCharsets.UTF_8));
+                outputStream.flush();
+
+                outputStream.close();
+                bufferedReader.close();
+                socket.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }finally {
+                if(socket != null){
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    ```
+
+#### 处理Servlet
+
+1. Servlet生命周期
+    - 实例化
+    - 初始化（`init()`，仅一次）
+    - 处理请求`service()`
+    - 销毁`destory()`
+
+2. 需求分析
+    - 请求`http://localhost:8080/CalServlet`并提交数据
+    - 完成计算任务，如果Servlet不存在，返回404
+
+3. 思路
+    - 创建`MyServlet`接口
+    - 创建`MyHttpServlet`抽象类
+    - 基于此完成开发
+
+
+4. `TomCatV3`
+    ```java
+    public class MyTomCatV3 {
+        public static void main(String[] args) {
+            ServerSocket serverSocket = null;
+            try {
+                serverSocket = new ServerSocket(8080);
+                while (!serverSocket.isClosed()) {
+                    System.out.println("waiting for client ...");
+                    Socket socket = serverSocket.accept();
+                    MyRequestHandler02 myRequestHandler = new MyRequestHandler02(socket);
+                    new Thread(myRequestHandler).start();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+    }
+    ```
+
+5. `MyRequestHandler02`
+    ```java
+    /**
+     * 用于处理HTTP请求
+     */
+    public class MyRequestHandler02 implements Runnable {
+        Socket socket = null;
+
+        public MyRequestHandler02(Socket socket) {
+            this.socket = socket;
+        }
+
+        @Override
+        public void run() {
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+            BufferedReader bufferedReader = null;
+            try {
+                inputStream = socket.getInputStream();
+                outputStream = socket.getOutputStream();
+                //bufferedReader = new BufferedReader(
+                //        new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+                //
+                //String message = null;
+                //while ((message = bufferedReader.readLine()) != null) {
+                //    if(message.length() == 0){
+                //        break;
+                //    }
+                //    System.out.println(message);
+                //}
+                MyHttpServletRequest myHttpServletRequest = new MyHttpServletRequest(inputStream);
+                //String num1 = myHttpServletRequest.getParameter("num1");
+                //String num2 = myHttpServletRequest.getParameter("num2");
+                //System.out.println("num1: " + num1 + ",num2: " + num2);
+                //
+                //
+                //MyHttpServletResponse myHttpServletResponse = new MyHttpServletResponse(outputStream);
+                //
+                //String resp = MyHttpServletResponse.respHeader + "<h1>aha</h1>";
+                //// 构建HTTP响应头
+                //String respHead = "HTTP/1.1 200 OK\r\n" +
+                //        "Content-Type: text/html\r\n\r\n";
+                //String resp = respHead + "hi!!!";
+
+                //System.out.println(resp);
+                //
+                //OutputStream outputStream1 = myHttpServletResponse.getOutputStream();
+                //
+                //
+                //outputStream1.write(resp.getBytes(StandardCharsets.UTF_8));
+                //outputStream1.flush();
+
+                MyHttpServletResponse myHttpServletResponse = new MyHttpServletResponse(outputStream);
+                MyCalServlet myCalServlet = new MyCalServlet();
+                myCalServlet.doGet(myHttpServletRequest, myHttpServletResponse);
+
+                //outputStream1.close();
+                //bufferedReader.close();
+                inputStream.close();
+                socket.close();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    ```
+
+6. `MyServlet`
+    ```java
+    public interface MyServlet {
+        void init() throws Exception;
+
+        void service(MyHttpServletRequest var1, MyHttpServletResponse var2) throws Exception;
+
+        void destroy();
+    }
+    ```
+7. `MyHttpServletRequest`
+    ```java
+    /**
+    * 用于封装Http请求
+    * 获取请求方式get/post、uri、参数列表
+    * 等价于原生的HttpServletRequest
+    */
+    public class MyHttpServletRequest {
+
+        private String method = null;
+        private String uri = null;
+        private HashMap<String, String> params = new HashMap<>();
+
+        private InputStream inputStream = null;
+
+        public MyHttpServletRequest(InputStream inputStream) {
+            this.inputStream = inputStream;
+            init(inputStream);
+
+        }
+
+        private void init(InputStream inputStream) {
+            try {
+                BufferedReader bufferedReader =
+                        new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+                String s = bufferedReader.readLine();
+
+                String regExp = "^([A-Z]+)\\s+(/[^?\\s]*)?(\\?[^\\s]*)?\\s+HTTP/\\d\\.\\d$";
+
+                Pattern pattern = Pattern.compile(regExp);
+                Matcher matcher = pattern.matcher(s);
+                if (matcher.find()) {
+                    method = matcher.group(1);
+                    uri = matcher.group(2);
+
+                    System.out.println(method + " " + uri);
+
+                    // 获取group(3)，即查询字符串部分（例如 "?name=John&age=30"）
+                    String queryString = matcher.group(3);
+
+                    // 安全检查：确保查询字符串不为空且长度大于1（即不只是一个"?"）
+                    if (queryString != null && queryString.length() > 1) {
+                        // 1. 去除开头的问号，然后按"&"分割成多个键值对
+                        String[] keyValuePairs = queryString.substring(1).split("&");
+
+                        for (String keyValuePair : keyValuePairs) {
+                            // 2. 按“=”分割每个键值对
+                            String[] parts = keyValuePair.split("=", 2); // 使用limit=2，只分割成两部分，防止值中包含等号
+                            String key = parts[0];
+                            // 3. 处理值：如果键值对格式正确（parts长度为2），则取值；否则设为空字符串
+                            String value = parts.length == 2 ? parts[1] : "";
+
+                            // 重要：对键和值进行URL解码
+                            try {
+                                key = URLDecoder.decode(key, StandardCharsets.UTF_8.name());
+                                value = URLDecoder.decode(value, StandardCharsets.UTF_8.name());
+                            } catch (Exception e) {
+                                // 处理解码异常，例如记录日志或使用原始值
+                                System.err.println("Error decoding query parameter: " + keyValuePair);
+                            }
+
+                            // 4. 将解码后的键值对放入HashMap
+                            params.put(key, value);
+                            System.out.println("key: " + key + " value: " + value);
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+            }
+        }
+
+        public String getParameter(String name) {
+            return params.containsKey(name) ? params.get(name) : "";
+        }
+    }
+
+    ```
+7. `MyHttpServletResponse`
+    ```java
+    /**
+    * 用于封装Http响应（与Socket关联的OutputStream）
+    * 通过这个对象返回Http响应给浏览器/客户端
+    * 等价于HttpServletResponse
+    */
+    public class MyHttpServletResponse {
+
+        private OutputStream outputStream = null;
+
+        public static String respHeader = "HTTP/1.1 200 OK\r\n" +
+                "Content-Type: text/html; charset=utf-8\r\n\r\n";
+
+        // 传入的流与Socket关联
+        public MyHttpServletResponse(OutputStream outputStream) {
+            this.outputStream = outputStream;
+        }
+
+        public OutputStream getOutputStream() {
+            return outputStream;
+        }
+    }
+
+    ```
+8. `MyCalServlet`
+    ```java
+    public class MyCalServlet extends MyHttpServlet {
+        @Override
+        public void doGet(MyHttpServletRequest var1, MyHttpServletResponse var2) throws Exception {
+            doPost(var1, var2);
+        }
+
+        @Override
+        public void doPost(MyHttpServletRequest var1, MyHttpServletResponse var2) throws Exception {
+            int num1 = WebUtils.parseInt(var1.getParameter("num1"), 0);
+            int num2 = WebUtils.parseInt(var1.getParameter("num2"), 0);
+            int sum = num1 + num2;
+
+            OutputStream outputStream = var2.getOutputStream();
+            String respMes = MyHttpServletResponse.respHeader + sum;
+            outputStream.write(respMes.getBytes());
+            outputStream.flush();
+            outputStream.close();
+        }
+    }
+    ```
+
+
+#### 通过反射实现
+
+1. `MyRequestHandler03`
+    ```java
+    /**
+    * 用于处理HTTP请求
+    */
+    public class MyRequestHandler03 implements Runnable {
+        Socket socket = null;
+
+        public MyRequestHandler03(Socket socket) {
+            this.socket = socket;
+        }
+
+        @Override
+        public void run() {
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+            BufferedReader bufferedReader = null;
+            try {
+                inputStream = socket.getInputStream();
+                outputStream = socket.getOutputStream();
+
+                MyHttpServletRequest myHttpServletRequest = new MyHttpServletRequest(inputStream);
+                MyHttpServletResponse myHttpServletResponse = new MyHttpServletResponse(outputStream);
+
+                String uri = myHttpServletRequest.getUri();
+                String servletName = MyTomCatV4.servletUrlMapping.get(uri);
+                if (servletName == null) {
+                    servletName = "";
+                }
+
+                //真正运行的是其子类
+                MyHttpServlet myHttpServlet = MyTomCatV4.servletMapping.get(servletName);
+                if(myHttpServlet!=null){
+                myHttpServlet.service(myHttpServletRequest, myHttpServletResponse);}
+                else {
+                    String resp = MyHttpServletResponse.respHeader + "<h1>404 Not Found</h1>";
+
+                    outputStream.write(resp.getBytes());
+                    outputStream.flush();
+                    outputStream.close();
+                }
+
+                //MyCalServlet myCalServlet = new MyCalServlet();
+                //myCalServlet.doGet(myHttpServletRequest, myHttpServletResponse);
+
+                inputStream.close();
+                socket.close();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    ```
+
+2. `MyTomCatV4`
+    ```java
+    public class MyTomCatV4 {
+        // <name> - <servlet-class>
+        public static final ConcurrentHashMap<String, MyHttpServlet>
+                servletMapping = new ConcurrentHashMap<>();
+
+        // <name> - <url-pattern>
+        public static final ConcurrentHashMap<String, String>
+                servletUrlMapping = new ConcurrentHashMap<>();
+
+        public static void main(String[] args) {
+            MyTomCatV4 myTomCatV4 = new MyTomCatV4();
+            myTomCatV4.init();
+            myTomCatV4.run();
+        }
+
+        private void run(){
+            try {
+                ServerSocket serverSocket = new ServerSocket(8080);
+                while (!serverSocket.isClosed()) {
+                    System.out.println("waiting for client on port8080...");
+                    Socket socket = serverSocket.accept();
+
+                    MyRequestHandler03 myRequestHandler03 = new MyRequestHandler03(socket);
+                    Thread thread = new Thread(myRequestHandler03);
+                    thread.start();
+                    System.out.println(thread.getName());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void init() {
+            String path = MyTomCatV4.class.getResource("/").getPath();
+            //System.out.println(path);
+
+            SAXReader saxReader = new SAXReader();
+            try {
+                Document document = saxReader.read(new File((path + "web.xml")));
+                Element rootElement = document.getRootElement();
+                List<Element> elements = rootElement.elements();
+                for (Element element : elements) {
+                    if ("servlet".equalsIgnoreCase(element.getName())) {
+                        // servlet配置
+                        Element servletName = element.element("servlet-name");
+                        Element servletClass = element.element("servlet-class");
+                        servletMapping.put(servletName.getText(),
+                                (MyHttpServlet) Class.forName(servletClass.getText()).newInstance());
+                    } else if ("servlet-mapping".equalsIgnoreCase(element.getName())) {
+                        // servlet-mapping配置
+
+                        Element servletName = element.element("servlet-name");
+                        Element urlPattern = element.element("url-pattern");
+                        servletUrlMapping.put(urlPattern.getText(), servletName.getText());
+                    }
+                }
+                System.out.println(servletMapping);
+                System.out.println(servletUrlMapping);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    ```
+
+## Web工程路径专题
+
+### 章节目录
+
+1. 工程路径问题
+2. 工程路径解决方案
+    - 解决方案：相对路径
+    - 解决方案：base标签
+3. Web工程路径注意事项和细节
+4. 优化Web工程路径
+
+### 工程路径问题
+
+1. 示例代码
+    ```html
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>base 标签</title>
+    </head>
+    <body>
+    <h1>注册用户~</h1>
+    <form action="http://localhost:8080/webpath02/ok" method="post">
+        u: <input type="text" name="username"/><br><br>
+        <input type="submit" value="注册用户"/>
+    </form>
+    <h1>讨论区</h1>
+    <form action="http://localhost:8080/webpath02/ok" method="post">
+        讨论内容: <textarea cols="50" rows="5"></textarea><br><br>
+        <input type="submit" value="发布讨论"/>
+    </form>
+    <h1>回复区</h1>
+    <form action="http://localhost:8080/webpath02/ok" method="post">
+        回复内容: <textarea cols="50" rows="5"></textarea><br><br>
+        <input type="submit" value="回复"/>
+    </form>
+    </body>
+    </html>
+    ```
+
+#### 【解决方案1】相对路径
+
+1. 改进
+    - 此处路径不包含斜杠`/`。
+    ```html
+    <form action="ok" method="post">
+    ```
+2. 说明
+    - 页面多有的相对路径，都会参考当前浏览器地址栏的路径（`http://ip:port/proj/source`）进行跳转。
+    - 相对路径会对`source`部分进行替换，即替换路径最后一节。
+    - **如果路径加斜线，比如：`href="/a/b/c"`，则替换路径为`http://ip:port/a/b/c`，会将当前工程也替换掉。**
+
+3. 一个缺陷
+    - 现有`web/d1/d2/a.html`和`web/css/mycss/my.css`两个文件。
+    - 如果在`a.html`下引入css文件，则相对路径为：`../../css/mycss/my.css`
+    - 需要一种可以通过`ip:port/proj/...`定位资源的方式。
+
+#### 【解决方案2】base标签
+
+1. 基本介绍
+    - base标签是HTML语言中的基准网址标记，是一个单标签，位于网页头部文件的`<head>`标签中。
+    - 一个页面最多只能使用一个base元素，用来提供一个默认目标，是一种表达路径和链接网址的标记。
+    - 常见的url路径形式分别有相对路径和绝对路径，浏览器将通过这个目标来解析当前文档中的所有相对路径，包括`<a>`、`<img>`、`<link>`、`<form>`等标签。
+    - 简单来说，浏览器解析时会加上base给的目标路径，将页面中的相对路径转换成绝对路径。使用base标签应带上href和target属性。
+
+2. base标签
+    - 位于head标签内，以此标签为基点，对后续所有相对路径生效（包括css等文件），**故建议放在第一行**。
+    - base标签必须包含href和target中至少一个属性。
+    - `href`：用于影响本文件中后续所有相对路径，本身可使用绝对路径或相对路径，**且必须以斜杠结尾**，否则不生效。
+    - `target`：用于设定全局的链接默认打开方式。
+
+3. 示例
+    ```html
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+        <base href="/webpath02/">
+    </head>
+    <body>
+    <a href="yaya.html">点我！</a>
+    <div>jhaha</div>
+    </body>
+    </html>
+    ```
+
+#### 服务端转发重定向
+
+1. 简介
+    - 在实际开发中，往往不是直接访问一个资源，而是在服务端进行转发或者重定向来访问资源。
+
+2. 服务端（Servlet）的路径
+    - 服务端的相对路径以斜杠开头，相当于`http://localhost:port/proj/`，斜杠即代表包含项目名（TomCat配置的根路径）。
+
+3. 示例
+    - 以此法进行请求转发，网址不带html后缀，而是带服务名。
+    ```java
+    request.getRequestDispatcher("/a/b/a.html").forward(request,response);
+    ```
+
+### Web路径注意事项
+
+1. 相对路径与绝对路径
+    - 相对路径用`.`表示当前目录，用`..`上级目录。
+    - 对于一个不以斜杠打头的路径`source`，默认为`./source`。
+    - 绝对路径：`http:ip:port/proj/soource`
+
+2. 实际开发中，路径均使用绝对路径。
+3. 在Web中，斜杠`/`如果被**浏览器**解析，则地址为：`http://ip:port/`，如href参数
+3. 在Web中，斜杠如果被**服务器**解析，则地址为：`http://ip:port/proj`
+    - `<url-pattern>/servleturl</url-pattern>`
+    - `servletContext.getRealPath("/");`
+    - `req.getRequestDispatcher("/")`
+
+4. `servletcontext`
+    - 如果base标签中的项目名写成固定的形式，那么当项目名更改后，这些写死的代码也需要同步更改，这显然是不健康的。
+    - 在后面的服务器渲染技术中，会讲到如何动态更改这些信息。（使用jsp或thymeleaf）
+    ```jsp
+    <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
+    <html>
+    <head>
+        <title>Title</title>
+    </head>
+    <body>
+        $END$ 动态路径：<%=request.getContextPath()%>
+    </body>
+    </html>
+
+    ```
+
+5. 在一个路径末尾是否带斜杠的说明
+    - 路径末尾带斜杠表明是一个路径，不带斜杠表明是一个资源。
+    - 带斜杠，寻找的是目标目录下一个没有名字的资源。
+
+6. 【特别说明】关于重定向
+    - `resp.senRedirect("/")`
+    - 这里的斜杠是发送到浏览器解析的，因此按照浏览器的解析标准，解析成： `http://ip:port/`
+
+7. 总结：编写资源路径是考虑的因素
+    - 这个路径前有没有斜杠`/`。
+    - 这个路径在哪里被解析（浏览器 or 服务器）。
+    - 这个路径，末尾有没有斜杠`/`（路径 or 资源）。
+
+
+## Web开发会话技术
+
+### 会话
+
+1. 基本介绍
+    - 人和人之间的会话：
+        - 甲：今晚吃饭。
+        - 乙：好嘞。
+        - 一来一回就是一次会话。
+    - Web会话指浏览器/客户端与服务器间的数据交互。
+    - 用户开一个浏览器，点击多个超链接，访问服务器多个Web资源，然后关闭浏览器，整个过程称为会话。
+
+
+2. 会话过程中解决的问题
+    - 每个用户在使用浏览器与服务器进行会话的过程中，不可避免的各自产生**数据**（如用户登录信息、浏览记录、订单信息、商品信息），服务器要想办法为**每个用户**保存这些数据。
+    - 例如：多个用户点击超链接通过一个Servlet各自购买了一个商品，服务器应该想办法把每一个用户购买的商品保存在各自的地方，以便于这些用户调用结账Servlet时，结账Servlet可以得到用户各自购买的商品为用户结账。
+
+3. 两种会话技术
+    - Session
+    - Cookie
+
+### Cookie
+
+#### Cookie的作用
+
+1. 【引例1】访问网站时，是否能看到你上次登录网站的时间？很明显，不同用户的上次登录时间是不一致的，这个功能是如何实现的？
+
+2. 【引例2】在访问某购物网站时，是否能看到提示你曾经浏览过的商品，不同用户的浏览记录明显不同，这是如何实现的？
+
+3. 解决之道——Cookie
+    Cookie(小甜饼)是客户端技术，服务器把每个用户的数据以 cookie 的形式写给用户各自的浏览器。当用户使用浏览器再去访问服务器中的 web 资源时，就会带着各自的数据去。这样，web 资源处理的就是用户各自的数据了。
+
+4. 图解
+    ![javaweb_conversation_cookieStruct](./img/javaweb_conversation_cookieStruct.png)
+
+5. 在浏览器中查看Cookie
+    - 谷歌浏览器：检查-应用-Cookie
+    - 火狐浏览器：检查-存储-Cookie
+
+#### Cookie是什么
+
+1. Cookie是服务器在客户端保存的用户信息，比如登录名、浏览历史等不敏感信息，就可以以Cookie方式保存。
+
+2. Cookie信息就像其名字小甜饼一样，数据量不大，服务器端在需要的时候可以从客户端或浏览器读取。
+
+3. Cookie会随Http请求发送给目标服务器
+    - 请求头中有一个名为Cookie的字段，不同Cookie字段用分号隔开。
+
+#### Cookie的基本使用
+
+1. 用途
+    - 保存上次登录时间等信息。
+    - 保存用户名，在一定时间不用重登。
+    - 网站个性化，如定制网站的服务、内容。
+
+2. `javax.servlet.http.Cookie`
+    
+3. 常用方法
+    - Cookie类似于一个K-V表，数据类型均为String
+    - 在服务端创建一个Cookie
+        ```java
+        Cookie c = new Cookie(name, value);
+        c.setMaxAge();// 保存时间
+        ```
+    - 将Cookie添加至客户端。
+        ```java
+        resp.addCookie(c);
+        ```
+    - 读取Cookie
+        ```java
+        req.getCookies();
+        ```
+
+#### 创建Cookie
+
+1. 示例
+    ```java
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println("cookies01");
+        // 创建Cookie
+        Cookie cookie = new Cookie("username", "lcq");
+        resp.setContentType("text/html;charset=UTF-8");
+        //cookie.setMaxAge(3600);
+        // 将Cookie写入响应
+        resp.addCookie(cookie);
+    }
+    ```
+
+2. 请求与响应
+    - 响应
+        ```http
+        HTTP/1.1 200 OK
+        Server: Apache-Coyote/1.1
+        Set-Cookie: username=lcq
+        Content-Type: text/html;charset=UTF-8
+        Content-Length: 0
+        Date: Sat, 15 Nov 2025 10:41:55 GMT
+        ```
+
+#### 接收Cookie
+
+1. 示例
+    ```java
+    Cookie[] cookies = req.getCookies();
+    //JSESSIONID:03AA111D53338BF603142D5E4C1160A6
+    //username:lcq
+    //Idea-e0c37dd3:7f4f7749-282f-455b-8e3d-292e8ce0f3d2
+    if (cookies != null) {
+        for (Cookie c : cookies) {
+            System.out.println(c.getName()+":"+c.getValue());
+        }
+    }
+    ```
+
+2. 请求与响应   
+    - 请求
+        ```http
+        GET /cookie/cookies01 HTTP/1.1
+        Host: localhost:8080
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+        Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+        Accept-Encoding: gzip, deflate, br, zstd
+        Connection: keep-alive
+        Cookie: JSESSIONID=03AA111D53338BF603142D5E4C1160A6; username=lcq; Idea-e0c37dd3=7f4f7749-282f-455b-8e3d-292e8ce0f3d2
+        Upgrade-Insecure-Requests: 1
+        Sec-Fetch-Dest: document
+        Sec-Fetch-Mode: navigate
+        Sec-Fetch-Site: none
+        Sec-Fetch-User: ?1
+        Priority: u=0, i
+        ```
+
+#### JSESSIONID
+
+1. 你可以把Session ID想象成银行给客户的一个临时账户号。
+    - 初次到访：当你第一次访问一个网站（如登录页面），服务器会为你创建一个唯一的Session ID，并通过HTTP响应的Set-Cookie头指令（例如`Set-Cookie: JSESSIONID=abc123...`）将其发送给你的浏览器。
+    - 携带凭证：浏览器会保存这个Session ID。之后，在同一会话中你向该网站发起的每一个请求，浏览器都会自动通过HTTP请求的Cookie头（例如`Cookie: JSESSIONID=abc123...`）将这个Session ID带回给服务器。
+    - 服务器识别：服务器接收到请求后，会解析出Session ID，并在自己的存储空间（如内存、数据库）中查找与之关联的会话数据（如你的登录状态、购物车商品）。这样服务器就知道你是谁，并能提供连贯的体验。
+
+
+2. 这是服务器区分请求来源的重要凭据。
+
+3. JSESSIONID是一个特殊的Cookie
+
+#### Cookie应用实例
+
+1. 读取指定Cookie
+    - 给定Cookie的name，返回值，没有则返回null。
+    ```java
+    public static Cookie getCookieByName(String cookieName, HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+
+        if (cookieName == null || "".equals(cookieName) || cookies == null || cookies.length == 0) {
+        } else {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(cookieName)) {
+                    return cookie;
+                }
+            }
+        }
+        return null;
+    }
+    ```
+
+2. 修改Cookie
+    - 修改指定name的Cookie。
+    - 找不到则提示。
+    - 可以创建一个新Cookie完成覆盖，也可以修改当前Cookie。
+    ```java
+    public class UpdateCookie extends HttpServlet {
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String newName = "username";
+            String newValue = "aaa";
+            Cookie cookieByName = CookieUtils.getCookieByName(newName, req);
+            if (cookieByName != null) {
+                System.out.println("cookie is not exist");
+            } else {
+                cookieByName.setValue("aaa");
+                resp.addCookie(cookieByName);                
+            }
+        }
+    }
+    ```
+
+#### Cookie生命周期
+
+1. 介绍
+    - Cookie生命周期指的是如何管理Cookie什么时候被销毁（删除）
+    - Cookie失效后，请求头不会再携带对应Cookie。
+    - `setMaxAge()`：
+        - 正数：在指定秒数后过期。
+        - 负数：浏览器关闭即销毁。（默认值为-1）。
+        - 0：立刻删除。（不需要等待浏览器关闭）
+
+2. 示例
+    ```java
+    Cookie cookie = new Cookie("live", "60s");
+    cookie.setMaxAge(60);
+    resp.addCookie(cookie);
+    ```
+
+3. 请求与响应
+    - 设定的Cookie携带了一个过期时间
+    ```http
+    HTTP/1.1 200 OK
+    Server: Apache-Coyote/1.1
+    Set-Cookie: live=60s; Expires=Sat, 15-Nov-2025 12:51:59 GMT
+    Content-Length: 0
+    Date: Sat, 15 Nov 2025 12:50:59 GMT
+    ```
+
+4. 删除Cookie
+    - `setMaxAge(0)`
+    - 这会携带一个1970年过期的Cookie用于覆盖本地Cookie，导致Cookie过期被删除。
+
+#### Cookie有效路径
+
+1. 有效路径规则
+    - Cookie创建时会带一个path属性，这个属性可以有效过滤哪些Cookie可以发送给服务器。
+    - path是通过请求的地址来进行有效的过滤。
+    - 不写路径，则默认为工程路径。
+    ```java
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Cookie cookie1 = new Cookie("path01", "a");
+        Cookie cookie2 = new Cookie("path02", "a");
+
+        // 访问/proj时携带
+        cookie1.setPath(req.getContextPath());
+        // 访问/proj/abc时携带
+        cookie2.setPath(req.getContextPath()+"/abc");
+        resp.addCookie(cookie1);
+        resp.addCookie(cookie2);
+    }
+    ```
+
+#### 作业
+
+1. 自动填写登录账户
+    - 如果用户登录成功，则下次登录自动填写账号密码。
+    - 暂定用户名为`lcq`，密码为：`123456`
+    - 如果登陆成功，该用户三天内自动填写账号密码。
+    - 使用Servlet返回页面。
+
+2. 
+    ```java
+    package com.lcq.homework;
+
+    import com.lcq.utils.CookieUtils;
+
+    import javax.servlet.ServletException;
+    import javax.servlet.annotation.WebServlet;
+    import javax.servlet.http.Cookie;
+    import javax.servlet.http.HttpServlet;
+    import javax.servlet.http.HttpServletRequest;
+    import javax.servlet.http.HttpServletResponse;
+    import java.io.IOException;
+    import java.io.PrintWriter;
+
+    @WebServlet(urlPatterns = {"/login"})
+    public class Login extends HttpServlet {
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            Cookie cookieByName = CookieUtils.getCookieByName("username", req);
+            String username = "";
+            if (cookieByName != null) {
+                username = cookieByName.getValue();
+            }
+            resp.setContentType("text/html;charset=utf-8");
+            PrintWriter out = resp.getWriter();
+            String content = "<!DOCTYPE html>\n" +
+                    "<html lang=\"en\">\n" +
+                    "<head>\n" +
+                    "    <meta charset=\"UTF-8\">\n" +
+                    "    <title>用户登录</title>\n" +
+                    "    <base href=\"/cookie/\">\n" +
+                    "</head>\n" +
+                    "<body>\n" +
+                    "<h1>用户登录界面</h1>\n" +
+                    "<form action=\"loginCheck\">\n" +
+                    "    <table>\n" +
+                    "        <tr>\n" +
+                    "            <td>用户名</td>\n" +
+                    "            <td><input type=\"text\" name=\"username\" value=\""+username+"\"/></td>\n" +
+                    "        </tr>\n" +
+                    "        <tr>\n" +
+                    "            <td>密码</td>\n" +
+                    "            <td><input type=\"password\" name=\"password\"/></td>\n" +
+                    "        </tr>\n" +
+                    "<tr>\n" +
+                    "            <td><input type=\"submit\" value=\"提交\"></td>\n" +
+                    "        </tr>\n"+
+                    "    </table>\n" +
+                    "</form>\n" +
+                    "</body>\n" +
+                    "</html>";
+            out.println(content);
+            out.flush();
+            out.close();
+        }
+
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            doGet(req, resp);
+        }
+    }
+
+    ```
+
 3. 
+    ```java
+    package com.lcq.homework;
+
+    import javax.servlet.ServletException;
+    import javax.servlet.annotation.WebServlet;
+    import javax.servlet.http.Cookie;
+    import javax.servlet.http.HttpServlet;
+    import javax.servlet.http.HttpServletRequest;
+    import javax.servlet.http.HttpServletResponse;
+    import java.io.IOException;
+    import java.io.PrintWriter;
+
+    @WebServlet(urlPatterns = {"/loginCheck"})
+    public class LoginCheck extends HttpServlet {
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            doGet(req, resp);
+        }
+
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String username = req.getParameter("username");
+            String password = req.getParameter("password");
+
+            if (username.equals("lcq") && password.equals("123456")) {
+                Cookie cookie = new Cookie("username", username);
+                cookie.setMaxAge(60 * 60 * 24 * 3);
+                resp.addCookie(cookie);
+                resp.setContentType("text/html;charset=utf-8");
+                PrintWriter writer = resp.getWriter();
+                writer.println("<h1>登陆成功</h1>");
+                writer.flush();
+                writer.close();
+            }
+
+        }
+    }
+    ```
+
+#### Cookie注意事项和细节
+
+1. 一个 Cookie 只能标识一种信息，它至少含有一个标识该信息的名称（NAME）和设置值（VALUE）。
+2. 一个 WEB 站点可以给一个浏览器发送多个 Cookie，一个浏览器也可以存储多个 WEB 站点提供的 Cookie。
+3. cookie 的总数量没有限制，但是每个域名的 COOKIE 数量和每个 COOKIE 的大小是有限制的 (不同的浏览器限制不同， 知道即可) ， Cookie 不适合存放数据量大的信息。
+4. **删除 cookie 时，path 必须一致，否则不会删除**
+5. Java servlet 中 cookie 中文乱码解决
+    - 如果存放中文的 cookie， 默认报错， 可以通过 URL 编码和解码来解决， 不建议存放中文的 cookie 信息
+    - 编码
+        ```java
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String value = "你好";
+            // 不编码直接写入，会在写入响应时报错。
+            value = URLEncoder.encode(value, "UTF-8");
+            Cookie cookie = new Cookie("lcq", value);
+            cookie.setMaxAge(3600);
+
+            resp.addCookie(cookie);
+        }
+        ```
+    - 解码
+        ```java
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Cookie cookieByName = CookieUtils.getCookieByName("lcq", req);
+            if (cookieByName != null) {
+                String decode = URLDecoder.decode(cookieByName.getValue(), "UTF-8");
+                System.out.println("lcq:"+decode);
+            }
+        }
+        ```
+
+### Session
+
+#### Session的作用
+
+1. 【引例1】不同的用户登录网站后，不管该用户浏览该网站的哪个页面，都可以显示登录人的名字，还可以随时去查看自己购物车中的商品，服务器是如何知道是谁在访问这个页面的，这是如何实现的？
+    - 用Cookie可以实现，但无法存放较大的数据，也无法存放敏感的数据。（否则任何人都可以不经验证登录网页）
+    - 使用数据库可以查询相关信息，但也不够方便。
+    
+2. 解决之道——Session技术
+    - Session是服务端技术，服务器在运行时为每一个用户的浏览器创建一个其独享的session对象/集合。
+    - 由于session为各个用户浏览器独享，所以用户在访问服务器的不同页面时，可以从各自的session中读取/添加数据，完成相应任务。
+
+3. Session 的应用
+    - 网上商城的购物车
+    - 保存登录用户的信息
+    - 将数据放入到Session中，供用户在访问不同页面时，实现跨页面访问数据。
+    - 防止非法登录。（将验证信息写入Session）
+
+#### Session基本原理
+
+1. 当用户打开浏览器，访问某个网站，操作session时，服务器会在内存为浏览器分配一个session对象，这个对象被这个浏览器独占。
+2. session对象可以看做一个容器，session对象默认存在时间为30min，可以修改。（在`tomcat/conf/web.xml`中修改）
+    ```xml
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>    
+    ```
+
+3. 存储结构
+    - Session是一个类似HashMap的容器，有两列（K-v）每一行就是Session的一个属性。
+    - 每个属性包含两部分，宿命的名字(String)和属性的值（Object）
+
+#### Session常用方法
+
+1. `javax.servlet.http.HttpSession`接口
+    提供一种方式，跨多个页面请求或对Web站点的多次访问标识用户并存储有关该用户的信息。
+2. 常用方法
+    - `String getId()`
+    - `public void setAttribute(String, Object)`
+
+3. 创建和获取Session
+    - 第一次调用会创建Session会话，之后会调用创建好的Session对象。
+    ```java
+    HttpSession hs = req.getSession();
+    ```
+
+4. 向Session添加属性
+    ```java
+    hs.setAttribute(String name, Object val)
+    ```
+
+5. 从Session得到属性
+    ```java
+    Object obj = hs.getAttribute(String name)
+    ```
+
+6. 从Session删除某属性
+    ```java
+    hs.removeAttribute(String name)
+    ```
+
+7. 判断Session是否刚创建`isNew()`
+
+8. 获取Session的唯一标识ID值。`getId()`
+
+#### Session底层原理
+
+1. 图解
+    - 创建和查找的过程
+
+    ![javaweb_conversation_SessionStruct01](./img/javaweb_conversation_SessionStruct01.png)
+    ![javaweb_conversation_SessionStruct02](./img/javaweb_conversation_SessionStruct02.png)
+    
+2. `CreateSession`代码实现
+    - 三种情况
+        - 请求头没有JSSESSIONID
+        - 请求头携带了服务端不存在的JSESSIONID
+        - 请求头携带了正确的JSESSIONID
+    ```java
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        HttpSession session = req.getSession();
+        // 获取Id
+        // 响应：
+        // Set-Cookie: JSESSIONID=DF4210FE90AC1C3B5DF48E821485DE27; Path=/cookie; HttpOnly
+        // 控制台：
+        // sessionId: DF4210FE90AC1C3B5DF48E821485DE27
+        System.out.println("sessionId: " + session.getId());
+        // 存放数据
+        session.setAttribute("name", "lcq");
+
+        resp.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = resp.getWriter();
+        out.println("<h1>创建Session成功</h1>");
+        out.flush();
+        out.close();
+    }
+    ```
+
+3. `ReadSession`代码实现
+    ```java
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        HttpSession session = req.getSession();
+        Object name = session.getAttribute("name");
+        resp.setContentType("text/html;charset=utf-8");
+        PrintWriter out = resp.getWriter();
+
+        if (name != null) {
+            System.out.println("name: " + name);
+            out.println("<h1>" + name + "</h1>");
+        } else {
+            System.out.println("name: null");
+            out.println("<h1>NOT FOUND</h1>");
+        }
+
+        out.flush();
+        out.close();
+    }
+    ```
+
+#### Session 生命周期
+
+1. 说明
+    - 通过`public void setMaxInactiveInterval(int interval)`可以设置Session的超时时间（单位：秒），超时后，Session销毁。
+    - 值为正数：设定超时时间
+    - **值为负数：永不超时**
+    - get max inactive interval：获取最大非活动间隔。
+    - `public int getMaxInactiveInterval()`：获取Session超时时间
+    - `public void invalidate()`：当前Session立刻无效。
+    - 如果没指定生命时长，则使用默认时间（30min，由tomcat配置指定）
+
+2. 简介
+    - SESSION生命周期，指：客户端/浏览器两次请求的最大时间间隔，而不是累计时长，每次客户端访问SESSION，生命周期都会重新从0开始计算。
+    - 底层：TomCat用一个线程轮询会话状态，删除失效的会话。
+
+3. 创建
+    ```java
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        HttpSession session = req.getSession();
+
+        session.setMaxInactiveInterval(60);
+        session.setAttribute("create02", "aha");
+
+        resp.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = resp.getWriter();
+        out.println("<h1>创建Session成功</h1>");
+        out.println("<div>\"create02\":"+session.getAttribute("create02")+"</div>");
+        out.flush();
+        out.close();
+    }
+    ```
+4. 读取
+    ```java
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        HttpSession session = req.getSession();
+        Object create02 = session.getAttribute("create02");
+
+        resp.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = resp.getWriter();
+        out.println("<h1>读取Session成功</h1>");
+        if(create02!=null){
+        out.println("<div>"+create02+"</div>");}
+        else {
+            out.println("<div>null</div>");
+        }
+        out.flush();
+        out.close();
+    }
+    ```
+
+5. 删除
+    - 调用`Invalidate()`
+
+#### 作业
+
+1. 要求
+    - 通过登录页面登录，只要登录密码为123456即允许登录。
+    - 使用`login`页面显示登录页面。
+    - 使用`LoginCheckServlet`验证
+    - 成功则转到`ManageServlet`
+    - 失败转到`error`页面。
+    - 若用户越过登录直接访问Manage页面，跳转到error。
+
+2. `loginCheck`
+    ```java
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String username = req.getParameter("username");
+        String password = req.getParameter("password");
+        HttpSession session = req.getSession();
+        session.setMaxInactiveInterval(60);
+
+        if (password.equals("123456")) {
+            session.setAttribute("username", username);
+            session.setAttribute("loginCheck", "true");
+            resp.sendRedirect(req.getContextPath() + "/manage");
+        } else {
+            resp.sendRedirect(req.getContextPath() + "/error.html");
+        }
+    }
+    ```
+
+3. `Manage`
+    ```java
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        HttpSession session = req.getSession();
+        Object loginCheck = session.getAttribute("loginCheck");
+
+        resp.setContentType("text/html;charset=utf-8");
+        PrintWriter out = resp.getWriter();
+        if (loginCheck == null) {
+            resp.sendRedirect(req.getContextPath() + "/error.html");
+        }else {
+            Object username = session.getAttribute("username");
+            out.println("<h1>管理页面登陆成功！，欢迎用户【"+username+"】</h1>");
+        }
+        out.flush();
+        out.close();
+    }
+    ```
