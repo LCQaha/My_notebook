@@ -892,7 +892,7 @@
 4. 对于选项，提交的是对应选项value属性的值。
     - 对于select/checkbox/radio，提交的数据是value指定的值。
     - 对于checkbox复选框，使用GET会产生信息诸如：`sport=xx&sport=yy`
-5. 在同一个markdown文档中，不得使用for属性相同的label，否则会发生不可预测的错误。
+5. **在同一个markdown文档中，不得使用for属性相同的label，否则会发生不可预测的错误。**
 
 6. GET请求特点
     - 在浏览器中的地址是：`form的action属性 [+?+请求参数]`
@@ -1298,8 +1298,7 @@
 
 #### 从head标签设定
 1. 介绍
-    - 在head标签中使用style标签定义需要的CSS样式。
-    - 
+    - 在head标签中使用style标签定义需要的CSS样式。 
 #### 从外部文件引入
 1. 介绍
     - 把CSS样式写成单独的CSS文件，通过link标签引入。
@@ -1867,8 +1866,8 @@
 1. 对象的定义
     ```js
     var 对象名 = {
-        属性1 = value1;
-        属性2 = value2;
+        属性1 : value1,
+        属性2 : value2,
         函数名: function(){
             ...
         }
@@ -1894,8 +1893,8 @@
     ```
 
 4. 注意
-    - 赋值用`:`冒号，而不是等号。
-    - 分隔用`,`逗号，而不是分号。
+    - **赋值用`:`冒号，而不是等号。**
+    - **分隔用`,`逗号，而不是分号。**
 
 ### 事件
 
@@ -2038,7 +2037,8 @@
     - 对于动态注册/绑定，获取id操作的script代码**需要写在相关标签之后**，否则，无法正确获取对象。
 
 3. 改进版本
-    - 上面的代码过于松散，可以用`windows.onload`让代码变得更具有结构性。
+    - 上面的代码过于松散，可以用`window.onload`让代码变得更具有结构性。
+    - 这样书写代码的好处在于，可以保证所有获取对象的操作位于所有元素加载完成后。
     ```js
     <!DOCTYPE html>
     <html lang="en">
@@ -2161,32 +2161,31 @@
     <script type="text/javascript">
     //静态注册表单提交事件
     function register() {
-    //先得到输入的用户名和密码
-    var username = document.getElementById("username");
-    var pwd = document.getElementById("pwd");
-    //判断是否为空""
-    if ("" == username.value || "" == pwd.value) {
-    alert("用户名和密码不能为空, 不能提交");
-    return false;//不提交
-    }
-    //表示要提交
-    return true;
+        //先得到输入的用户名和密码
+        var username = document.getElementById("username");
+        var pwd = document.getElementById("pwd");
+        //判断是否为空""
+        if ("" == username.value || "" == pwd.value) {
+            alert("用户名和密码不能为空, 不能提交");
+            return false;//不提交
+        }
+        //表示要提交
+        return true;
     }
     //动态注册表单提交事件
     window.onload = function () {
-    //使用折半法, 观察原页面是否真的是最新的, 是不是修改的页面和访
-    问的页面一致
-    //得到 from2 表单 dom 对象
-    var form2 = document.getElementById("form2");
-    // //给 form2 绑定 onsubmit 事件
-    // 老韩解释 onsubmit 绑定的函数，会直接将结果(f,t)返回给 onsubmit
-    form2.onsubmit = function () {
-    if(form2.username.value == "" || form2.pwd.value == "") {
-    alert("用户名和密码不能为空, 不能提交");
-    return false;//不提交
-    }
-    return true;
-    }
+        //使用折半法, 观察原页面是否真的是最新的, 是不是修改的页面和访问的页面一致
+        //得到 from2 表单 dom 对象
+        var form2 = document.getElementById("form2");
+        // //给 form2 绑定 onsubmit 事件
+        // 老韩解释 onsubmit 绑定的函数，会直接将结果(f,t)返回给 onsubmit
+        form2.onsubmit = function () {
+            if(form2.username.value == "" || form2.pwd.value == "") {
+                alert("用户名和密码不能为空, 不能提交");
+                return false;//不提交
+            }
+            return true;
+        }
     }
     </script>
     </head>
@@ -2216,35 +2215,35 @@
     <script type="text/javascript">
     //动态注册表单提交事件
     window.onload = function () {
-    //使用折半法, 观察原页面是否真的是最新的, 是不是修改的页面和访问的页面一致
-    //得到 from2 表单 dom 对象
-    var form2 = document.getElementById("form2");
-    // //给 form2 绑定 onsubmit 事件
-    // 老韩解释 onsubmit 绑定的函数，会直接将结果(f,t)返回给 onsubmit
-    form2.onsubmit = function () {
-    //过关斩将
-    if (!(form2.username.value.length >= 4 && form2.username.value.length
-    <= 6)) {
-    alert("用户名长度(4-6)");
-    return false;//不提交
-    }
-    if (form2.pwd.value.length != 6) {
-    alert("密码长度(6)");
-    return false;//不提交
-    }
-    if (form2.pwd.value != form2.pwd2.value) {
-    alert("两次密码不等");
-    return false;//不提交
-    }
-    //电子邮件->正则表达式 ^[\\w-]+@([a-zA-Z]+\\.)+[a-zA-Z]+$
-    var emailPatt = /^[\w-]+@([a-zA-Z]+\.)+[a-zA-Z]+$/;
-    if (!emailPatt.test(form2.email.value)) {
-    //4 提示用户
-    alert("电子邮件格式不正确~")
-    return false;
-    }
-    return true;
-    }
+        //使用折半法, 观察原页面是否真的是最新的, 是不是修改的页面和访问的页面一致
+        //得到 from2 表单 dom 对象
+        var form2 = document.getElementById("form2");
+        // //给 form2 绑定 onsubmit 事件
+        // 老韩解释 onsubmit 绑定的函数，会直接将结果(f,t)返回给 onsubmit
+        form2.onsubmit = function () {
+            //过关斩将
+            if (!(form2.username.value.length >= 4 && form2.username.value.length
+            <= 6)) {
+                alert("用户名长度(4-6)");
+                return false;//不提交
+            }
+            if (form2.pwd.value.length != 6) {
+                alert("密码长度(6)");
+                return false;//不提交
+            }
+            if (form2.pwd.value != form2.pwd2.value) {
+                alert("两次密码不等");
+                return false;//不提交
+            }
+            //电子邮件->正则表达式 ^[\\w-]+@([a-zA-Z]+\\.)+[a-zA-Z]+$
+            var emailPatt = /^[\w-]+@([a-zA-Z]+\.)+[a-zA-Z]+$/;
+            if (!emailPatt.test(form2.email.value)) {
+                //4 提示用户
+                alert("电子邮件格式不正确~")
+                return false;
+            }
+            return true;
+        }
     }
     </script>
     </head>
@@ -2538,55 +2537,55 @@
     <meta charset="UTF-8">
     <title>getElementsByName 函数</title>
     <script type="text/javascript">
-    //完成全选
-    function selectAll() {
-    //1.获取到 sport 这一组复选框
-    var sports = document.getElementsByName("sport");
-    //sports 是什么? 是 nodeList 即时一个集合
-    //alert(sports);
-    //2. 拿到[dom ,集合]，操作【属性和方法 api】泥瓦匠|工程师 清华
-    // 遍历 sports， 修改
-    for (var i = 0; i < sports.length; i++) {
-    sports[i].checked = true;//选中
-    }
-    }
-    //全不选
-    function selectNone() {
-    //1.获取到 sport 这一组复选框
-    var sports = document.getElementsByName("sport");
-    //sports 是什么? 是 nodeList 即时一个集合
-    //alert(sports);
-    //2. 拿到[dom ,集合]，操作【属性和方法 api】泥瓦匠|工程师 清华
-    // 遍历 sports， 修改
-    for (var i = 0; i < sports.length; i++) {
-    sports[i].checked = false;//全部不选中
-    }
-    }
-    //反选 selectReverse
-    function selectReverse() {
-    //1.获取到 sport 这一组复选框
-    var sports = document.getElementsByName("sport");
-    //2. 拿到[dom ,集合]，操作【属性和方法 api】泥瓦匠|工程师 清华
-    // 遍历 sports， 修改
-    for (var i = 0; i < sports.length; i++) {
-    // if(sports[i].checked) {//js true
-    // sports[i].checked = false;
-    // } else {
-    // sports[i].checked = true;//选中
-    // }
-    sports[i].checked = !sports[i].checked;
-    }
-    }
+        //完成全选
+        function selectAll() {
+            //1.获取到 sport 这一组复选框
+            var sports = document.getElementsByName("sport");
+            //sports 是什么? 是 nodeList 即时一个集合
+            //alert(sports);
+            //2. 拿到[dom ,集合]，操作【属性和方法 api】泥瓦匠|工程师 清华
+            // 遍历 sports， 修改
+            for (var i = 0; i < sports.length; i++) {
+                sports[i].checked = true;//选中
+            }
+        }
+        //全不选
+        function selectNone() {
+            //1.获取到 sport 这一组复选框
+            var sports = document.getElementsByName("sport");
+            //sports 是什么? 是 nodeList 即时一个集合
+            //alert(sports);
+            //2. 拿到[dom ,集合]，操作【属性和方法 api】泥瓦匠|工程师 清华
+            // 遍历 sports， 修改
+            for (var i = 0; i < sports.length; i++) {
+                sports[i].checked = false;//全部不选中
+            }
+        }
+        //反选 selectReverse
+        function selectReverse() {
+            //1.获取到 sport 这一组复选框
+            var sports = document.getElementsByName("sport");
+            //2. 拿到[dom ,集合]，操作【属性和方法 api】泥瓦匠|工程师 清华
+            // 遍历 sports， 修改
+            for (var i = 0; i < sports.length; i++) {
+                // if(sports[i].checked) {//js true
+                // sports[i].checked = false;
+                // } else {
+                // sports[i].checked = true;//选中
+                // }
+                sports[i].checked = !sports[i].checked;
+            }
+        }
     </script>
     </head>
     <body>
-    你会的运动项目：
-    <input type="checkbox" name="sport" value="zq" checked="checked">足球
-    <input type="checkbox" name="sport" value="tq">台球
-    <input type="checkbox" name="sport" value="ppq">乒乓球 <br/><br/>
-    <button onclick="selectAll()">全选</button>
-    <button onclick="selectNone()">全不选</button>
-    <button onclick="selectReverse()">反选</button>
+        你会的运动项目：
+        <input type="checkbox" name="sport" value="zq" checked="checked">足球
+        <input type="checkbox" name="sport" value="tq">台球
+        <input type="checkbox" name="sport" value="ppq">乒乓球 <br/><br/>
+        <button onclick="selectAll()">全选</button>
+        <button onclick="selectNone()">全不选</button>
+        <button onclick="selectReverse()">反选</button>
     </body>
     </html>
     ```
@@ -2799,21 +2798,21 @@
     <meta charset="UTF-8">
     <title>getElementsByTagName</title>
     <script type="text/javascript">
-    function changeImgs() {
-    //1. 得到所有的 img
-    var imgs = document.getElementsByTagName("img");
-    //老师说 imgs 是 HTMLCollections
-    alert("猫猫的数量是=" + imgs.length);
-    //2. 修改 src,遍历修改
-    for (var i = 0; i < imgs.length; i++) {
-    imgs[i].src = "./img/" + (i+4) +".png";
-    }
-    //3 课后作业->再评讲
-    //思路
-    //(1) input 增加 id, 可以修改 value
-    //(2) 根据 input 的 value 值来决定是切换猫还是狗 if -- else if ---
-    //(3) 其它自己先思考
-    }
+        function changeImgs() {
+            //1. 得到所有的 img
+            var imgs = document.getElementsByTagName("img");
+            //老师说 imgs 是 HTMLCollections
+            alert("猫猫的数量是=" + imgs.length);
+            //2. 修改 src,遍历修改
+            for (var i = 0; i < imgs.length; i++) {
+                imgs[i].src = "./img/" + (i+4) +".png";
+            }
+            //3 课后作业->再评讲
+            //思路
+            //(1) input 增加 id, 可以修改 value
+            //(2) 根据 input 的 value 值来决定是切换猫还是狗 if -- else if ---
+            //(3) 其它自己先思考
+        }
     </script>
     </head>
     <body>
@@ -2864,55 +2863,158 @@
 2. 文档
     https://www.w3school.com.cn/jsref/dom_obj_all.asp
 
+#### 节点常用方法与属性
 
-#### 节点常用方法
+> 说明：DOM 是一棵节点树。**带 `Element` 的属性/方法通常只处理“元素节点(标签)”**；不带 `Element` 的往往会把 **文本节点(#text)、注释** 也算进去。
+> 另外，以下 `getElementsBy*` 多为“复数”，返回集合（HTMLCollection/NodeList）。
 
-1. 获取特定节点
-    ```js
-    document.getElementById("id");
-    ```
-2. 获取特定标签节点
-    ```js
-    document.getElementByTagName("Tag name");
-    ```
-3. 获取特定name节点
-    ```js
-    document.getElementByName("name");
-    ```
-4. 获取某标签下特定节点
-    ```js
-    document.getElementById("select01").getElementByTagName("option");
-    ```
-5. 获取某标签下所有节点
-    ```js
-    parentElement = document.getElementByName("name");
-    // 获取除文本、注释的所有子节点
-    parentElement.children;
-    parentElement[i];
-    // 获取包含文本、注释等在内的所有节点
-    parentElement.childNodes;
-    ```
-6. 获取某标签下第一个子节点
-    ```js
-    // parentElement.children[0]
-    parentElement.firstElementChild;
-    // parentElement.childNode[0]
-    parentElement.firstChild;
-    ```
-7. 获取某节点的父节点
-    ```js
-    childElement.parentElement;
-    ```
+---
+
+1. 获取特定节点（按 id）
+
+* **id 在页面中应唯一**，返回单个元素或 `null`。
+
+```js
+document.getElementById("id");
+```
+
+---
+
+2. 获取特定标签节点（按标签名）
+
+* ✅ 正确方法名是 **getElementsByTagName**（复数）
+* 返回 HTMLCollection（类数组）
+
+```js
+document.getElementsByTagName("tagName");
+```
+
+---
+
+3. 获取特定 name 节点（按 name）
+
+* ✅ 正确方法名是 **getElementsByName**（复数）
+* `name` **可以重复**（radio/checkbox 常用来分组），返回 NodeList
+
+```js
+document.getElementsByName("name");
+```
+
+---
+
+4. 获取某标签下特定节点（限定范围查找）
+
+* 先拿到父元素，再在其内部按标签名找
+
+```js
+document.getElementById("select01").getElementsByTagName("option");
+```
+
+> 更现代/更灵活的写法（CSS 选择器）：
+
+```js
+document.querySelectorAll("#select01 option");
+```
+
+---
+
+5. 获取某标签下所有子节点（children vs childNodes）
+
+> 注意：`document.getElementsByName` 返回的是集合，通常要取其中一个元素再用 `.children/.childNodes`。
+
+```js
+// 示例：先拿到某个元素（例如第 0 个）
+const parentElement = document.getElementsByName("name")[0];
+
+// 只包含“元素节点(标签)”，不含文本/注释
+parentElement.children;      // HTMLCollection
+parentElement.children[i];   // 第 i 个子元素
+
+// 包含“所有子节点”：元素 + 文本(#text) + 注释等
+parentElement.childNodes;    // NodeList
+parentElement.childNodes[i]; // 第 i 个子节点
+```
+
+---
+
+6. 获取某标签下第一个子节点（firstElementChild vs firstChild）
+
+```js
+// 第一个“子元素节点”(标签)
+parentElement.firstElementChild;  // 等价于 parentElement.children[0]
+
+// 第一个“子节点”（可能是 #text 换行空格）
+parentElement.firstChild;         // 等价于 parentElement.childNodes[0]
+```
+
+---
+
+7. 获取某节点的父节点（parentElement vs parentNode）
+
+```js
+// 父节点是“元素”才返回，否则为 null（推荐用于元素链路）
+childElement.parentElement;
+
+// 返回父“节点”（可能是 Document 等）
+childElement.parentNode;
+```
+
+---
+
 8. 获取某节点的前后兄弟节点
-    ```js
-    // 选取的节点包含文本
-    element.previousElementSibling;
-    element.nextElementSibling
-    ```
-9. 获取某节点的value
-    ```js
-    element.value;
-    ```
+
+> 你原文注释“包含文本”更适用于 `previousSibling/nextSibling`。
+> `previousElementSibling/nextElementSibling` 只返回“兄弟元素”。
+
+```js
+// 前后兄弟“元素”（只看标签，不含 #text）
+element.previousElementSibling;
+element.nextElementSibling;
+
+// 前后兄弟“节点”（可能是 #text / 注释）
+element.previousSibling;
+element.nextSibling;
+```
+
+---
+
+9. 获取某节点的 value（表单控件）
+
+* `value` 主要用于 **input / textarea / select** 等表单元素
+
+```js
+element.value;
+```
+
+> 普通标签（div/p/span）要取文本一般用：
+
+```js
+element.textContent; // 推荐：纯文本，不解析 HTML
+// element.innerText; // 更接近“可见文本”，受样式影响
+// element.innerHTML; // 获取/设置内部 HTML（会解析，有 XSS 风险）
+```
+
+---
+
+10. 常用补充：更推荐的选择器（querySelector）
+
+```js
+// 选中第一个匹配元素
+document.querySelector("#form2 input[name='username']");
+
+// 选中所有匹配元素
+document.querySelectorAll("#select01 option");
+```
+
+---
+小提示（避免踩坑）
+
+* `childNodes/firstChild/nextSibling` 经常碰到 `#text`（换行缩进导致），想只操作标签优先用 **children/firstElementChild/nextElementSibling**。
+* `name` 经常重复，`getElementsByName` 返回的是集合；想唯一定位一个元素，用 `id` 或更精确的 `querySelector`。
+
+---
+
+
 
 #### 案例：乌龟吃鸡
 
@@ -2925,59 +3027,59 @@
     <title>乌龟吃鸡游戏</title>
     <style type="text/css">
         body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        background-color: #f0f0f0;
-        margin: 0;
-        padding: 20px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
         }
         .game-container {
-        margin: 0 auto;
-        max-width: 500px;
+            margin: 0 auto;
+            max-width: 500px;
         }
         h1 {
-        color: #333;
+            color: #333;
         }
         table {
-        border-collapse: collapse;
-        margin: 20px auto;
-        background-color: #fff;
+            border-collapse: collapse;
+            margin: 20px auto;
+            background-color: #fff;
         }
         td {
-        width: 50px;
-        height: 50px;
-        border: 1px solid #ccc;
-        text-align: center;
-        font-size: 24px;
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ccc;
+            text-align: center;
+            font-size: 24px;
         }
         .turtle {
-        background-color: green;
-        color: white;
+            background-color: green;
+            color: white;
         }
         .chicken {
-        background-color: yellow;
-        color: black;
+            background-color: yellow;
+            color: black;
         }
         .controls {
-        margin: 10px 0;
+            margin: 10px 0;
         }
         button {
-        padding: 10px 15px;
-        margin: 5px;
-        font-size: 16px;
-        cursor: pointer;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 4px;
+            padding: 10px 15px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
         }
         button:hover {
-        background-color: #45a049;
+            background-color: #45a049;
         }
         #score {
-        font-size: 20px;
-        margin: 10px;
-        color: #333;
+            font-size: 20px;
+            margin: 10px;
+            color: #333;
         }
     </style>
     <script type="text/javascript">
@@ -2989,108 +3091,108 @@
 
         // 页面加载完成后初始化游戏
         window.onload = function() {
-        initGame();
-        setupEventListeners();
+            initGame();
+            setupEventListeners();
         };
 
         // 初始化游戏：生成网格和随机鸡位置
         function initGame() {
-        generateGrid();
-        generateChicken();
-        updateDisplay();
+            generateGrid();
+            generateChicken();
+            updateDisplay();
         }
 
         // 生成游戏网格
         function generateGrid() {
-        const gameGrid = document.getElementById('gameGrid');
-        gameGrid.innerHTML = ''; // 清空现有网格
-        for (let i = 0; i < gridSize; i++) {
-            const row = document.createElement('tr');
-            for (let j = 0; j < gridSize; j++) {
-            const cell = document.createElement('td');
-            cell.id = `cell-${i}-${j}`;
-            row.appendChild(cell);
+            const gameGrid = document.getElementById('gameGrid');
+            gameGrid.innerHTML = ''; // 清空现有网格
+            for (let i = 0; i < gridSize; i++) {
+                const row = document.createElement('tr');
+                for (let j = 0; j < gridSize; j++) {
+                    const cell = document.createElement('td');
+                    cell.id = `cell-${i}-${j}`;
+                    row.appendChild(cell);
+                }
+                gameGrid.appendChild(row);
             }
-            gameGrid.appendChild(row);
-        }
         }
 
         // 随机生成鸡的位置
         function generateChicken() {
-        // 确保鸡不生成在乌龟当前位置
-        let newRow, newCol;
-        do {
-            newRow = Math.floor(Math.random() * gridSize);
-            newCol = Math.floor(Math.random() * gridSize);
-        } while (newRow === turtlePosition.row && newCol === turtlePosition.col);
+            // 确保鸡不生成在乌龟当前位置
+            let newRow, newCol;
+            do {
+                newRow = Math.floor(Math.random() * gridSize);
+                newCol = Math.floor(Math.random() * gridSize);
+            } while (newRow === turtlePosition.row && newCol === turtlePosition.col);
 
-        chickenPosition = { row: newRow, col: newCol };
+            chickenPosition = { row: newRow, col: newCol };
         }
 
         // 更新游戏显示：绘制乌龟和鸡
         function updateDisplay() {
-        // 清除所有单元格
-        for (let i = 0; i < gridSize; i++) {
-            for (let j = 0; j < gridSize; j++) {
-            const cell = document.getElementById(`cell-${i}-${j}`);
-            cell.className = '';
-            cell.textContent = '';
+            // 清除所有单元格
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    const cell = document.getElementById(`cell-${i}-${j}`);
+                    cell.className = '';
+                    cell.textContent = '';
+                }
             }
-        }
 
-        // 绘制乌龟
-        const turtleCell = document.getElementById(`cell-${turtlePosition.row}-${turtlePosition.col}`);
-        turtleCell.className = 'turtle';
-        turtleCell.textContent = '龟';
+            // 绘制乌龟
+            const turtleCell = document.getElementById(`cell-${turtlePosition.row}-${turtlePosition.col}`);
+            turtleCell.className = 'turtle';
+            turtleCell.textContent = '龟';
 
-        // 绘制鸡
-        const chickenCell = document.getElementById(`cell-${chickenPosition.row}-${chickenPosition.col}`);
-        chickenCell.className = 'chicken';
-        chickenCell.textContent = '鸡';
+            // 绘制鸡
+            const chickenCell = document.getElementById(`cell-${chickenPosition.row}-${chickenPosition.col}`);
+            chickenCell.className = 'chicken';
+            chickenCell.textContent = '鸡';
 
-        // 更新得分显示
-        document.getElementById('score').textContent = `得分: ${score}`;
+            // 更新得分显示
+            document.getElementById('score').textContent = `得分: ${score}`;
         }
 
         // 移动乌龟
         function moveTurtle(direction) {
-        let newRow = turtlePosition.row;
-        let newCol = turtlePosition.col;
+            let newRow = turtlePosition.row;
+            let newCol = turtlePosition.col;
 
-        switch (direction) {
-            case 'up':
-            newRow = Math.max(0, turtlePosition.row - 1);
-            break;
-            case 'down':
-            newRow = Math.min(gridSize - 1, turtlePosition.row + 1);
-            break;
-            case 'left':
-            newCol = Math.max(0, turtlePosition.col - 1);
-            break;
-            case 'right':
-            newCol = Math.min(gridSize - 1, turtlePosition.col + 1);
-            break;
-        }
+            switch (direction) {
+                case 'up':
+                newRow = Math.max(0, turtlePosition.row - 1);
+                break;
+                case 'down':
+                newRow = Math.min(gridSize - 1, turtlePosition.row + 1);
+                break;
+                case 'left':
+                newCol = Math.max(0, turtlePosition.col - 1);
+                break;
+                case 'right':
+                newCol = Math.min(gridSize - 1, turtlePosition.col + 1);
+                break;
+            }
 
-        turtlePosition = { row: newRow, col: newCol };
-        checkEatChicken();
-        updateDisplay();
+            turtlePosition = { row: newRow, col: newCol };
+            checkEatChicken();
+            updateDisplay();
         }
 
         // 检查是否吃到鸡
         function checkEatChicken() {
-        if (turtlePosition.row === chickenPosition.row && turtlePosition.col === chickenPosition.col) {
-            score++;
-            generateChicken();
-        }
+            if (turtlePosition.row === chickenPosition.row && turtlePosition.col === chickenPosition.col) {
+                score++;
+                generateChicken();
+            }
         }
 
         // 设置按钮事件监听器
         function setupEventListeners() {
-        document.getElementById('up').addEventListener('click', () => moveTurtle('up'));
-        document.getElementById('down').addEventListener('click', () => moveTurtle('down'));
-        document.getElementById('left').addEventListener('click', () => moveTurtle('left'));
-        document.getElementById('right').addEventListener('click', () => moveTurtle('right'));
+            document.getElementById('up').addEventListener('click', () => moveTurtle('up'));
+            document.getElementById('down').addEventListener('click', () => moveTurtle('down'));
+            document.getElementById('left').addEventListener('click', () => moveTurtle('left'));
+            document.getElementById('right').addEventListener('click', () => moveTurtle('right'));
         }
     </script>
     </head>
@@ -3188,7 +3290,7 @@
     - XML 元素指 XML 文件中出现的标签，一个标签分为开始标签和结束标签
     - 包含标签体写法：`<a>www.sohu.cn</a>`。
     - 不含标签体的：`<a></a>`, 简写为：`<a/>`。
-    - 一个标签中也可以嵌套若干子标签。但所有标签必须合理的嵌套，绝对不允许交叉嵌。
+    - 一个标签中也可以嵌套若干子标签。但所有标签必须合理的嵌套，绝对不允许交叉嵌套。
 3. 在很多时候，说 标签、元素、节点是相同的意思
 4. XML 元素命名规则
     - 区分大小写，例如，`<P>`和`<p>`是两个不同的标记。
@@ -3305,7 +3407,7 @@
 
         public void loadXML(String url) throws DocumentException {
             SAXReader saxReader = new SAXReader();
-            Document read = saxReader.read(new File(url));
+            Document document = saxReader.read(new File(url));
             System.out.println(read);
         }
     }
@@ -3482,7 +3584,7 @@
                 System.out.println("client connected!!!");
                 outputStream = clientSocket.getOutputStream();
 
-                outputStream.write("Hello World!".getBytes());
+    //            outputStream.write("Hello World!".getBytes());
     //            outputStream.flush();
 
                 BufferedReader bufferedReader =
@@ -3506,7 +3608,58 @@
     }
 
     ```
+    - 加了响应头的升级版
+        ```java
+        import java.io.*;
+        import java.net.ServerSocket;
+        import java.net.Socket;
+        import java.nio.file.Files;
+        import java.nio.file.Path;
+        import java.nio.file.Paths;
 
+        public class Server02 {
+            public static void main(String[] args) {
+                try (ServerSocket serverSocket = new ServerSocket(9999)) {
+                    System.out.println("Server started on port 9999...");
+
+                    while (!serverSocket.isClosed()) {
+                        try (Socket clientSocket = serverSocket.accept();
+                            OutputStream outputStream = clientSocket.getOutputStream()) {
+
+                            System.out.println("Client connected!!!");
+
+                            // 读取HTML文件内容
+                            Path htmlPath = Paths.get("src/hello.html");
+                            byte[] fileContent = Files.readAllBytes(htmlPath);
+
+                            // 构建完整的HTTP响应
+                            String responseHeaders = "HTTP/1.1 200 OK\r\n" +
+                                    "Content-Type: text/html\r\n" +
+                                    "Content-Length: " + fileContent.length + "\r\n" +
+                                    "Connection: close\r\n" +  // 明确告知浏览器关闭连接
+                                    "\r\n";
+
+                            // 发送响应
+                            outputStream.write(responseHeaders.getBytes());
+                            outputStream.write(fileContent);
+                            outputStream.flush();
+
+                            System.out.println("Response sent successfully.");
+                        } catch (IOException e) {
+                            // 专门处理客户端断开连接的情况
+                            if (e.getMessage().contains("abort") || e.getMessage().contains("reset")) {
+                                System.err.println("Client disconnected prematurely");
+                            } else {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        ```
 3. 常用javaweb服务软件
     - `Tomcat`：由 Apache 组织提供的一种 Web 服务器，提供对 jsp 和 Servlet 的支持。它是一种轻量级的 javaWeb 容器（服务器），也是当前应用最广的 JavaWeb 服务器（免费）。
     - `Jboss`：是一个遵从 JavaEE 规范的、它支持所有的 JavaEE 规范（免费）。
@@ -3545,9 +3698,9 @@
 5. 启动故障排除
     - 双击 startup.bat 文件，出现一个小黑窗口然后就没了，原因是因为没有配置好JAVA_HOME 环境变量
     - Tomcat 本质是一个 Java 程序，所以要 jdk, 会去根据 JAVA_HOME 使用指定 jdk
-    - JAVA_HOME 必须全大写
-    - JAVA_HOME 中间必须是下划线
-    - JAVA_HOME 配置的路径只需要配置到 jdk 的安装目录即可。不需要带上 bin 目录
+    - `JAVA_HOME` 必须全大写
+    - `JAVA_HOME` 中间必须是下划线
+    - `JAVA_HOME` 配置的路径只需要配置到 jdk 的安装目录即可。不需要带上 bin 目录
     - 端口 8080 被占用 [查看端口 netstat -anb, 使用的非常多]
     - 如果其它服务程序占用了 8080 端口，可以关闭该服务，或者修改 Tomcat 服务的默认端口 8080 [后面讲]
     - 配置 JAVA_HOME 环境变量
@@ -3558,7 +3711,7 @@
     ![javaweb_TomCat_dir_structure](./img/javaweb_TomCat_dir_structure.png)
 
 2. `conf`
-    - `server.xml`：TomCat的基本设置。（启动端口、主机名等）
+    - `server.xml`：TomCat的基本设置。（启动端口、主机名等），可以通过修改这里的配置，修改TomCat服务端口。
     - `web.xml`：用于指定TomCat运行时配置。（serverlet等）
 
 #### 停止 Tomcat
@@ -3697,7 +3850,7 @@
 
 2. 端口修改
     - IDEA中TomCat的端口可以任意修改，修改的端口会即刻生效且只作用于当前项目，不会修改`server.xml`。
-    - **手动启动和IDEA启动的TomCat不能使用同一端口！！！**
+    - 当同时运行两个tomcat时，**手动启动和IDEA启动的TomCat不能使用同一端口！！！**
 
 3. `out`目录
     当tomcat启动时，会生成out目录，该目录就是原项目资源的映射，我们浏览器访问的资源是out目录。
@@ -3752,7 +3905,7 @@
 
 1. 需求
     - 开发一个 HelloServlet
-    - 当浏览器 访问 http://localhost:8080/web 应用名/helloServlet 时，**后台**输出 "hi HelloServelt"
+    - 当浏览器 访问 `http://localhost:8080/web 应用名/helloServlet` 时，**后台**输出 "hi HelloServelt"
 2. 具体步骤
     - 编写类`HelloServlet`去实现 Servlet 接口
     - 实现 service 方法，处理请求，并响应数据
@@ -4158,7 +4311,7 @@
     - `@WebServlet("/*.action")`**写法不规范**，不能带 `/` ，否则 tomcat 报错
     
 4. 任意匹配
-    - 配置路径：@WebServlet("/") @WebServlet("/*")
+    - 配置路径：`@WebServlet("/")`、`@WebServlet("/*")`
     - 访问文件：`http://localhost:8080/servlet01/aaa`、 `http://localhost:8080/servlet01/bbb`、 `http://localhost:8080/servlet01/ccc`...
     - `/` 和 `/*`的配置，会匹配所有的请求，这个比较麻烦，要避免。
     - 值得注意的是，`/` 和 `/*`是两个不完全相同的配置。
@@ -4221,10 +4374,10 @@
     <servlet>
         <servlet-name>DBServlet</servlet-name>
         <servlet-class>com.lcq.servlet.DBServlet</servlet-class>
-    <init-param>
-        <param-name>username</param-name>
-        <param-value>root</param-value>
-    </init-param>
+        <init-param>
+            <param-name>username</param-name>
+            <param-value>root</param-value>
+        </init-param>
         <init-param>
             <param-name>password</param-name>
             <param-value>lcq</param-value>
@@ -6788,4 +6941,584 @@
         out.flush();
         out.close();
     }
+    ```
+
+## 服务器渲染技术
+
+### 章节目录
+
+1. JSP（会使用即可）
+2. Thymeleaf
+
+3. 写在前面（JSP）
+    - 可以上51job、拉勾网等招聘网站搜索一下这两个关键词，看一下岗位热度。
+    - 目前主流技术为前后端分离，如：Spring Boot + Vue/React.
+    - JSP的使用在逐渐减少，但不代表不再使用，老项目和中小公司仍然使用JSP，工作期间很有可能遇到JSP项目。
+    - JSP的使用在逐步减少，最佳的技术策略是：对于JSP，能基本使用、能看懂、能维护相关项目、不用深入。
+
+### JSP
+
+#### 为什么需要JSP
+
+1. 开发过程中，Servlet制作前端页面非常不方便。
+2. HTML页面无法动态获取数据。
+
+3. 技术引出
+    - jsp = html + java代码 + 标签 + javascript + css
+    - `javax.servlet.jsp`
+    - `javax.servlet.jsp.el`
+    - `javax.servlet.jsp.tagext`
+
+#### JSP 基本介绍
+
+1. JSP：Java Server Pages（Java服务器页面），即服务器渲染技术。
+2. JSP技术的特点在于，写JSP就像写HTML，掌握成本低。（Vue技术适用前后端分离，学习成本远高于JSP，建议后端程序员掌握JSP）
+    - 相比HTML只能提供静态数据，JSP技术允许在页面中嵌套Java代码，为用户获取数据。
+    - 相比Servlet难以对页面进行排版，jsp在可以用java代码产生动态数据的同时，也很容易对数据进行排版。
+3. JSP技术基于Servlet，可以理解成JSP就是对Servlet的包装。
+4. 会使用JSP，再使用Thymeleaf上手难度相对更低。
+
+#### JSP 快速入门
+
+1. 注意事项
+    - 将jsp文件放在web文件夹下。
+
+2. `pom.xml`
+    ```xml
+    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+      <modelVersion>4.0.0</modelVersion>
+      <groupId>com.lcq</groupId>
+      <artifactId>jsp</artifactId>
+      <packaging>war</packaging>
+      <version>1.0-SNAPSHOT</version>
+      <name>jsp Maven Webapp</name>
+      <url>http://maven.apache.org</url>
+      <dependencies>
+        <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>3.8.1</version>
+          <scope>test</scope>
+        </dependency>
+          <!-- Servlet API -->
+          <dependency>
+              <groupId>javax.servlet</groupId>
+              <artifactId>javax.servlet-api</artifactId>
+              <version>4.0.1</version>
+              <scope>provided</scope>
+          </dependency>
+    
+          <!-- JSP API -->
+          <dependency>
+              <groupId>javax.servlet.jsp</groupId>
+              <artifactId>javax.servlet.jsp-api</artifactId>
+              <version>2.3.3</version>
+              <scope>provided</scope>
+          </dependency>
+    
+          <!-- 安全的JSTL实现（仅包含核心功能，不包含XML处理） -->
+          <dependency>
+              <groupId>org.apache.taglibs</groupId>
+              <artifactId>taglibs-standard-impl</artifactId>
+              <version>1.2.5</version>
+          </dependency>
+    
+          <dependency>
+              <groupId>org.apache.taglibs</groupId>
+              <artifactId>taglibs-standard-spec</artifactId>
+              <version>1.2.5</version>
+          </dependency>
+      </dependencies>
+      <build>
+        <finalName>jsp</finalName>
+      </build>
+    </project>
+    ```
+
+3. `first.jsp`
+    ```jsp
+    <%--
+    Created by IntelliJ IDEA.
+    User: 85035
+    Date: 2025/11/23
+    Time: 22:04
+    To change this template use File | Settings | File Templates.
+    --%>
+    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <html>
+    <head>
+        <title>计算器</title>
+    </head>
+    <body>
+    <%
+        // 在当前标签中，可以写java代码。
+        int a = 666;
+        int b = 999;
+        out.println("a+b=" + (a + b));
+    %>
+    </body>
+    </html>
+    ```
+
+#### JSP 运行原理
+
+1. 介绍
+    - JSP 页面本质就是一个Servlet程序（Java程序），性能与Java关联。
+    - 第一次访问JSP文件时，TomCat会将其解析成java源文件，然后编译成为`.class`字节码程序。比如`a.jsp`文件对应`a_jsp.java`和`a_jsp.class`文件。文件路径在TomCat启动时的`Using CATALINA_BASE`的目录下，找work文件夹下的文件。
+    - 在生成的代码中，继承了HttpJspBase类，这是一个Servlet的子类，有比Servlet原生接口更强大的功能。
+
+#### JSP 常用语法
+
+1. page指令
+    ```jsp
+    <%@ page contentType="text/html;character=UTF-8" language="java" %>
+    <%@ page import="org.apache.jasper.runtime.HttpJspBase" %>
+    ```
+    - `language`：表示jsp翻译后是什么语言文件，只支持java
+    - `contentType`：表示jsp返回的数据类型，对应源码中的`resp.contentType()`
+    - `pageEncoding`：当前jsp页面文件本身的字符集
+    - `import`：作用同java
+
+#### JSP 常用脚本
+
+1. 声明脚本
+    - `<%! [声明java代码] %>`
+    - 作用：定义JSP的需要属性、方法、静态代码块、内部类等。**即为`statement_jsp`类定义属性。**
+    - 示例
+        ```jsp
+        <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+        <html>
+        <head>
+            <title>声明脚本</title>
+        </head>
+        <body>
+        <h1>声明脚本</h1>
+        <%!
+            // 声明需要的属性、方法、静态代码块、内部类
+            private String name = "lcq";
+            static private int age;
+        
+            public String getName(){
+                return name ;
+            }
+        
+            static {
+                age=6666;
+            }
+        %>
+        </body>
+        </html>
+        ```
+    
+2. 表达式脚本
+    - `<%= [表达式] %>`
+    - 作用：在jsp页面输出数据。
+    - 只要有值返回，就是表达式。
+    - 表达式脚本中的表达式不能以分号结束。
+    - 示例
+        ```jsp
+        <html>
+        <head>
+            <title>表达式脚本</title>
+        </head>
+        <body>
+        <%!
+        String name = "abc";
+        %>
+        <%= "名字：" + name %>
+        </body>
+        </html>
+        ```
+
+3. 代码脚本
+    - `<% [java代码] %>`
+    - 作用：在jsp页面中编写我们需要的功能。
+    - 可以由多个代码脚本块组合完成一个完整的java语句
+    - 代码脚本可以和表达式脚本组合使用输出数据。
+    - 示例
+        ```jsp
+        <html>
+        <head>
+            <title>javacode</title>
+        </head>
+        <body>
+        <%!
+            List<Employee> list = new ArrayList<>();
+        %>
+
+        <%
+            list.add(new Employee(1, "aha", 18));
+            list.add(new Employee(2, "zhang", 20));
+        %>
+
+        <table>
+            <%
+                for (int i = 0; i < list.size(); i++) {
+                    Employee employee = list.get(i);
+            %>
+            <tr>
+                <td><%= employee.getId() %>
+                </td>
+                <td><%= employee.getName() %>
+                </td>
+                <td><%= employee.getAge() %>
+                </td>
+            </tr>
+            <%
+                }
+            %>
+
+        </table>
+        </body>
+        </html>
+        ```
+
+#### JSP 注释
+
+1. HTML注释
+    ```jsp
+    <!-- HTML注释 -->
+    ```
+2. java注释
+    ```jsp
+    <%
+    // java注释1
+    /* java注释2 */
+    %>
+    ```
+3. 特有注释
+    ```jsp
+    <%-- jsp注释 --%>
+    ```
+
+#### JSP 内置对象
+
+1. 基本介绍
+    - JSP内置对象（inbuild，已经创建好，直接使用的对象），指的是TomCat在翻译JSP页面成为Servlet后，内部提供的九大对象，称为内置对象。
+    - 内置对象可以直接使用，无需手动定义。
+
+2. 九大内置对象
+    - `out`：`JspWriter`类，用于直接向客户端输出数据。
+    - `request`：客户端的HTTP请求。
+    - `response`：`HttpServletResponse`类，响应对象。
+    - `session`：会话对象。
+    - `application`：对应`ServletContext`类。
+    - `pageContext`：域对象，作用范围只在本页面，可以存放属性。
+    - `exception`：使用较少
+    - `page`：对应实例本身。`this`
+    - `config`：`ServletConfig`类。
+    
+
+3. 对应源码
+    ```java
+    public void _jspService(final javax.servlet.http.HttpServletRequest request, final javax.servlet.http.HttpServletResponse response)
+            throws java.io.IOException, javax.servlet.ServletException {
+
+    final java.lang.String _jspx_method = request.getMethod();
+    if (!"GET".equals(_jspx_method) && !"POST".equals(_jspx_method) && !"HEAD".equals(_jspx_method) && !javax.servlet.DispatcherType.ERROR.equals(request.getDispatcherType())) {
+    response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "JSPs only permit GET POST or HEAD");
+    return;
+    }
+
+        final javax.servlet.jsp.PageContext pageContext;
+        javax.servlet.http.HttpSession session = null;
+        final javax.servlet.ServletContext application;
+        final javax.servlet.ServletConfig config;
+        javax.servlet.jsp.JspWriter out = null;
+        final java.lang.Object page = this;
+        javax.servlet.jsp.JspWriter _jspx_out = null;
+        javax.servlet.jsp.PageContext _jspx_page_context = null;
+    ```
+
+#### JSP 域对象
+
+1. 简介
+    - 域对象的基本作用：在某个范围存取数据的对象。
+    - 域指的是在多个页面之间的范围。
+
+2. `pageContext`
+    - 存放的数据只能在当前页面使用。
+    - 以此法存的数据，请求转发或重定向到其他页面后，均无法访问。
+3. `request`
+    - 存放的数据在一次Http请求期间有效。
+    - 比如进行请求转发，request被携带到下一个页面，可以取出存储的属性。
+    - 重定向已经是新的请求，无法读取数据。
+4. `session`
+    - 在多次Http请求中，只要会话没有发生改变，就可以一直取。
+    - 请求转发与重定向，只要会话不改变，就可以取出属性。
+5. `application`
+    - 在整个Web应用运行期间均有效。
+    - 只要TomCat没有重启，就可以取出相关数据。（因为这个对象是在第一次调用相应Servlet时创建的，直至服务器关闭）
+
+6. 示例
+    ```jsp
+    <html>
+    <head>
+        <title></title>
+    </head>
+    <body>
+    <%
+        pageContext.setAttribute("key1", "1");
+        request.setAttribute("key1", "2");
+        session.setAttribute("key1", "3");
+        application.setAttribute("key1", "4");
+        //request.getRequestDispatcher("/scope2.jsp").forward(request, response);
+        //response.sendRedirect(application.getContextPath()+"/scope2.jsp");
+    %>
+    <div><%="pageContext(key1):"+pageContext.getAttribute("key1")%></div>
+    <div><%="request(key1):"+request.getAttribute("key1")%></div>
+    <div><%="session(key1):"+session.getAttribute("key1")%></div>
+    <div><%="application(key1):"+application.getAttribute("key1")%></div>
+    </body>
+    </html>
+    ```
+
+7. 注意事项和细节
+    - 域对象可以像Map一样存取数据，四个域对象功能一样，不同的是对数据的存储范围。
+    - 从作用范围看，`pageContext < request < session < application`
+
+#### JSP 请求转发标签
+
+1. 要求，访问页面A时，请求转发到页面B。
+
+2. 示例
+    ```jsp
+    <jsp:forward page="/a.jsp"></jsp:forward>
+    ```
+
+
+
+#### 附加内容
+
+1. JSP模板配置
+    - 通过`文件-设置-编辑器-文件和代码模板-其他`找到jsp模板，然后在其中修改，即可改变默认生成的模板。
+
+### EL表达式
+
+#### 基本介绍
+
+1. 介绍
+    - 全称：Expression Language，表达式语言。
+    - 主要用于代替jsp页面中的表达式脚本`<%=req.getAttribute("...")%>`。
+    - EL表达式输出数据时，比jsp表达式脚本简洁。
+    - 基本语法：`${key1}`。语法糖。
+
+2. 问题解决
+    - 如果前端无法正常显示EL表达式，尝试更改第一行
+        ```jsp
+        <%@ page contentType="text/html;charset=UTF-8" isELIgnored="false" language="java" %>
+        ```
+
+3. EL 表达式的优势
+    - 若直接使用`request.getAttribute()`，值为空时返回`null`，el则返回空串`""`。
+
+
+#### 输出形式
+
+1. EL表达式常用输出Bean的普通属性、数组属性、List属性、Map属性
+
+2. 示例
+    - `Book.java`
+        ```java
+        public class Book {
+            private String name;
+            private String[] writers;
+            private List<String> readers;
+            private Map<String, String> topics;
+            //...
+        }
+        ```
+    - `elout.jsp`
+        ```jsp
+        <%@ page contentType="text/html;charset=UTF-8" isELIgnored="false" language="java" %>
+        <html>
+        <head>
+            <title>elout</title>
+        </head>
+        <body>
+        <%
+            Book book = new Book();
+            book.setName("图书1");
+            book.setWriters(new String[]{"作者1", "作者2"});
+            ArrayList<String> readers = new ArrayList<>();
+            readers.add("a");
+            readers.add("b");
+            book.setReaders(readers);
+            HashMap<String, String> topics = new HashMap<>();
+            topics.put("a", "b");
+            book.setTopics(topics);
+
+            request.setAttribute("bookkey", book);
+        %>
+        book:${bookkey}<br>
+        book.name:${bookkey.name}<br>
+        book.writer:${bookkey.writers}<br>
+        book.reader:${bookkey.readers}<br>
+        book.topics:${bookkey.topics}
+
+        <%--book:Book{name='图书1', writers=[作者1, 作者2], readers=[a, b], topics={a=b}}--%>
+        <%--book.name:图书1--%>
+        <%--book.writer:[Ljava.lang.String;@1e97be1--%>
+        <%--book.reader:[a, b]--%>
+        <%--book.topics:{a=b}--%>
+
+        </body>
+        </html>
+        ```
+
+#### EL 运算操作
+
+1. 基本语法
+语法：`${运算表达式}`
+
+2. 关系运算
+
+| 关系运算符 | 说明 | 范例 | 结果 |
+|---------|------|------|------|
+| `==` 或 `eq` | 等于 | `${5 == 5}` 或 `${5 eq 5}` | true |
+| `!=` 或 `ne` | 不等于 | `${5 != 3}` 或 `${5 ne 3}` | true |
+| `<` 或 `lt` | 小于 | `${3 < 5}` 或 `${3 lt 5}` | true |
+| `>` 或 `gt` | 大于 | `${5 > 3}` 或 `${5 gt 3}` | true |
+| `<=` 或 `le` | 小于等于 | `${5 <= 5}` 或 `${5 le 5}` | true |
+| `>=` 或 `ge` | 大于等于 | `${5 >= 3}` 或 `${5 ge 3}` | true |
+
+3. 逻辑运算
+
+| 逻辑运算符 | 说明 | 范例 | 结果 |
+|---------|------|------|------|
+| `&&` 或 `and` | 与运算 | `${true && false}` 或 `${true and false}` | false |
+| `\|\|` 或 `or` | 或运算 | `${true \|\| false}` 或 `${true or false}` | true |
+| `!` 或 `not` | 取反运算 | `${!true}` 或 `${not true}` | false |
+
+4. 算术运算
+
+| 算术运算符 | 说明 | 范例 | 结果 |
+|---------|------|------|------|
+| `+` | 加法 | `${12 + 18}` | 30 |
+| `-` | 减法 | `${18 - 8}` | 10 |
+| `*` | 乘法 | `${12 * 12}` | 144 |
+| `/` 或 `div` | 除法 | `${144 / 12}` 或 `${144 div 12}` | 12 |
+| `%` 或 `mod` | 取模 | `${144 % 10}` 或 `${144 mod 10}` | 4 |
+
+#### Empty 运算
+
+1. empty运算可以判断一个数据是否为空，返回`true`，否则返回`false`。
+
+2. 以下几种情况为空
+    - 值为`null`。
+    - 值为空串`""`。
+    - 值为`Object`数组，且长度为0。
+    - 长度为0的`List`。
+    - 长度为0的`Map`。
+
+3. 示例
+    ```jsp
+    <%@ page contentType="text/html;charset=UTF-8" isELIgnored="false" language="java" %>
+    <html>
+    <head>
+        <title>elempty</title>
+    </head>
+    <body>
+    <%
+        request.setAttribute("key1", null);
+        request.setAttribute("key2", "");
+        request.setAttribute("key3", new Object[]{});
+        request.setAttribute("key4", new ArrayList<>());
+        request.setAttribute("key5", new HashMap<>());
+        request.setAttribute("key6", 666);
+        request.setAttribute("key7", null);
+    %>
+
+    key1:${empty key1}<br>
+    key2:${empty key2}<br>
+    key3:${empty key3}<br>
+    key4:${empty key4}<br>
+    key5:${empty key5}<br>
+    key6:${empty key6}<br>
+
+    <%--key1:true--%>
+    <%--key2:true--%>
+    <%--key3:true--%>
+    <%--key4:true--%>
+    <%--key5:true--%>
+    <%--key6:false--%>
+
+    </body>
+    </html>
+    ```
+
+#### 三元运算
+
+1. `${bool ? trueval : falseval}`
+
+#### 11个隐含对象
+
+1. 11个隐含对象
+
+EL表达式提供了11个可以直接使用的隐含对象，无需声明即可调用：
+
+| 变量名 | 类型 | 说明 |
+|--------|------|------|
+| `pageContext` | `PageContextImpl` | 获取JSP中的九大内置对象 |
+| `pageScope` | `Map<String,Object>` | 获取pageContext域中的数据 |
+| `requestScope` | `Map<String,Object>` | 获取Request域中的数据 |
+| `sessionScope` | `Map<String,Object>` | 获取Session域中的数据 |
+| `applicationScope` | `Map<String,Object>` | 获取ServletContext域中的数据 |
+| `param` | `Map<String,String>` | 获取请求参数的值（单个值） |
+| `paramValues` | `Map<String,String[]>` | 获取请求参数的多个值（数组） |
+| `header` | `Map<String,String>` | 获取请求头的信息 |
+| `headerValues` | `Map<String,String[]>` | 获取请求头的多个信息（数组） |
+| `cookie` | `Map<String,Cookie>` | 获取当前请求的Cookie信息 |
+| `initParam` | `Map<String,String>` | 获取在web.xml中配置的`<context-param>`上下文参数 |
+
+
+2. 重点
+    - `pageScope`
+    - `requestScope`
+    - `sessionScope`
+    - `applicationScope`
+
+3. 示例
+    ```jsp
+    <%@ page contentType="text/html;charset=UTF-8" isELIgnored="false" language="java" %>
+    <html>
+    <head>
+        <title>elscope</title>
+    </head>
+    <body>
+    <%
+        request.setAttribute("k1", "req");
+        pageContext.setAttribute("k1", "page");
+        session.setAttribute("k1", "session");
+        application.setAttribute("k1", "app");
+    %>
+
+    <h1>el获取域对象</h1>
+    request域：${requestScope.k1}<br>
+    pageContext域：${pageScope.k1}<br>
+    session域：${sessionScope.k1}<br>
+    application域：${applicationScope.k1}<br>
+
+    </body>
+    </html>
+    ```
+
+4. `pageContext`获取Http协议相关信息
+    - 脚本中的`pageContext`和EL中的`pageContext`不是一个。
+    ```jsp
+    协议：${pageContext.request.scheme}
+    服务器 ip：${pageContext.request.serverName}
+    服务器端口：${pageContext.request.serverPort}
+    工程路径：${pageContext.request.contextPath}
+    请求方法：${pageContext.request.method}
+    客户端 ip 地址：${pageContext.request.remoteHost}
+    
+
+    <!-- 简化写法 -->
+    <%
+        pageContext.setAttribute("req", request);
+    %>
+
+    ${req.xxx}
     ```
