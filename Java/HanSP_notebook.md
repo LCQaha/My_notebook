@@ -10240,11 +10240,10 @@ synchronized (lock2) { // 先占lock2
 
 ### MySQL数据库的安装与配置
 
-1. 版本
-    - MySQL 5.5
-    - MySQL 5.6
-    - MySQL 5.7：稳定
-    - MySQL 8：更高版本（收费）
+1. MySQL 版本说明
+    - **MySQL 5.5 / 5.6**：老旧项目常见，目前已停止官方维护。
+    - **MySQL 5.7**：极其经典且稳定的版本，目前大量企业仍在生产环境使用。
+    - **MySQL 8.x**：**当前主流推荐**。性能翻倍，支持窗口函数等新特性。（注：分为免费的社区版和收费的企业版，日常开发使用免费社区版即可）。
     
 2. 解压版安装
     - [MySQL5.7安装链接（msi文件）](https://dev.mysql.com/get/Downloads/MySQLInstaller/mysql-installer-community-5.7.44.0.msi)
@@ -10276,14 +10275,21 @@ synchronized (lock2) { // 先占lock2
     skip-grant-tables
     ```
 6. 以管理员身份运行命令行（在安装目录的`bin`目录下运行）
-    ```cmd
-    cd /D D:\code\MySQL\mysql-5.7.19-winx64\bin
+    ```PowerShell
+    # 1. 切换到 bin 目录
+    cd D:\code\MySQL\mysql-5.7.19-winx64\bin
+
+    # 2. 安装 MySQL 核心服务
     mysqld -install 
+
+    # 3. 初始化数据目录 (生成无密码的 root 用户)
     mysqld --initialize-insecure --user=mysql
+
+    # 4. 启动 MySQL 服务
     net start mysql
     ```
     运行结果
-    ```
+    ```PowerShell
     (base) PS C:\Users\Lenovo> cd D:\code\MySQL\mysql-5.7.19-winx64\bin
     (base) PS D:\code\MySQL\mysql-5.7.19-winx64\bin> mysqld -install
     Service successfully installed.
@@ -10298,17 +10304,24 @@ synchronized (lock2) { // 先占lock2
     - 此外，可通过`net stop mysql`停止服务，`net start mysql`启动服务。
 
 7. 进入MySQL管理终端
-    ```bash
+    ```sql
     mysql -u root -p # 当前root密码为空直接回车即可登录，u-用户，p-密码
     ```
 
 8. 第一次操作：修改用户密码
     - 注意分号
-    ```bash
-    use mysql;  
+    ```sql 
+    -- 切换到系统库
+    USE mysql; 
+
+    -- 修改密码
     update user set authentication_string=password('lcq') where user='root' and Host='localhost';
-    flush privileges;
-    quit
+
+    -- 刷新权限缓存使之生效
+    FLUSH PRIVILEGES;
+
+    -- 退出
+    quit;
     ```
 
 9. 修改`my.ini`，开启权限验证
@@ -10325,13 +10338,17 @@ synchronized (lock2) { // 先占lock2
     
 #### 命令行连接到MySQL
 
-1. 指令
-    - p之间没有空格，`-p`后不添加密码，则会提示输入密码。
-    - `-h`未添加，则默认本机。
-    - `-P`未添加，则默认3306。（**如果配置中的端口不是3306，则必须在登录时添加端口**）
-    ```bash
-    mysql -h 主机IP -P 端口 -u username -p密码
-    ```
+1. 命令行连接规范
+
+    - 标准登录指令格式（参数与值之间可不加空格）：
+        ```Bash
+        mysql -h <主机IP> -P <端口> -u <用户名> -p<密码>
+        ```
+        `-h`：主机地址。若为本机可省略或写 `localhost` / `127.0.0.1`。
+        `-P`：端口号。默认为 `3306`，若一致可省略。
+        `-u`：用户名。
+        `-p`：密码。如果 `-p` 后面紧跟密码，中途不能有空格；或者只敲 `-p` 回车后隐式输入。
+    - 示例： `mysql -u root -plcq`
 
 2. 示例
     ```bash
@@ -10376,6 +10393,14 @@ synchronized (lock2) { // 先占lock2
 
 
 ### 数据库
+
+#### 选中 / 切换数据库
+
+在对表进行增删改查之前，必须先明确你要操作哪个数据库。
+- **指令**：
+    ```sql
+    USE 数据库名;
+    ```
 
 #### 创建
 
