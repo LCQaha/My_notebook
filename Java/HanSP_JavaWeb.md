@@ -892,7 +892,7 @@
 4. 对于选项，提交的是对应选项value属性的值。
     - 对于select/checkbox/radio，提交的数据是value指定的值。
     - 对于checkbox复选框，使用GET会产生信息诸如：`sport=xx&sport=yy`
-5. 在同一个markdown文档中，不得使用for属性相同的label，否则会发生不可预测的错误。
+5. **在同一个markdown文档中，不得使用for属性相同的label，否则会发生不可预测的错误。**
 
 6. GET请求特点
     - 在浏览器中的地址是：`form的action属性 [+?+请求参数]`
@@ -1298,8 +1298,7 @@
 
 #### 从head标签设定
 1. 介绍
-    - 在head标签中使用style标签定义需要的CSS样式。
-    - 
+    - 在head标签中使用style标签定义需要的CSS样式。 
 #### 从外部文件引入
 1. 介绍
     - 把CSS样式写成单独的CSS文件，通过link标签引入。
@@ -1867,8 +1866,8 @@
 1. 对象的定义
     ```js
     var 对象名 = {
-        属性1 = value1;
-        属性2 = value2;
+        属性1 : value1,
+        属性2 : value2,
         函数名: function(){
             ...
         }
@@ -1894,8 +1893,8 @@
     ```
 
 4. 注意
-    - 赋值用`:`冒号，而不是等号。
-    - 分隔用`,`逗号，而不是分号。
+    - **赋值用`:`冒号，而不是等号。**
+    - **分隔用`,`逗号，而不是分号。**
 
 ### 事件
 
@@ -1907,27 +1906,27 @@
 2. 事件一览表 
     | 属性 | 当以下情况发生时，出现此事件 |
     |------|--------------------------|
-    | onabort | 图像加载被中断 |
-    | onblur | 元素失去焦点 |
-    | onchange | 用户改变域的内容 |
-    | onclick | 鼠标点击某个对象 |
-    | ondblclick | 鼠标双击某个对象 |
-    | onerror | 当加载文档或图像时发生某个错误 |
-    | onfocus | 元素获得焦点 |
-    | onkeydown | 某个键盘的键被按下 |
-    | onkeypress | 某个键盘的键被按下或按住 |
-    | onkeyup | 某个键盘的键被松开 |
-    | onload | 某个页面或图像被完成加载 |
-    | onmousedown | 某个鼠标按键被按下 |
-    | onmousemove | 鼠标被移动 |
-    | onmouseout | 鼠标从某元素移开 |
-    | onmouseover | 鼠标被移到某元素之上 |
-    | onmouseup | 某个鼠标按键被松开 |
-    | onreset | 重置按钮被点击 |
-    | onresize | 窗口或框架被调整尺寸 |
-    | onselect | 文本被选定 |
-    | onsubmit | 提交按钮被点击 |
-    | onunload | 用户退出页面 |
+    | `onabort` | 图像加载被中断 |
+    | `onblur` | 元素失去焦点 |
+    | `onchange` | 用户改变域的内容 |
+    | `onclick` | 鼠标点击某个对象 |
+    | `ondblclick` | 鼠标双击某个对象 |
+    | `onerror` | 当加载文档或图像时发生某个错误 |
+    | `onfocus` | 元素获得焦点 |
+    | `onkeydown` | 某个键盘的键被按下 |
+    | `onkeypress` | 某个键盘的键被按下或按住 |
+    | `onkeyup` | 某个键盘的键被松开 |
+    | `onload` | 某个页面或图像被完成加载 |
+    | `onmousedown` | 某个鼠标按键被按下 |
+    | `onmousemove` | 鼠标被移动 |
+    | `onmouseout` | 鼠标从某元素移开 |
+    | `onmouseover` | 鼠标被移到某元素之上 |
+    | `onmouseup` | 某个鼠标按键被松开 |
+    | `onreset` | 重置按钮被点击 |
+    | `onresize` | 窗口或框架被调整尺寸 |
+    | `onselect` | 文本被选定 |
+    | `onsubmit` | 提交按钮被点击 |
+    | `onunload` | 用户退出页面 |
 
 #### 事件分类
 1. 事件的注册（绑定）
@@ -2038,7 +2037,8 @@
     - 对于动态注册/绑定，获取id操作的script代码**需要写在相关标签之后**，否则，无法正确获取对象。
 
 3. 改进版本
-    - 上面的代码过于松散，可以用`windows.onload`让代码变得更具有结构性。
+    - 上面的代码过于松散，可以用`window.onload`让代码变得更具有结构性。
+    - 这样书写代码的好处在于，可以保证所有获取对象的操作位于所有元素加载完成后。
     ```js
     <!DOCTYPE html>
     <html lang="en">
@@ -2161,32 +2161,31 @@
     <script type="text/javascript">
     //静态注册表单提交事件
     function register() {
-    //先得到输入的用户名和密码
-    var username = document.getElementById("username");
-    var pwd = document.getElementById("pwd");
-    //判断是否为空""
-    if ("" == username.value || "" == pwd.value) {
-    alert("用户名和密码不能为空, 不能提交");
-    return false;//不提交
-    }
-    //表示要提交
-    return true;
+        //先得到输入的用户名和密码
+        var username = document.getElementById("username");
+        var pwd = document.getElementById("pwd");
+        //判断是否为空""
+        if ("" == username.value || "" == pwd.value) {
+            alert("用户名和密码不能为空, 不能提交");
+            return false;//不提交
+        }
+        //表示要提交
+        return true;
     }
     //动态注册表单提交事件
     window.onload = function () {
-    //使用折半法, 观察原页面是否真的是最新的, 是不是修改的页面和访
-    问的页面一致
-    //得到 from2 表单 dom 对象
-    var form2 = document.getElementById("form2");
-    // //给 form2 绑定 onsubmit 事件
-    // 老韩解释 onsubmit 绑定的函数，会直接将结果(f,t)返回给 onsubmit
-    form2.onsubmit = function () {
-    if(form2.username.value == "" || form2.pwd.value == "") {
-    alert("用户名和密码不能为空, 不能提交");
-    return false;//不提交
-    }
-    return true;
-    }
+        //使用折半法, 观察原页面是否真的是最新的, 是不是修改的页面和访问的页面一致
+        //得到 from2 表单 dom 对象
+        var form2 = document.getElementById("form2");
+        // //给 form2 绑定 onsubmit 事件
+        // 老韩解释 onsubmit 绑定的函数，会直接将结果(f,t)返回给 onsubmit
+        form2.onsubmit = function () {
+            if(form2.username.value == "" || form2.pwd.value == "") {
+                alert("用户名和密码不能为空, 不能提交");
+                return false;//不提交
+            }
+            return true;
+        }
     }
     </script>
     </head>
@@ -2216,35 +2215,35 @@
     <script type="text/javascript">
     //动态注册表单提交事件
     window.onload = function () {
-    //使用折半法, 观察原页面是否真的是最新的, 是不是修改的页面和访问的页面一致
-    //得到 from2 表单 dom 对象
-    var form2 = document.getElementById("form2");
-    // //给 form2 绑定 onsubmit 事件
-    // 老韩解释 onsubmit 绑定的函数，会直接将结果(f,t)返回给 onsubmit
-    form2.onsubmit = function () {
-    //过关斩将
-    if (!(form2.username.value.length >= 4 && form2.username.value.length
-    <= 6)) {
-    alert("用户名长度(4-6)");
-    return false;//不提交
-    }
-    if (form2.pwd.value.length != 6) {
-    alert("密码长度(6)");
-    return false;//不提交
-    }
-    if (form2.pwd.value != form2.pwd2.value) {
-    alert("两次密码不等");
-    return false;//不提交
-    }
-    //电子邮件->正则表达式 ^[\\w-]+@([a-zA-Z]+\\.)+[a-zA-Z]+$
-    var emailPatt = /^[\w-]+@([a-zA-Z]+\.)+[a-zA-Z]+$/;
-    if (!emailPatt.test(form2.email.value)) {
-    //4 提示用户
-    alert("电子邮件格式不正确~")
-    return false;
-    }
-    return true;
-    }
+        //使用折半法, 观察原页面是否真的是最新的, 是不是修改的页面和访问的页面一致
+        //得到 from2 表单 dom 对象
+        var form2 = document.getElementById("form2");
+        // //给 form2 绑定 onsubmit 事件
+        // 老韩解释 onsubmit 绑定的函数，会直接将结果(f,t)返回给 onsubmit
+        form2.onsubmit = function () {
+            //过关斩将
+            if (!(form2.username.value.length >= 4 && form2.username.value.length
+            <= 6)) {
+                alert("用户名长度(4-6)");
+                return false;//不提交
+            }
+            if (form2.pwd.value.length != 6) {
+                alert("密码长度(6)");
+                return false;//不提交
+            }
+            if (form2.pwd.value != form2.pwd2.value) {
+                alert("两次密码不等");
+                return false;//不提交
+            }
+            //电子邮件->正则表达式 ^[\\w-]+@([a-zA-Z]+\\.)+[a-zA-Z]+$
+            var emailPatt = /^[\w-]+@([a-zA-Z]+\.)+[a-zA-Z]+$/;
+            if (!emailPatt.test(form2.email.value)) {
+                //4 提示用户
+                alert("电子邮件格式不正确~")
+                return false;
+            }
+            return true;
+        }
     }
     </script>
     </head>
@@ -2538,55 +2537,55 @@
     <meta charset="UTF-8">
     <title>getElementsByName 函数</title>
     <script type="text/javascript">
-    //完成全选
-    function selectAll() {
-    //1.获取到 sport 这一组复选框
-    var sports = document.getElementsByName("sport");
-    //sports 是什么? 是 nodeList 即时一个集合
-    //alert(sports);
-    //2. 拿到[dom ,集合]，操作【属性和方法 api】泥瓦匠|工程师 清华
-    // 遍历 sports， 修改
-    for (var i = 0; i < sports.length; i++) {
-    sports[i].checked = true;//选中
-    }
-    }
-    //全不选
-    function selectNone() {
-    //1.获取到 sport 这一组复选框
-    var sports = document.getElementsByName("sport");
-    //sports 是什么? 是 nodeList 即时一个集合
-    //alert(sports);
-    //2. 拿到[dom ,集合]，操作【属性和方法 api】泥瓦匠|工程师 清华
-    // 遍历 sports， 修改
-    for (var i = 0; i < sports.length; i++) {
-    sports[i].checked = false;//全部不选中
-    }
-    }
-    //反选 selectReverse
-    function selectReverse() {
-    //1.获取到 sport 这一组复选框
-    var sports = document.getElementsByName("sport");
-    //2. 拿到[dom ,集合]，操作【属性和方法 api】泥瓦匠|工程师 清华
-    // 遍历 sports， 修改
-    for (var i = 0; i < sports.length; i++) {
-    // if(sports[i].checked) {//js true
-    // sports[i].checked = false;
-    // } else {
-    // sports[i].checked = true;//选中
-    // }
-    sports[i].checked = !sports[i].checked;
-    }
-    }
+        //完成全选
+        function selectAll() {
+            //1.获取到 sport 这一组复选框
+            var sports = document.getElementsByName("sport");
+            //sports 是什么? 是 nodeList 即时一个集合
+            //alert(sports);
+            //2. 拿到[dom ,集合]，操作【属性和方法 api】泥瓦匠|工程师 清华
+            // 遍历 sports， 修改
+            for (var i = 0; i < sports.length; i++) {
+                sports[i].checked = true;//选中
+            }
+        }
+        //全不选
+        function selectNone() {
+            //1.获取到 sport 这一组复选框
+            var sports = document.getElementsByName("sport");
+            //sports 是什么? 是 nodeList 即时一个集合
+            //alert(sports);
+            //2. 拿到[dom ,集合]，操作【属性和方法 api】泥瓦匠|工程师 清华
+            // 遍历 sports， 修改
+            for (var i = 0; i < sports.length; i++) {
+                sports[i].checked = false;//全部不选中
+            }
+        }
+        //反选 selectReverse
+        function selectReverse() {
+            //1.获取到 sport 这一组复选框
+            var sports = document.getElementsByName("sport");
+            //2. 拿到[dom ,集合]，操作【属性和方法 api】泥瓦匠|工程师 清华
+            // 遍历 sports， 修改
+            for (var i = 0; i < sports.length; i++) {
+                // if(sports[i].checked) {//js true
+                // sports[i].checked = false;
+                // } else {
+                // sports[i].checked = true;//选中
+                // }
+                sports[i].checked = !sports[i].checked;
+            }
+        }
     </script>
     </head>
     <body>
-    你会的运动项目：
-    <input type="checkbox" name="sport" value="zq" checked="checked">足球
-    <input type="checkbox" name="sport" value="tq">台球
-    <input type="checkbox" name="sport" value="ppq">乒乓球 <br/><br/>
-    <button onclick="selectAll()">全选</button>
-    <button onclick="selectNone()">全不选</button>
-    <button onclick="selectReverse()">反选</button>
+        你会的运动项目：
+        <input type="checkbox" name="sport" value="zq" checked="checked">足球
+        <input type="checkbox" name="sport" value="tq">台球
+        <input type="checkbox" name="sport" value="ppq">乒乓球 <br/><br/>
+        <button onclick="selectAll()">全选</button>
+        <button onclick="selectNone()">全不选</button>
+        <button onclick="selectReverse()">反选</button>
     </body>
     </html>
     ```
@@ -2799,21 +2798,21 @@
     <meta charset="UTF-8">
     <title>getElementsByTagName</title>
     <script type="text/javascript">
-    function changeImgs() {
-    //1. 得到所有的 img
-    var imgs = document.getElementsByTagName("img");
-    //老师说 imgs 是 HTMLCollections
-    alert("猫猫的数量是=" + imgs.length);
-    //2. 修改 src,遍历修改
-    for (var i = 0; i < imgs.length; i++) {
-    imgs[i].src = "./img/" + (i+4) +".png";
-    }
-    //3 课后作业->再评讲
-    //思路
-    //(1) input 增加 id, 可以修改 value
-    //(2) 根据 input 的 value 值来决定是切换猫还是狗 if -- else if ---
-    //(3) 其它自己先思考
-    }
+        function changeImgs() {
+            //1. 得到所有的 img
+            var imgs = document.getElementsByTagName("img");
+            //老师说 imgs 是 HTMLCollections
+            alert("猫猫的数量是=" + imgs.length);
+            //2. 修改 src,遍历修改
+            for (var i = 0; i < imgs.length; i++) {
+                imgs[i].src = "./img/" + (i+4) +".png";
+            }
+            //3 课后作业->再评讲
+            //思路
+            //(1) input 增加 id, 可以修改 value
+            //(2) 根据 input 的 value 值来决定是切换猫还是狗 if -- else if ---
+            //(3) 其它自己先思考
+        }
     </script>
     </head>
     <body>
@@ -2864,55 +2863,158 @@
 2. 文档
     https://www.w3school.com.cn/jsref/dom_obj_all.asp
 
+#### 节点常用方法与属性
 
-#### 节点常用方法
+> 说明：DOM 是一棵节点树。**带 `Element` 的属性/方法通常只处理“元素节点(标签)”**；不带 `Element` 的往往会把 **文本节点(#text)、注释** 也算进去。
+> 另外，以下 `getElementsBy*` 多为“复数”，返回集合（HTMLCollection/NodeList）。
 
-1. 获取特定节点
-    ```js
-    document.getElementById("id");
-    ```
-2. 获取特定标签节点
-    ```js
-    document.getElementByTagName("Tag name");
-    ```
-3. 获取特定name节点
-    ```js
-    document.getElementByName("name");
-    ```
-4. 获取某标签下特定节点
-    ```js
-    document.getElementById("select01").getElementByTagName("option");
-    ```
-5. 获取某标签下所有节点
-    ```js
-    parentElement = document.getElementByName("name");
-    // 获取除文本、注释的所有子节点
-    parentElement.children;
-    parentElement[i];
-    // 获取包含文本、注释等在内的所有节点
-    parentElement.childNodes;
-    ```
-6. 获取某标签下第一个子节点
-    ```js
-    // parentElement.children[0]
-    parentElement.firstElementChild;
-    // parentElement.childNode[0]
-    parentElement.firstChild;
-    ```
-7. 获取某节点的父节点
-    ```js
-    childElement.parentElement;
-    ```
+---
+
+1. 获取特定节点（按 id）
+
+* **id 在页面中应唯一**，返回单个元素或 `null`。
+
+```js
+document.getElementById("id");
+```
+
+---
+
+2. 获取特定标签节点（按标签名）
+
+* ✅ 正确方法名是 **getElementsByTagName**（复数）
+* 返回 HTMLCollection（类数组）
+
+```js
+document.getElementsByTagName("tagName");
+```
+
+---
+
+3. 获取特定 name 节点（按 name）
+
+* ✅ 正确方法名是 **getElementsByName**（复数）
+* `name` **可以重复**（radio/checkbox 常用来分组），返回 NodeList
+
+```js
+document.getElementsByName("name");
+```
+
+---
+
+4. 获取某标签下特定节点（限定范围查找）
+
+* 先拿到父元素，再在其内部按标签名找
+
+```js
+document.getElementById("select01").getElementsByTagName("option");
+```
+
+> 更现代/更灵活的写法（CSS 选择器）：
+
+```js
+document.querySelectorAll("#select01 option");
+```
+
+---
+
+5. 获取某标签下所有子节点（children vs childNodes）
+
+> 注意：`document.getElementsByName` 返回的是集合，通常要取其中一个元素再用 `.children/.childNodes`。
+
+```js
+// 示例：先拿到某个元素（例如第 0 个）
+const parentElement = document.getElementsByName("name")[0];
+
+// 只包含“元素节点(标签)”，不含文本/注释
+parentElement.children;      // HTMLCollection
+parentElement.children[i];   // 第 i 个子元素
+
+// 包含“所有子节点”：元素 + 文本(#text) + 注释等
+parentElement.childNodes;    // NodeList
+parentElement.childNodes[i]; // 第 i 个子节点
+```
+
+---
+
+6. 获取某标签下第一个子节点（firstElementChild vs firstChild）
+
+```js
+// 第一个“子元素节点”(标签)
+parentElement.firstElementChild;  // 等价于 parentElement.children[0]
+
+// 第一个“子节点”（可能是 #text 换行空格）
+parentElement.firstChild;         // 等价于 parentElement.childNodes[0]
+```
+
+---
+
+7. 获取某节点的父节点（parentElement vs parentNode）
+
+```js
+// 父节点是“元素”才返回，否则为 null（推荐用于元素链路）
+childElement.parentElement;
+
+// 返回父“节点”（可能是 Document 等）
+childElement.parentNode;
+```
+
+---
+
 8. 获取某节点的前后兄弟节点
-    ```js
-    // 选取的节点包含文本
-    element.previousElementSibling;
-    element.nextElementSibling
-    ```
-9. 获取某节点的value
-    ```js
-    element.value;
-    ```
+
+> 你原文注释“包含文本”更适用于 `previousSibling/nextSibling`。
+> `previousElementSibling/nextElementSibling` 只返回“兄弟元素”。
+
+```js
+// 前后兄弟“元素”（只看标签，不含 #text）
+element.previousElementSibling;
+element.nextElementSibling;
+
+// 前后兄弟“节点”（可能是 #text / 注释）
+element.previousSibling;
+element.nextSibling;
+```
+
+---
+
+9. 获取某节点的 value（表单控件）
+
+* `value` 主要用于 **input / textarea / select** 等表单元素
+
+```js
+element.value;
+```
+
+> 普通标签（div/p/span）要取文本一般用：
+
+```js
+element.textContent; // 推荐：纯文本，不解析 HTML
+// element.innerText; // 更接近“可见文本”，受样式影响
+// element.innerHTML; // 获取/设置内部 HTML（会解析，有 XSS 风险）
+```
+
+---
+
+10. 常用补充：更推荐的选择器（querySelector）
+
+```js
+// 选中第一个匹配元素
+document.querySelector("#form2 input[name='username']");
+
+// 选中所有匹配元素
+document.querySelectorAll("#select01 option");
+```
+
+---
+小提示（避免踩坑）
+
+* `childNodes/firstChild/nextSibling` 经常碰到 `#text`（换行缩进导致），想只操作标签优先用 **children/firstElementChild/nextElementSibling**。
+* `name` 经常重复，`getElementsByName` 返回的是集合；想唯一定位一个元素，用 `id` 或更精确的 `querySelector`。
+
+---
+
+
 
 #### 案例：乌龟吃鸡
 
@@ -2925,59 +3027,59 @@
     <title>乌龟吃鸡游戏</title>
     <style type="text/css">
         body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        background-color: #f0f0f0;
-        margin: 0;
-        padding: 20px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
         }
         .game-container {
-        margin: 0 auto;
-        max-width: 500px;
+            margin: 0 auto;
+            max-width: 500px;
         }
         h1 {
-        color: #333;
+            color: #333;
         }
         table {
-        border-collapse: collapse;
-        margin: 20px auto;
-        background-color: #fff;
+            border-collapse: collapse;
+            margin: 20px auto;
+            background-color: #fff;
         }
         td {
-        width: 50px;
-        height: 50px;
-        border: 1px solid #ccc;
-        text-align: center;
-        font-size: 24px;
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ccc;
+            text-align: center;
+            font-size: 24px;
         }
         .turtle {
-        background-color: green;
-        color: white;
+            background-color: green;
+            color: white;
         }
         .chicken {
-        background-color: yellow;
-        color: black;
+            background-color: yellow;
+            color: black;
         }
         .controls {
-        margin: 10px 0;
+            margin: 10px 0;
         }
         button {
-        padding: 10px 15px;
-        margin: 5px;
-        font-size: 16px;
-        cursor: pointer;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 4px;
+            padding: 10px 15px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
         }
         button:hover {
-        background-color: #45a049;
+            background-color: #45a049;
         }
         #score {
-        font-size: 20px;
-        margin: 10px;
-        color: #333;
+            font-size: 20px;
+            margin: 10px;
+            color: #333;
         }
     </style>
     <script type="text/javascript">
@@ -2989,108 +3091,108 @@
 
         // 页面加载完成后初始化游戏
         window.onload = function() {
-        initGame();
-        setupEventListeners();
+            initGame();
+            setupEventListeners();
         };
 
         // 初始化游戏：生成网格和随机鸡位置
         function initGame() {
-        generateGrid();
-        generateChicken();
-        updateDisplay();
+            generateGrid();
+            generateChicken();
+            updateDisplay();
         }
 
         // 生成游戏网格
         function generateGrid() {
-        const gameGrid = document.getElementById('gameGrid');
-        gameGrid.innerHTML = ''; // 清空现有网格
-        for (let i = 0; i < gridSize; i++) {
-            const row = document.createElement('tr');
-            for (let j = 0; j < gridSize; j++) {
-            const cell = document.createElement('td');
-            cell.id = `cell-${i}-${j}`;
-            row.appendChild(cell);
+            const gameGrid = document.getElementById('gameGrid');
+            gameGrid.innerHTML = ''; // 清空现有网格
+            for (let i = 0; i < gridSize; i++) {
+                const row = document.createElement('tr');
+                for (let j = 0; j < gridSize; j++) {
+                    const cell = document.createElement('td');
+                    cell.id = `cell-${i}-${j}`;
+                    row.appendChild(cell);
+                }
+                gameGrid.appendChild(row);
             }
-            gameGrid.appendChild(row);
-        }
         }
 
         // 随机生成鸡的位置
         function generateChicken() {
-        // 确保鸡不生成在乌龟当前位置
-        let newRow, newCol;
-        do {
-            newRow = Math.floor(Math.random() * gridSize);
-            newCol = Math.floor(Math.random() * gridSize);
-        } while (newRow === turtlePosition.row && newCol === turtlePosition.col);
+            // 确保鸡不生成在乌龟当前位置
+            let newRow, newCol;
+            do {
+                newRow = Math.floor(Math.random() * gridSize);
+                newCol = Math.floor(Math.random() * gridSize);
+            } while (newRow === turtlePosition.row && newCol === turtlePosition.col);
 
-        chickenPosition = { row: newRow, col: newCol };
+            chickenPosition = { row: newRow, col: newCol };
         }
 
         // 更新游戏显示：绘制乌龟和鸡
         function updateDisplay() {
-        // 清除所有单元格
-        for (let i = 0; i < gridSize; i++) {
-            for (let j = 0; j < gridSize; j++) {
-            const cell = document.getElementById(`cell-${i}-${j}`);
-            cell.className = '';
-            cell.textContent = '';
+            // 清除所有单元格
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    const cell = document.getElementById(`cell-${i}-${j}`);
+                    cell.className = '';
+                    cell.textContent = '';
+                }
             }
-        }
 
-        // 绘制乌龟
-        const turtleCell = document.getElementById(`cell-${turtlePosition.row}-${turtlePosition.col}`);
-        turtleCell.className = 'turtle';
-        turtleCell.textContent = '龟';
+            // 绘制乌龟
+            const turtleCell = document.getElementById(`cell-${turtlePosition.row}-${turtlePosition.col}`);
+            turtleCell.className = 'turtle';
+            turtleCell.textContent = '龟';
 
-        // 绘制鸡
-        const chickenCell = document.getElementById(`cell-${chickenPosition.row}-${chickenPosition.col}`);
-        chickenCell.className = 'chicken';
-        chickenCell.textContent = '鸡';
+            // 绘制鸡
+            const chickenCell = document.getElementById(`cell-${chickenPosition.row}-${chickenPosition.col}`);
+            chickenCell.className = 'chicken';
+            chickenCell.textContent = '鸡';
 
-        // 更新得分显示
-        document.getElementById('score').textContent = `得分: ${score}`;
+            // 更新得分显示
+            document.getElementById('score').textContent = `得分: ${score}`;
         }
 
         // 移动乌龟
         function moveTurtle(direction) {
-        let newRow = turtlePosition.row;
-        let newCol = turtlePosition.col;
+            let newRow = turtlePosition.row;
+            let newCol = turtlePosition.col;
 
-        switch (direction) {
-            case 'up':
-            newRow = Math.max(0, turtlePosition.row - 1);
-            break;
-            case 'down':
-            newRow = Math.min(gridSize - 1, turtlePosition.row + 1);
-            break;
-            case 'left':
-            newCol = Math.max(0, turtlePosition.col - 1);
-            break;
-            case 'right':
-            newCol = Math.min(gridSize - 1, turtlePosition.col + 1);
-            break;
-        }
+            switch (direction) {
+                case 'up':
+                newRow = Math.max(0, turtlePosition.row - 1);
+                break;
+                case 'down':
+                newRow = Math.min(gridSize - 1, turtlePosition.row + 1);
+                break;
+                case 'left':
+                newCol = Math.max(0, turtlePosition.col - 1);
+                break;
+                case 'right':
+                newCol = Math.min(gridSize - 1, turtlePosition.col + 1);
+                break;
+            }
 
-        turtlePosition = { row: newRow, col: newCol };
-        checkEatChicken();
-        updateDisplay();
+            turtlePosition = { row: newRow, col: newCol };
+            checkEatChicken();
+            updateDisplay();
         }
 
         // 检查是否吃到鸡
         function checkEatChicken() {
-        if (turtlePosition.row === chickenPosition.row && turtlePosition.col === chickenPosition.col) {
-            score++;
-            generateChicken();
-        }
+            if (turtlePosition.row === chickenPosition.row && turtlePosition.col === chickenPosition.col) {
+                score++;
+                generateChicken();
+            }
         }
 
         // 设置按钮事件监听器
         function setupEventListeners() {
-        document.getElementById('up').addEventListener('click', () => moveTurtle('up'));
-        document.getElementById('down').addEventListener('click', () => moveTurtle('down'));
-        document.getElementById('left').addEventListener('click', () => moveTurtle('left'));
-        document.getElementById('right').addEventListener('click', () => moveTurtle('right'));
+            document.getElementById('up').addEventListener('click', () => moveTurtle('up'));
+            document.getElementById('down').addEventListener('click', () => moveTurtle('down'));
+            document.getElementById('left').addEventListener('click', () => moveTurtle('left'));
+            document.getElementById('right').addEventListener('click', () => moveTurtle('right'));
         }
     </script>
     </head>
@@ -3188,7 +3290,7 @@
     - XML 元素指 XML 文件中出现的标签，一个标签分为开始标签和结束标签
     - 包含标签体写法：`<a>www.sohu.cn</a>`。
     - 不含标签体的：`<a></a>`, 简写为：`<a/>`。
-    - 一个标签中也可以嵌套若干子标签。但所有标签必须合理的嵌套，绝对不允许交叉嵌。
+    - 一个标签中也可以嵌套若干子标签。但所有标签必须合理的嵌套，绝对不允许交叉嵌套。
 3. 在很多时候，说 标签、元素、节点是相同的意思
 4. XML 元素命名规则
     - 区分大小写，例如，`<P>`和`<p>`是两个不同的标记。
@@ -3305,7 +3407,7 @@
 
         public void loadXML(String url) throws DocumentException {
             SAXReader saxReader = new SAXReader();
-            Document read = saxReader.read(new File(url));
+            Document document = saxReader.read(new File(url));
             System.out.println(read);
         }
     }
@@ -3482,7 +3584,7 @@
                 System.out.println("client connected!!!");
                 outputStream = clientSocket.getOutputStream();
 
-                outputStream.write("Hello World!".getBytes());
+    //            outputStream.write("Hello World!".getBytes());
     //            outputStream.flush();
 
                 BufferedReader bufferedReader =
@@ -3506,7 +3608,58 @@
     }
 
     ```
+    - 加了响应头的升级版
+        ```java
+        import java.io.*;
+        import java.net.ServerSocket;
+        import java.net.Socket;
+        import java.nio.file.Files;
+        import java.nio.file.Path;
+        import java.nio.file.Paths;
 
+        public class Server02 {
+            public static void main(String[] args) {
+                try (ServerSocket serverSocket = new ServerSocket(9999)) {
+                    System.out.println("Server started on port 9999...");
+
+                    while (!serverSocket.isClosed()) {
+                        try (Socket clientSocket = serverSocket.accept();
+                            OutputStream outputStream = clientSocket.getOutputStream()) {
+
+                            System.out.println("Client connected!!!");
+
+                            // 读取HTML文件内容
+                            Path htmlPath = Paths.get("src/hello.html");
+                            byte[] fileContent = Files.readAllBytes(htmlPath);
+
+                            // 构建完整的HTTP响应
+                            String responseHeaders = "HTTP/1.1 200 OK\r\n" +
+                                    "Content-Type: text/html\r\n" +
+                                    "Content-Length: " + fileContent.length + "\r\n" +
+                                    "Connection: close\r\n" +  // 明确告知浏览器关闭连接
+                                    "\r\n";
+
+                            // 发送响应
+                            outputStream.write(responseHeaders.getBytes());
+                            outputStream.write(fileContent);
+                            outputStream.flush();
+
+                            System.out.println("Response sent successfully.");
+                        } catch (IOException e) {
+                            // 专门处理客户端断开连接的情况
+                            if (e.getMessage().contains("abort") || e.getMessage().contains("reset")) {
+                                System.err.println("Client disconnected prematurely");
+                            } else {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        ```
 3. 常用javaweb服务软件
     - `Tomcat`：由 Apache 组织提供的一种 Web 服务器，提供对 jsp 和 Servlet 的支持。它是一种轻量级的 javaWeb 容器（服务器），也是当前应用最广的 JavaWeb 服务器（免费）。
     - `Jboss`：是一个遵从 JavaEE 规范的、它支持所有的 JavaEE 规范（免费）。
@@ -3545,9 +3698,9 @@
 5. 启动故障排除
     - 双击 startup.bat 文件，出现一个小黑窗口然后就没了，原因是因为没有配置好JAVA_HOME 环境变量
     - Tomcat 本质是一个 Java 程序，所以要 jdk, 会去根据 JAVA_HOME 使用指定 jdk
-    - JAVA_HOME 必须全大写
-    - JAVA_HOME 中间必须是下划线
-    - JAVA_HOME 配置的路径只需要配置到 jdk 的安装目录即可。不需要带上 bin 目录
+    - `JAVA_HOME` 必须全大写
+    - `JAVA_HOME` 中间必须是下划线
+    - `JAVA_HOME` 配置的路径只需要配置到 jdk 的安装目录即可。不需要带上 bin 目录
     - 端口 8080 被占用 [查看端口 netstat -anb, 使用的非常多]
     - 如果其它服务程序占用了 8080 端口，可以关闭该服务，或者修改 Tomcat 服务的默认端口 8080 [后面讲]
     - 配置 JAVA_HOME 环境变量
@@ -3558,7 +3711,7 @@
     ![javaweb_TomCat_dir_structure](./img/javaweb_TomCat_dir_structure.png)
 
 2. `conf`
-    - `server.xml`：TomCat的基本设置。（启动端口、主机名等）
+    - `server.xml`：TomCat的基本设置。（启动端口、主机名等），可以通过修改这里的配置，修改TomCat服务端口。
     - `web.xml`：用于指定TomCat运行时配置。（serverlet等）
 
 #### 停止 Tomcat
@@ -3697,7 +3850,7 @@
 
 2. 端口修改
     - IDEA中TomCat的端口可以任意修改，修改的端口会即刻生效且只作用于当前项目，不会修改`server.xml`。
-    - **手动启动和IDEA启动的TomCat不能使用同一端口！！！**
+    - 当同时运行两个tomcat时，**手动启动和IDEA启动的TomCat不能使用同一端口！！！**
 
 3. `out`目录
     当tomcat启动时，会生成out目录，该目录就是原项目资源的映射，我们浏览器访问的资源是out目录。
@@ -3752,7 +3905,7 @@
 
 1. 需求
     - 开发一个 HelloServlet
-    - 当浏览器 访问 http://localhost:8080/web 应用名/helloServlet 时，**后台**输出 "hi HelloServelt"
+    - 当浏览器 访问 `http://localhost:8080/web 应用名/helloServlet` 时，**后台**输出 "hi HelloServelt"
 2. 具体步骤
     - 编写类`HelloServlet`去实现 Servlet 接口
     - 实现 service 方法，处理请求，并响应数据
@@ -4158,7 +4311,7 @@
     - `@WebServlet("/*.action")`**写法不规范**，不能带 `/` ，否则 tomcat 报错
     
 4. 任意匹配
-    - 配置路径：@WebServlet("/") @WebServlet("/*")
+    - 配置路径：`@WebServlet("/")`、`@WebServlet("/*")`
     - 访问文件：`http://localhost:8080/servlet01/aaa`、 `http://localhost:8080/servlet01/bbb`、 `http://localhost:8080/servlet01/ccc`...
     - `/` 和 `/*`的配置，会匹配所有的请求，这个比较麻烦，要避免。
     - 值得注意的是，`/` 和 `/*`是两个不完全相同的配置。
@@ -4221,10 +4374,10 @@
     <servlet>
         <servlet-name>DBServlet</servlet-name>
         <servlet-class>com.lcq.servlet.DBServlet</servlet-class>
-    <init-param>
-        <param-name>username</param-name>
-        <param-value>root</param-value>
-    </init-param>
+        <init-param>
+            <param-name>username</param-name>
+            <param-value>root</param-value>
+        </init-param>
         <init-param>
             <param-name>password</param-name>
             <param-value>lcq</param-value>
@@ -5414,6 +5567,10 @@
         | **test** | **仅用于测试阶段**。编译和运行测试代码时有效。 | ❌ 否 | 测试框架，如 `JUnit`, `Mockito` |
         | **system** | 与 `provided` 类似，但必须通过 `systemPath` 显式指定本地jar路径。**不推荐使用**。 | ❌ 否 | 本地系统中一个不在Maven仓库中的JAR包。 |
         | **import** | 仅用于 `dependencyManagement` 部分，表示从另一个POM中导入依赖管理配置。 | - | 在父POM中管理多模块项目的公共依赖版本。 |
+
+#### 使用技巧
+
+1. 建议通过 https://mvnrepository.com/ 搜索需要的包，并复制相应的dependency代码。
     
 ### TomCat底层架构详解
 
@@ -6132,7 +6289,7 @@
 #### 服务端转发重定向
 
 1. 简介
-    - 在实际开发中，往往不是直接访问一个资源，而是在服务端进行转发或者重定向来访问资源。
+    - **在实际开发中，往往不是直接访问一个资源，而是在服务端进行转发或者重定向来访问资源。**
 
 2. 服务端（Servlet）的路径
     - 服务端的相对路径以斜杠开头，相当于`http://localhost:port/proj/`，斜杠即代表包含项目名（TomCat配置的根路径）。
@@ -6148,7 +6305,7 @@
 1. 相对路径与绝对路径
     - 相对路径用`.`表示当前目录，用`..`上级目录。
     - 对于一个不以斜杠打头的路径`source`，默认为`./source`。
-    - 绝对路径：`http:ip:port/proj/soource`
+    - 绝对路径：`http:ip:port/proj/source`
 
 2. 实际开发中，路径均使用绝对路径。
 3. 在Web中，斜杠`/`如果被**浏览器**解析，则地址为：`http://ip:port/`，如href参数
@@ -6544,6 +6701,8 @@
 2. 一个 WEB 站点可以给一个浏览器发送多个 Cookie，一个浏览器也可以存储多个 WEB 站点提供的 Cookie。
 3. cookie 的总数量没有限制，但是每个域名的 COOKIE 数量和每个 COOKIE 的大小是有限制的 (不同的浏览器限制不同， 知道即可) ， Cookie 不适合存放数据量大的信息。
 4. **删除 cookie 时，path 必须一致，否则不会删除**
+    - 当不指定路径时，默认为当前路径。
+    - 当请求转发时，默认请求转发后的路径。
 5. Java servlet 中 cookie 中文乱码解决
     - 如果存放中文的 cookie， 默认报错， 可以通过 URL 编码和解码来解决， 不建议存放中文的 cookie 信息
     - 编码
@@ -6599,7 +6758,7 @@
 
 3. 存储结构
     - Session是一个类似HashMap的容器，有两列（K-v）每一行就是Session的一个属性。
-    - 每个属性包含两部分，宿命的名字(String)和属性的值（Object）
+    - 每个属性包含两部分，属性的名字(String)和属性的值（Object）
 
 #### Session常用方法
 
@@ -6723,7 +6882,8 @@
     ```
 4. 读取
     ```java
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
+            throws ServletException, IOException {
         HttpSession session = req.getSession();
         Object create02 = session.getAttribute("create02");
 
@@ -6789,3 +6949,4984 @@
         out.close();
     }
     ```
+
+## 服务器渲染技术
+
+### 章节目录
+
+1. JSP（会使用即可）
+2. Thymeleaf
+
+3. 写在前面（JSP）
+    - 可以上51job、拉勾网等招聘网站搜索一下这两个关键词，看一下岗位热度。
+    - 目前主流技术为前后端分离，如：Spring Boot + Vue/React.
+    - JSP的使用在逐渐减少，但不代表不再使用，老项目和中小公司仍然使用JSP，工作期间很有可能遇到JSP项目。
+    - JSP的使用在逐步减少，最佳的技术策略是：对于JSP，能基本使用、能看懂、能维护相关项目、不用深入。
+
+### JSP （会使用即可）
+
+#### 为什么需要JSP
+
+1. 开发过程中，Servlet制作前端页面非常不方便。
+2. HTML页面无法动态获取数据。
+
+3. 技术引出
+    - jsp = html + java代码 + 标签 + javascript + css
+    - `javax.servlet.jsp`
+    - `javax.servlet.jsp.el`
+    - `javax.servlet.jsp.tagext`
+
+#### JSP 基本介绍
+
+1. JSP：Java Server Pages（Java服务器页面），即服务器渲染技术。
+2. JSP技术的特点在于，写JSP就像写HTML，掌握成本低。（Vue技术适用前后端分离，学习成本远高于JSP，建议后端程序员掌握JSP）
+    - 相比HTML只能提供静态数据，JSP技术允许在页面中嵌套Java代码，为用户获取数据。
+    - 相比Servlet难以对页面进行排版，jsp在可以用java代码产生动态数据的同时，也很容易对数据进行排版。
+3. JSP技术基于Servlet，可以理解成JSP就是对Servlet的包装。
+4. 会使用JSP，再使用Thymeleaf上手难度相对更低。
+
+#### JSP 快速入门
+
+1. 注意事项
+    - 将jsp文件放在web文件夹下。
+
+2. `pom.xml`
+    ```xml
+    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+      <modelVersion>4.0.0</modelVersion>
+      <groupId>com.lcq</groupId>
+      <artifactId>jsp</artifactId>
+      <packaging>war</packaging>
+      <version>1.0-SNAPSHOT</version>
+      <name>jsp Maven Webapp</name>
+      <url>http://maven.apache.org</url>
+      <dependencies>
+        <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>3.8.1</version>
+          <scope>test</scope>
+        </dependency>
+          <!-- Servlet API -->
+          <dependency>
+              <groupId>javax.servlet</groupId>
+              <artifactId>javax.servlet-api</artifactId>
+              <version>4.0.1</version>
+              <scope>provided</scope>
+          </dependency>
+    
+          <!-- JSP API -->
+          <dependency>
+              <groupId>javax.servlet.jsp</groupId>
+              <artifactId>javax.servlet.jsp-api</artifactId>
+              <version>2.3.3</version>
+              <scope>provided</scope>
+          </dependency>
+    
+          <!-- 安全的JSTL实现（仅包含核心功能，不包含XML处理） -->
+          <dependency>
+              <groupId>org.apache.taglibs</groupId>
+              <artifactId>taglibs-standard-impl</artifactId>
+              <version>1.2.5</version>
+          </dependency>
+    
+          <dependency>
+              <groupId>org.apache.taglibs</groupId>
+              <artifactId>taglibs-standard-spec</artifactId>
+              <version>1.2.5</version>
+          </dependency>
+      </dependencies>
+      <build>
+        <finalName>jsp</finalName>
+      </build>
+    </project>
+    ```
+
+3. `first.jsp`
+    ```jsp
+    <%--
+    Created by IntelliJ IDEA.
+    User: 85035
+    Date: 2025/11/23
+    Time: 22:04
+    To change this template use File | Settings | File Templates.
+    --%>
+    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <html>
+    <head>
+        <title>计算器</title>
+    </head>
+    <body>
+    <%
+        // 在当前标签中，可以写java代码。
+        int a = 666;
+        int b = 999;
+        out.println("a+b=" + (a + b));
+    %>
+    </body>
+    </html>
+    ```
+
+#### JSP 运行原理
+
+1. 介绍
+    - JSP 页面本质就是一个Servlet程序（Java程序），性能与Java关联。
+    - 第一次访问JSP文件时，TomCat会将其解析成java源文件，然后编译成为`.class`字节码程序。比如`a.jsp`文件对应`a_jsp.java`和`a_jsp.class`文件。文件路径在TomCat启动时的`Using CATALINA_BASE`的目录下，找work文件夹下的文件。
+    - 在生成的代码中，继承了HttpJspBase类，这是一个Servlet的子类，有比Servlet原生接口更强大的功能。
+
+#### JSP 常用语法
+
+1. page指令
+    ```jsp
+    <%@ page contentType="text/html;character=UTF-8" language="java" %>
+    <%@ page import="org.apache.jasper.runtime.HttpJspBase" %>
+    ```
+    - `language`：表示jsp翻译后是什么语言文件，只支持java
+    - `contentType`：表示jsp返回的数据类型，对应源码中的`resp.contentType()`
+    - `pageEncoding`：当前jsp页面文件本身的字符集
+    - `import`：作用同java
+
+#### JSP 常用脚本
+
+1. 声明脚本
+    - `<%! [声明java代码] %>`
+    - 作用：定义JSP的需要属性、方法、静态代码块、内部类等。**即为`statement_jsp`类定义属性。**
+    - 示例
+        ```jsp
+        <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+        <html>
+        <head>
+            <title>声明脚本</title>
+        </head>
+        <body>
+        <h1>声明脚本</h1>
+        <%!
+            // 声明需要的属性、方法、静态代码块、内部类
+            private String name = "lcq";
+            static private int age;
+        
+            public String getName(){
+                return name ;
+            }
+        
+            static {
+                age=6666;
+            }
+        %>
+        </body>
+        </html>
+        ```
+    
+2. 表达式脚本
+    - `<%= [表达式] %>`
+    - 作用：在jsp页面输出数据。
+    - 只要有值返回，就是表达式。
+    - 表达式脚本中的表达式不能以分号结束。
+    - 示例
+        ```jsp
+        <html>
+        <head>
+            <title>表达式脚本</title>
+        </head>
+        <body>
+        <%!
+        String name = "abc";
+        %>
+        <%= "名字：" + name %>
+        </body>
+        </html>
+        ```
+
+3. 代码脚本
+    - `<% [java代码] %>`
+    - 作用：在jsp页面中编写我们需要的功能。
+    - 可以由多个代码脚本块组合完成一个完整的java语句
+    - 代码脚本可以和表达式脚本组合使用输出数据。
+    - 示例
+        ```jsp
+        <html>
+        <head>
+            <title>javacode</title>
+        </head>
+        <body>
+        <%!
+            List<Employee> list = new ArrayList<>();
+        %>
+
+        <%
+            list.add(new Employee(1, "aha", 18));
+            list.add(new Employee(2, "zhang", 20));
+        %>
+
+        <table>
+            <%
+                for (int i = 0; i < list.size(); i++) {
+                    Employee employee = list.get(i);
+            %>
+            <tr>
+                <td><%= employee.getId() %>
+                </td>
+                <td><%= employee.getName() %>
+                </td>
+                <td><%= employee.getAge() %>
+                </td>
+            </tr>
+            <%
+                }
+            %>
+
+        </table>
+        </body>
+        </html>
+        ```
+
+#### JSP 注释
+
+1. HTML注释
+    ```jsp
+    <!-- HTML注释 -->
+    ```
+2. java注释
+    ```jsp
+    <%
+    // java注释1
+    /* java注释2 */
+    %>
+    ```
+3. 特有注释
+    ```jsp
+    <%-- jsp注释 --%>
+    ```
+
+#### JSP 内置对象
+
+1. 基本介绍
+    - JSP内置对象（inbuild，已经创建好，直接使用的对象），指的是TomCat在翻译JSP页面成为Servlet后，内部提供的九大对象，称为内置对象。
+    - 内置对象可以直接使用，无需手动定义。
+
+2. 九大内置对象
+    - `out`：`JspWriter`类，用于直接向客户端输出数据。
+    - `request`：客户端的HTTP请求。
+    - `response`：`HttpServletResponse`类，响应对象。
+    - `session`：会话对象。
+    - `application`：对应`ServletContext`类。
+    - `pageContext`：域对象，作用范围只在本页面，可以存放属性。
+    - `exception`：使用较少
+    - `page`：对应实例本身。`this`
+    - `config`：`ServletConfig`类。
+    
+
+3. 对应源码
+    ```java
+    public void _jspService(final javax.servlet.http.HttpServletRequest request, final javax.servlet.http.HttpServletResponse response)
+            throws java.io.IOException, javax.servlet.ServletException {
+
+    final java.lang.String _jspx_method = request.getMethod();
+    if (!"GET".equals(_jspx_method) && !"POST".equals(_jspx_method) && !"HEAD".equals(_jspx_method) && !javax.servlet.DispatcherType.ERROR.equals(request.getDispatcherType())) {
+    response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "JSPs only permit GET POST or HEAD");
+    return;
+    }
+
+        final javax.servlet.jsp.PageContext pageContext;
+        javax.servlet.http.HttpSession session = null;
+        final javax.servlet.ServletContext application;
+        final javax.servlet.ServletConfig config;
+        javax.servlet.jsp.JspWriter out = null;
+        final java.lang.Object page = this;
+        javax.servlet.jsp.JspWriter _jspx_out = null;
+        javax.servlet.jsp.PageContext _jspx_page_context = null;
+    ```
+
+#### JSP 域对象
+
+1. 简介
+    - 域对象的基本作用：在某个范围存取数据的对象。
+    - 域指的是在多个页面之间的范围。
+
+2. `pageContext`
+    - 存放的数据只能在当前页面使用。
+    - 以此法存的数据，请求转发或重定向到其他页面后，均无法访问。
+3. `request`
+    - 存放的数据在一次Http请求期间有效。
+    - 比如进行请求转发，request被携带到下一个页面，可以取出存储的属性。
+    - 重定向已经是新的请求，无法读取数据。
+4. `session`
+    - 在多次Http请求中，只要会话没有发生改变，就可以一直取。
+    - 请求转发与重定向，只要会话不改变，就可以取出属性。
+5. `application`
+    - 在整个Web应用运行期间均有效。
+    - 只要TomCat没有重启，就可以取出相关数据。（因为这个对象是在第一次调用相应Servlet时创建的，直至服务器关闭）
+
+6. 示例
+    ```jsp
+    <html>
+    <head>
+        <title></title>
+    </head>
+    <body>
+    <%
+        pageContext.setAttribute("key1", "1");
+        request.setAttribute("key1", "2");
+        session.setAttribute("key1", "3");
+        application.setAttribute("key1", "4");
+        //request.getRequestDispatcher("/scope2.jsp").forward(request, response);
+        //response.sendRedirect(application.getContextPath()+"/scope2.jsp");
+    %>
+    <div><%="pageContext(key1):"+pageContext.getAttribute("key1")%></div>
+    <div><%="request(key1):"+request.getAttribute("key1")%></div>
+    <div><%="session(key1):"+session.getAttribute("key1")%></div>
+    <div><%="application(key1):"+application.getAttribute("key1")%></div>
+    </body>
+    </html>
+    ```
+
+7. 注意事项和细节
+    - 域对象可以像Map一样存取数据，四个域对象功能一样，不同的是对数据的存储范围。
+    - 从作用范围看，`pageContext < request < session < application`
+
+#### JSP 请求转发标签
+
+1. 要求，访问页面A时，请求转发到页面B。
+
+2. 示例
+    ```jsp
+    <jsp:forward page="/a.jsp"></jsp:forward>
+    ```
+
+3. 意义
+    - 可以用于登录“门卫”，通过验证不同的表单信息，跳转到不同的页面。
+    - 当jsp渲染过程中遇到转发标记时，会立刻清除缓冲区，转而发送请求转发后的页面。
+    - 请求转发标记的清除缓冲区并成功转发的这一行为只会出现在内容未提交时，如果缓存区已经满了一次（一般是8kb），则后续到达的请求转发相关内容会转而带一个`IllegalStateException`（响应已提交，无法转发）。
+
+4. 示例程序
+    ```jsp
+    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <html>
+    <head>
+        <title>登录处理中...</title>
+    </head>
+    <body>
+
+    <%
+        // 1. 获取用户输入的用户名
+        String username = request.getParameter("username");
+        
+        // 2. 简单的业务逻辑判断
+        if (username == null || username.trim().isEmpty()) {
+            // 情况A：用户名为空
+            
+            // 【关键操作】使用 jsp:forward 转发到 error.jsp
+            // 同时传递一个参数 msg 告诉错误页具体错哪了
+    %>
+            <jsp:forward page="/error.jsp">
+                <jsp:param name="msg" value="用户名不能为空！" />
+            </jsp:forward>
+    <%
+            // 注意：上面的 forward 执行后，下面的代码永远不会运行！
+            // out.println("这行代码不会执行"); 
+        } else if ("admin".equals(username)) {
+            // 情况B：如果是 admin，故意转发到一个特殊的禁止页面（演示多次转发可能）
+            // 这里为了简单，我们直接放行到 welcome，但演示带参数
+    %>
+            <jsp:forward page="/welcome.jsp">
+                <jsp:param name="role" value="管理员" />
+            </jsp:forward>
+    <%
+        } else {
+            // 情况C：普通用户
+    %>
+            <jsp:forward page="/welcome.jsp">
+                <jsp:param name="role" value="普通用户" />
+            </jsp:forward>
+    <%
+        }
+    %>
+
+    <!-- 
+        这段内容永远不会被浏览器看到！
+        因为无论上面走哪个分支，都会执行 forward，程序直接结束。
+    -->
+    <h1>正在处理逻辑，请稍后...</h1>
+
+    </body>
+    </html>
+    ```
+
+
+#### 附加内容
+
+1. JSP模板配置
+    - 通过`文件-设置-编辑器-文件和代码模板-其他`找到jsp模板，然后在其中修改，即可改变默认生成的模板。
+
+### EL表达式
+
+#### 基本介绍
+
+1. 介绍
+    - 全称：Expression Language，表达式语言。
+    - 主要用于代替jsp页面中的表达式脚本`<%=req.getAttribute("...")%>`。
+    - EL表达式输出数据时，比jsp表达式脚本简洁。
+    - 基本语法：`${key1}`。语法糖。
+
+2. 问题解决
+    - 如果前端无法正常显示EL表达式，尝试更改第一行
+        ```jsp
+        <%@ page contentType="text/html;charset=UTF-8" isELIgnored="false" language="java" %>
+        ```
+
+3. EL 表达式的优势
+    - 若直接使用`request.getAttribute()`，值为空时返回`null`，el则返回空串`""`。
+
+
+#### 输出形式
+
+1. EL表达式常用输出Bean的普通属性、数组属性、List属性、Map属性
+
+2. 示例
+    - `Book.java`
+        ```java
+        public class Book {
+            private String name;
+            private String[] writers;
+            private List<String> readers;
+            private Map<String, String> topics;
+            //...
+        }
+        ```
+    - `elout.jsp`
+        ```js
+        <%@ page contentType="text/html;charset=UTF-8" isELIgnored="false" language="java" %>
+        <html>
+        <head>
+            <title>elout</title>
+        </head>
+        <body>
+        <%
+            Book book = new Book();
+            book.setName("图书1");
+            book.setWriters(new String[]{"作者1", "作者2"});
+            ArrayList<String> readers = new ArrayList<>();
+            readers.add("a");
+            readers.add("b");
+            book.setReaders(readers);
+            HashMap<String, String> topics = new HashMap<>();
+            topics.put("a", "b");
+            book.setTopics(topics);
+
+            request.setAttribute("bookkey", book);
+        %>
+        book:${bookkey}<br>
+        book.name:${bookkey.name}<br><%-- 本质上是调用Book.getName() --%>
+        book.writer:${bookkey.writers}<br>
+        book.reader:${bookkey.readers}<br>
+        book.topics:${bookkey.topics}
+
+        <%--book:Book{name='图书1', writers=[作者1, 作者2], readers=[a, b], topics={a=b}}--%>
+        <%--book.name:图书1--%>
+        <%--book.writer:[Ljava.lang.String;@1e97be1--%>
+        <%--book.reader:[a, b]--%>
+        <%--book.topics:{a=b}--%>
+
+        </body>
+        </html>
+        ```
+
+#### EL 运算操作
+
+1. 基本语法
+语法：`${运算表达式}`
+
+2. 关系运算
+
+| 关系运算符 | 说明 | 范例 | 结果 |
+|---------|------|------|------|
+| `==` 或 `eq` | 等于 | `${5 == 5}` 或 `${5 eq 5}` | true |
+| `!=` 或 `ne` | 不等于 | `${5 != 3}` 或 `${5 ne 3}` | true |
+| `<` 或 `lt` | 小于 | `${3 < 5}` 或 `${3 lt 5}` | true |
+| `>` 或 `gt` | 大于 | `${5 > 3}` 或 `${5 gt 3}` | true |
+| `<=` 或 `le` | 小于等于 | `${5 <= 5}` 或 `${5 le 5}` | true |
+| `>=` 或 `ge` | 大于等于 | `${5 >= 3}` 或 `${5 ge 3}` | true |
+
+3. 逻辑运算
+
+| 逻辑运算符 | 说明 | 范例 | 结果 |
+|---------|------|------|------|
+| `&&` 或 `and` | 与运算 | `${true && false}` 或 `${true and false}` | false |
+| `\|\|` 或 `or` | 或运算 | `${true \|\| false}` 或 `${true or false}` | true |
+| `!` 或 `not` | 取反运算 | `${!true}` 或 `${not true}` | false |
+
+4. 算术运算
+
+| 算术运算符 | 说明 | 范例 | 结果 |
+|---------|------|------|------|
+| `+` | 加法 | `${12 + 18}` | 30 |
+| `-` | 减法 | `${18 - 8}` | 10 |
+| `*` | 乘法 | `${12 * 12}` | 144 |
+| `/` 或 `div` | 除法 | `${144 / 12}` 或 `${144 div 12}` | 12 |
+| `%` 或 `mod` | 取模 | `${144 % 10}` 或 `${144 mod 10}` | 4 |
+
+#### Empty 运算
+
+1. empty运算可以判断一个数据是否为空，返回`true`，否则返回`false`。
+
+2. 以下几种情况为空
+    - 值为`null`。
+    - 值为空串`""`。
+    - 值为`Object`数组，且长度为0。
+    - 长度为0的`List`。
+    - 长度为0的`Map`。
+
+3. 示例
+    ```js
+    <%@ page contentType="text/html;charset=UTF-8" isELIgnored="false" language="java" %>
+    <html>
+    <head>
+        <title>elempty</title>
+    </head>
+    <body>
+    <%
+        request.setAttribute("key1", null);
+        request.setAttribute("key2", "");
+        request.setAttribute("key3", new Object[]{});
+        request.setAttribute("key4", new ArrayList<>());
+        request.setAttribute("key5", new HashMap<>());
+        request.setAttribute("key6", 666);
+        request.setAttribute("key7", null);
+    %>
+
+    key1:${empty key1}<br>
+    key2:${empty key2}<br>
+    key3:${empty key3}<br>
+    key4:${empty key4}<br>
+    key5:${empty key5}<br>
+    key6:${empty key6}<br>
+
+    <%--key1:true--%>
+    <%--key2:true--%>
+    <%--key3:true--%>
+    <%--key4:true--%>
+    <%--key5:true--%>
+    <%--key6:false--%>
+
+    </body>
+    </html>
+    ```
+
+#### 三元运算
+
+1. `${bool ? trueval : falseval}`
+
+#### 11个隐含对象
+
+1. 11个隐含对象
+
+EL表达式提供了11个可以直接使用的隐含对象，无需声明即可调用：
+
+| 变量名 | 类型 | 说明 |
+|--------|------|------|
+| `pageContext` | `PageContextImpl` | 获取JSP中的九大内置对象 |
+| `pageScope` | `Map<String,Object>` | 获取pageContext域中的数据 |
+| `requestScope` | `Map<String,Object>` | 获取Request域中的数据 |
+| `sessionScope` | `Map<String,Object>` | 获取Session域中的数据 |
+| `applicationScope` | `Map<String,Object>` | 获取ServletContext域中的数据 |
+| `param` | `Map<String,String>` | 获取请求参数的值（单个值） |
+| `paramValues` | `Map<String,String[]>` | 获取请求参数的多个值（数组） |
+| `header` | `Map<String,String>` | 获取请求头的信息 |
+| `headerValues` | `Map<String,String[]>` | 获取请求头的多个信息（数组） |
+| `cookie` | `Map<String,Cookie>` | 获取当前请求的Cookie信息 |
+| `initParam` | `Map<String,String>` | 获取在web.xml中配置的`<context-param>`上下文参数 |
+
+
+2. 重点
+    **语法糖会依照范围由小到大搜寻对应名称的属性，即先在页面中搜索，在逐渐扩大范围。**
+    **若属性不存在，返回`null`。**
+    - 示例
+        ```jsp
+        <%
+            //request.setAttribute("k1", "request-k1的值");
+            //session.setAttribute("k1", "session-k1的值");
+            //application.setAttribute("k1", "application-k1的值");
+            //pageContext.setAttribute("k1", "pageContext-k1的值~");
+        %>
+        k1=${k1}
+        ```
+    - `pageScope`
+    - `requestScope`
+    - `sessionScope`
+    - `applicationScope`
+
+3. 示例
+    ```jsp
+    <%@ page contentType="text/html;charset=UTF-8" isELIgnored="false" language="java" %>
+    <html>
+    <head>
+        <title>elscope</title>
+    </head>
+    <body>
+    <%
+        request.setAttribute("k1", "req");
+        pageContext.setAttribute("k1", "page");
+        session.setAttribute("k1", "session");
+        application.setAttribute("k1", "app");
+    %>
+
+    <h1>el获取域对象</h1>
+    request域：${requestScope.k1}<br>
+    pageContext域：${pageScope.k1}<br>
+    session域：${sessionScope.k1}<br>
+    application域：${applicationScope.k1}<br>
+
+    </body>
+    </html>
+    ```
+
+4. `pageContext`获取Http协议相关信息
+    - 脚本中的`pageContext`和EL中的`pageContext`不是一个。
+    ```jsp
+    协议：${pageContext.request.scheme}
+    服务器 ip：${pageContext.request.serverName}
+    服务器端口：${pageContext.request.serverPort}
+    工程路径：${pageContext.request.contextPath}
+    请求方法：${pageContext.request.method}
+    客户端 ip 地址：${pageContext.request.remoteHost}
+    
+
+    <!-- 简化写法 -->
+    <%
+        pageContext.setAttribute("req", request);
+    %>
+
+    ${req.xxx}
+    ```
+
+### JSTL （会使用即可）
+
+#### 基本介绍
+
+1. JSTL 标签库 是指 JSP Standard Tag Library JSP 标准标签库。
+
+2. EL 表达式是为了替换 jsp 中的表达式脚本，JSTL 是为了替换代码脚本（即`<% ... %>`）。这样 jsp 页面变得更佳简洁。
+
+3. JSTL 由五个标签库组成
+
+    | 功能范围 | URI | 前缀 |
+    | :--- | :--- | :--- |
+    | **核心标签库 – 重点** | http://java.sun.com/jsp/jstl/core | c |
+    | 格式化 | http://java.sun.com/jsp/jstl/fmt | fmt |
+    | 函数 | http://java.sun.com/jsp/jstl/functions | fn |
+    | 数据库 (不使用) | http://java.sun.com/jsp/jstl/sql | sql |
+    | XML (不使用) | http://java.sun.com/jsp/jstl/xml | x |
+
+4. 使用 JSTL，需要导入相关的 jar 包
+    需要导入以下两个 JAR 文件：
+    - `taglibs-standard-impl-1.2.1.jar`
+    - `taglibs-standard-spec-1.2.1.jar`
+
+#### 快速入门
+
+1. 示例
+    ```jsp
+    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <html>
+    <head>
+        <title>jstl快速入门</title>
+    </head>
+    <body>
+        <h1>nihao</h1>
+        <c:if test="${10>2}">
+            <h2>10>2成立</h2>
+        </c:if>
+    </body>
+    </html>
+    ```
+
+#### c标签入门
+
+1. `<c:set />`
+    - `set` 标签可以往域中保存数据：`<c:set scope="request" var="username" value="lcq"/>`
+    - 等价 `域对象.setAttribute(key,value);`
+    - `scope` 属性设置保存到哪个域
+        - `page` 表示 `PageContext` 域（默认值）
+        - `request` 表示 `Request` 域
+        - `session` 表示 `Session` 域
+        - `application` 表示 `ServletContext` 域
+    - `var` 属性设置 `key` 是什么
+    - `value` 属性设置值
+
+1. `<c:if>`
+    - if 标签用来做 if 判断: `<c:if test="${ 10 > 2 }">hello</c:if>`
+    - test 属性表示判断的条件（用 EL 表达式输出）
+
+1. `<c:choose>`、`<c:when>`、`<c:otherwise>`
+    - 介绍: 多路判断。跟 `switch ... case .... default` 非常接近
+    - 示例
+        ```jsp
+        <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+        <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+        <html>
+        <head>
+            <title>c:choose标签的使用</title>
+        </head>
+        <body>
+        <h1>c:choose标签的使用</h1>
+        <%
+            request.setAttribute("score", 50);
+        %>
+        <c:choose>
+            <c:when test="${requestScope.score > 80}">
+                <h1>${score}-成绩优秀</h1>
+            </c:when>
+            <c:when test="${requestScope.score >= 60}">
+                <h1>${score}-成绩一般, 及格了</h1>
+            </c:when>
+            <c:otherwise>
+                <h1>${score}-没有及格，下次努力~</h1>
+            </c:otherwise>
+        </c:choose>
+        </body>
+        </html>
+        ```
+
+1. `<c:forEach />`
+    - 介绍: `c:forEach` 标签 用来遍历输出, 主要有 4 种形式：
+        - 普通遍历输出 `i` 到 `j`
+        - 遍历数组
+        - 遍历 `Map`
+        - 遍历 `List`
+    - 示例
+
+    ```js
+    <%@ page import="java.util.Map" %>
+    <%@ page import="java.util.HashMap" %>
+    <%@ page import="java.util.ArrayList" %>
+    <%@ page import="java.util.List" %>
+    <%@ page import="com.hspedu.entity.Monster" %>
+    <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <html>
+    <head>
+        <title>c:forEach 标签</title>
+    </head>
+    <body>
+    <h1>c:forEach 标签</h1>
+    <hr/>
+    <h1>第1种遍历方式从i到j</h1>
+    <ul>
+        <%--
+        1.遍历 1 到 5，
+        2. 输出 begin 属性设置开始的索引 end 属性设置结束的索引
+        3. var 属性表示循环的变量(也是当前正在遍历到的数据)
+        4. 等价 for (int i = 1; i <= 5; i++) {}
+        5. 在默认情况下, i 每次会递增1
+        --%>
+        <c:forEach begin="1" end="5" var="i">
+            <li>排名=${i}</li>
+        </c:forEach>
+    </ul>
+    <hr/>
+    <h1>第2种遍历方式：遍历数组</h1>
+    <%
+        request.setAttribute("sports", new String[]{"打篮球", "乒乓球"});
+    %>
+    <%--
+        <c:forEach items="${ requestScope.sports }" var="item"/>
+        1. items 遍历的集合/数组
+        2. var 遍历到的数据
+        3. 等价 for (Object item: arr) {}
+    --%>
+    <c:forEach items="${requestScope.sports}" var="sport">
+        运动名称= ${sport}<br/>
+    </c:forEach>
+    <hr/>
+    <h1>第3种遍历方式：遍历Map</h1>
+    <%
+        Map<String, Object> map = new HashMap<>();
+        map.put("key1", "北京");
+        map.put("key2", "上海");
+        map.put("key3", "天津");
+        request.setAttribute("cities", map);
+    %>
+    <%--
+        1. items 遍历的map集合
+        2. var 遍历到的数据
+        3. entry.key 取出key
+        4. entry.value 取出值
+    --%>
+    <c:forEach items="${requestScope.cities}" var="city">
+        城市信息: ${city.key}--${city.value}<br/>
+    </c:forEach>
+    <hr/>
+    <h1>第4种遍历方式：遍历List</h1>
+    <%
+        List<Monster> monsters = new ArrayList<>();
+        monsters.add(new Monster(100, "小妖怪", "巡山的"));
+        monsters.add(new Monster(200, "大妖怪", "做饭的"));
+        monsters.add(new Monster(300, "老妖怪", "打扫位置的"));
+        request.setAttribute("monsters", monsters);
+    %>
+    <%--
+        items 表示遍历的集合
+        var 表示遍历到的数据
+        begin 表示遍历的开始索引值 ,从0开始计算
+        end 表示结束的索引值
+        step 属性表示遍历的步长值
+        varStatus 属性表示当前遍历到的数据的状态,可以得到step,begin,end等属性值
+        //老师提示, 对于jstl标签，能看懂，会使用即可
+    --%>
+    <c:forEach items="${requestScope.monsters}" var="monster">
+        妖怪的信息: ${monster.id}-${monster.name}-${monster.skill}<br/>
+    </c:forEach>
+    </body>
+    </html>
+    ```
+
+## 监听器Listener+过滤器Filter
+
+### 基本内容
+
+#### Listener
+
+1. 基本介绍
+    - 监听器（Listener）是 Java Web 三大组件之一（`Servlet`、`Listener`、`Filter`），基于观察者模式设计，专门用于监听 Web 应用中某些对象信息的创建、销毁、增加、修改、删除等动作的发生，然后作出相应的响应处理。
+    - 它们大都在 `javax.servlet` 和 `javax.servlet.http` 包下。
+    - 经典的监听器共有 **8 个**，按功能可分为三大类：
+
+2. 第一类：监听三大域对象的**生命周期**（创建与销毁）
+    - **`ServletContextListener`**：用于感知 `ServletContext`（全局应用）对象的创建与销毁。
+        - *应用场景*：服务器启动时加载配置文件、初始化数据库连接池、启动定时任务等（例如 Spring 的 `ContextLoaderListener`）。
+    - **`HttpSessionListener`**：用于感知 `HttpSession`（用户会话）对象的创建与销毁。
+        - *应用场景*：统计网站当前在线人数、记录用户上下线日志。
+    - **`ServletRequestListener`**：用于感知 `ServletRequest`（单次请求）对象的创建与销毁。
+        - *应用场景*：读取请求参数并记录访问日志、请求到达时封装 ThreadLocal 数据。
+
+3. 第二类：监听三大域对象的**属性变化**（增加、删除、替换 Attribute）
+    - **`ServletContextAttributeListener`**：监听全局应用域（`application`）中属性的变化。
+    - **`HttpSessionAttributeListener`**：监听会话域（`session`）中属性的变化。
+    - **`ServletRequestAttributeListener`**：监听请求域（`request`）中属性的变化。
+    - *这三个的触发条件*：当你在代码里调用对应域对象的 `setAttribute()` 或 `removeAttribute()` 方法时，就会触发它们。
+
+4. 第三类：感知 JavaBean 对象在 Session 中的**状态变化**（绑定相关的监听器）
+    - *注意：这类监听器不需要在 `web.xml` 中配置或使用 `@WebListener` 注解，而是直接让**你的实体类（JavaBean）**去实现这些接口。*
+    - **`HttpSessionBindingListener`**：感知 JavaBean 对象自己被“绑定”到 Session 中，或者从 Session 中被“解绑”。
+        - *触发条件*：当执行 `session.setAttribute("user", userObj)` 时触发绑定事件；执行 `removeAttribute` 或 session 失效时触发解绑事件。
+    - **`HttpSessionActivationListener`**：感知 JavaBean 对象随着 Session 一起被“钝化”（从内存写到硬盘/序列化）和“活化”（从硬盘读取到内存/反序列化）。
+        - *应用场景*：服务器内存紧张时，把长时间不活动的 Session 持久化到硬盘；如果这个 Session 里存了很消耗资源的对象，可以在钝化前释放资源，活化后重新建立。
+
+#### Filter
+
+1. 基本介绍
+    - 过滤器（Filter）是 Java Web 三大组件之一，基于**责任链模式**（Chain of Responsibility）设计。
+    - 它的核心作用是“**拦截**”：在客户端请求到达目标 Servlet 之前进行预处理，以及在服务器响应发回客户端之前进行后处理。
+    - 它的核心接口是 `javax.servlet.Filter`。
+    - *形象比喻*：就像机场的安检闸机或高速公路的收费站，它可以检查、修改包裹（数据），甚至直接拒绝通行。
+
+2. 核心机制：双向拦截的“洋葱模型”
+    - Filter 的执行流程是**双向**的（U型回转），**请求**进去时穿过一次，**响应**出来时再穿过一次。
+    - **核心枢纽**：`FilterChain`（过滤器链）对象及其 `chain.doFilter(request, response)` 方法。
+    - **代码结构剖析**：
+        1. *放行前（请求拦截）*：在 `chain.doFilter()` 之前编写的代码，是对到达 Servlet 之前的 Request 进行处理。
+        2. *核心放行*：调用 `chain.doFilter()`，表示将请求传递给下一个 Filter 或最终的 Servlet。如果不调用这行代码，请求将被**彻底拦截**，浏览器会表现为白屏或挂起。
+        3. *放行后（响应拦截）*：在 `chain.doFilter()` 之后编写的代码，是对 Servlet 处理完毕后的 Response 进行处理。
+
+3. 生命周期（三大核心方法）
+    - **`init(FilterConfig filterConfig)`**：初始化方法。随着 Web 服务器（Tomcat）的启动而执行，且**只执行一次**。通常用于读取配置参数。
+    - **`doFilter(ServletRequest req, ServletResponse res, FilterChain chain)`**：核心过滤方法。每次请求匹配到该 Filter 的 URL 拦截路径时都会执行，可能被执行无数次。
+    - **`destroy()`**：销毁方法。服务器正常关闭时执行，且**只执行一次**。用于释放资源。
+
+4. 经典应用场景（实战高频）
+    - **统一字符编码过滤器**：在最外层 Filter 强制设定 `request.setCharacterEncoding("UTF-8")`，一劳永逸地解决全站 POST 请求的中文乱码问题。
+    - **权限校验/登录拦截**：检查 `Session` 中是否存在用户信息。如果没有，直接通过 `response.sendRedirect()` 踢回登录页，并且**不调用** `chain.doFilter()`。
+    - **敏感词替换**：包装原始的 `Request` 对象，重写获取参数的方法，将其中的脏话替换为 `***` 后，再放行给业务逻辑处理。
+    - **跨域处理（CORS）**：在响应头中统一添加 `Access-Control-Allow-Origin` 等允许跨域的字段。
+
+5. 注册与配置方式（Servlet 3.0+ 规范）
+    - **方式一：注解配置（现代极简）**
+        - 在类名上添加 `@WebFilter("拦截路径")`。
+        - *常用拦截路径*：`/*`（拦截所有请求）、`/api/*`（拦截特定目录）、`*.do`（拦截特定后缀）。
+    - **方式二：`web.xml` 配置（传统老派）**
+        - 使用 `<filter>` 和 `<filter-mapping>` 标签进行配置。
+        - *极其重要的特性*：如果有多个 Filter 组成过滤链，注解配置的执行顺序通常由类名的字母顺序决定（不够可控）；而在 `web.xml` 中，**拦截顺序严格按照 `<filter-mapping>` 标签从上到下配置的顺序执行**。
+
+### 监听器详细介绍
+
+#### 监听器实现
+
+1. 一个类实现了`***Listener`接口，这个类就是一个监听器。
+2. 一个类可以监听的事件，由这个类实现的监听接口决定。
+3. 实现监听接口的类就是一个**监听者**。
+4. 注册
+    - 通过在`web.xml`中进行配置，令TomCat知晓监听器的存在。
+        ```xml
+        <web-app>
+          <display-name>Archetype Created Web Application</display-name>
+            <listener>
+                <listener-class>com.lcq.listener.MyServletContextListener</listener-class>
+            </listener>
+        </web-app>
+        ```
+    - 通过直接在监听器类上添加注解`@WebListener`，也可以配置监听器。
+
+
+
+#### `ServletContextListener`
+
+1. 作用：监听 `ServletContext` 创建或销毁（当 Web 应用启动时，就会创建 `ServletContext`），即生命周期监听。
+2. 应用场景
+    - 加载初始化的配置文件；比如 `spring` 的配置文件。
+    - 任务调度（配合定时器 `Timer`/`TimerTask`）
+
+3. 特点
+    - 当Web应用启动时，会阐释`ServletContextEvent`事件，会调用监听器的对应事件处理方法`contextInitialized`，同时会传递一个事件对象。
+    - 程序员可以通过`ServletContextEvent`对象获取需要的信息，并进行业务处理。
+
+4. 相关方法
+    - `void contextInitialized(ServletContextEvent sce)`：创建 `Servletcontext`时触发。
+    - `void contextDestroyed(ServletContextEvent sce)` 销毁 `Servletcontext` 时触发。
+
+5. 实例
+    ```java
+    public class MyServletContextListener implements ServletContextListener {
+        @Override
+        public void contextInitialized(ServletContextEvent servletContextEvent) {
+            System.out.println("监听到" + servletContextEvent.getServletContext() + "被创建");
+            // 监听到org.apache.catalina.core.ApplicationContextFacade@71e13164被创建
+            // 通过获取对象完成业务处理
+        }
+
+        @Override
+        public void contextDestroyed(ServletContextEvent servletContextEvent) {
+            System.out.println("监听到" + servletContextEvent.getServletContext() + "被销毁");
+            // 监听到org.apache.catalina.core.ApplicationContextFacade@71e13164被销毁
+            // 可以在关机前完成对数据的持久化（保存到文件）或进行日志管理。
+        }
+    }
+    ```
+
+#### `ServletContextAttributeListener`
+1. 作用：监听 ServletContext 属性变化
+2. 相关方法
+    - `void attributeAdded(ServletContextAttributeEvent event)` 添加属性时调用。
+    - `void attributeReplaced(ServletContextAttributeEvent event)` 替换属性时调用。
+    - `void attributeRemoved(ServletContextAttributeEvent event)` 移除属性时调用。
+
+3. 示例
+    - `MyServletContextAttributeListener.java`
+        ```java
+        @WebListener
+        public class MyServletContextAttributeListener implements ServletContextAttributeListener {
+            @Override
+            public void attributeAdded(ServletContextAttributeEvent servletContextAttributeEvent) {
+                System.out.println("监听到 " + servletContextAttributeEvent.getName()
+                        + " = " + servletContextAttributeEvent.getValue() + " 被创建");
+            }
+
+            @Override
+            public void attributeRemoved(ServletContextAttributeEvent servletContextAttributeEvent) {
+                System.out.println("监听到 " + servletContextAttributeEvent.getName()
+                        + " = " + servletContextAttributeEvent.getValue() + " 被移除");
+            }
+
+            @Override
+            public void attributeReplaced(ServletContextAttributeEvent servletContextAttributeEvent) {
+                System.out.println("监听到 " + servletContextAttributeEvent.getName()
+                        + " = " + servletContextAttributeEvent.getValue() + " 被修改");
+            }
+        }
+        ```
+    - `HiServlet.java`
+        ```java
+        @WebServlet(urlPatterns = {"/hi"})
+        public class HiServlet extends HttpServlet {
+            @Override
+            protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                ServletContext servletContext = req.getServletContext();
+                for (int i = 0; i < 5; i++) {
+                    servletContext.setAttribute("name", "a");
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    servletContext.setAttribute("name", "b");
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                servletContext.removeAttribute("name");
+                //监听到 name = a 被创建
+                //监听到 name = a 被修改
+                //监听到 name = b 被修改
+                //监听到 name = a 被修改
+                //监听到 name = b 被修改
+                //监听到 name = a 被修改
+                //监听到 name = b 被修改
+                //监听到 name = a 被修改
+                //监听到 name = b 被修改
+                //监听到 name = a 被修改
+                //监听到 name = b 被移除
+            }
+
+            @Override
+            protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                doGet(req, resp);
+            }
+        }
+        ```
+
+#### `HttpSessionListener`
+
+1. 作用：监听Session创建或销毁，即生命周期监听。
+2. 相关方法
+    - `void sessionCreated(HttpSessionEvent se)`：创建Session时调用。
+    - `void sessionDestroyed(HttpSessionEvent se)`：销毁Session时调用。
+
+3. 应用场景
+    - 监控用户上线、离线。
+
+4. 示例
+    ```java
+    @WebListener
+    public class MyHttpSessionListener implements HttpSessionListener {
+        @Override
+        public void sessionCreated(HttpSessionEvent httpSessionEvent) {
+            HttpSession session = httpSessionEvent.getSession();
+            session.setMaxInactiveInterval(30);// 生命周期30s
+            System.out.println("SessionID = "+ session.getId()+" has been created");
+        }
+
+        @Override
+        public void sessionDestroyed(HttpSessionEvent httpSessionEvent) {
+            HttpSession session = httpSessionEvent.getSession();
+            System.out.println("SessionID = "+ session.getId()+" has been destroyed");
+        }
+    }
+    ```
+
+
+#### `HttpSessionAttributeListener`
+1. 作用：监听 Session 属性的变化
+2. 相关方法
+    - `void attributeAdded(ServletRequestAttributeEvent srae)` 添加属性时。
+    - `void attributeReplaced(ServletRequestAttributeEvent srae)` 替换属性时。
+    - `void attributeRemoved(ServletRequestAttributeEvent srae)` 移除属性时。
+
+#### `ServletRequestListener`
+1. 作用：监听 Request 创建或销毁，即 Request 生命周期监听
+2. 相关方法
+    - `void requestInitialized(ServletRequestEvent sre)` 创建 `request` 时。
+    - `void requestDestroyed(ServletRequestEvent sre)` 销毁 `request` 时。
+3. 应用场景
+    - 可以用来监控，某个 IP 访问我们网站的频率，日志记录，访问资源的情况。
+
+#### `ServletRequestAttributeListener`
+1. 作用：监听 Request 属性变化
+2. 相关方法
+    - `void attributeAdded(ServletRequestAttributeEvent srae)` 添加属性时。
+    - `void attributeReplaced(ServletRequestAttributeEvent srae)` 替换属性时。
+    - `void attributeRemoved(ServletRequestAttributeEvent srae)`移除属性时。
+
+#### `HttpSessionBindingListener` 感知监听器
+
+#### `HttpSessionActivationListener` 感知监听器
+
+### 过滤器详细介绍
+
+#### 引例
+
+1. 如果现在有三个页面：
+    - 登录界面`login.html`
+    - 员工管理页面
+    - 订单管理页面
+
+2. **每个**管理页面都需要执行验证用户是否登录的操作，这个流程在页面多起来后，会造成代码的冗余。
+
+3. 引入过滤器
+    - 统一进行验证（如权限、身份验证等）
+    - 日志
+    - 事务
+
+4. 图解
+    ![javaweb_Filter01](./img/javaweb_Filter01.png)
+    ![javaweb_Filter02](./img/javaweb_Filter02.png)
+    
+#### 过滤器实现
+
+1. 注册
+    - 通过`web.xml`
+        - 一般卸载别的配置之前
+
+        ```xml
+        <filter>
+            <filter-name>LoginCheckFilter</filter-name>
+            <filter-class>com.example.filter.LoginCheckFilter</filter-class>
+        </filter>
+
+        <filter-mapping>
+            <filter-name>LoginCheckFilter</filter-name>
+            <url-pattern>/*</url-pattern>
+        </filter-mapping>
+        ```
+    - 通过注解
+        ```java
+        @WebFilter(urlPatterns = {"/manage/*"})
+        ```
+
+#### 快速入门
+
+1. 需求
+    - 在Web工程下，由后台管理登录manage，要求所有资源（html、img、jsp、Servlet等）在用户登录后才可以查看。
+
+2. 解决方案：使用一个过滤器，在用户访问需登录的页面时，先校验用户是否已经登录。
+    - 通过登录页面向`CheckServlet`发送校验信息。
+    - 通过`Filter`控制对manage路径下资源的访问。
+
+3. 实现
+    - `ManageFilter.java`
+        ```java
+        @WebFilter(urlPatterns = {"/manage/*"})
+        public class ManageFilter implements Filter {
+            @Override
+            public void init(FilterConfig filterConfig) throws ServletException {
+                // 创建时调用
+                System.out.println("init has been called");
+            }
+        
+            @Override
+            public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+                // 再次调用Filter时，调用这个方法。
+                System.out.println("doFilter has been called");
+        
+                HttpSession session = ((HttpServletRequest) servletRequest).getSession();
+                if (session.getAttribute("username") != null) {
+        
+                    // 这里如果没有调用继续请求的方法，就会卡在这里
+                    // 放行：
+                    System.out.println("放行");
+                    filterChain.doFilter(servletRequest, servletResponse);
+                } else {
+                    System.out.println("拦截");
+                    servletRequest.getRequestDispatcher("/login/login.jsp").forward((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
+                }
+            }
+        
+            @Override
+            public void destroy() {
+                // 销毁时调用
+                System.out.println("destroy has been called");
+            }
+        }
+        ```
+    - `check.java`
+        ```java
+        @WebServlet(urlPatterns = {"/check"})
+        public class check extends HttpServlet {
+            @Override
+            protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                doGet(req, resp);
+            }
+            @Override
+            protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                String username = req.getParameter("username");
+                String password = req.getParameter("password");
+                if(Objects.equals(username, "abc") && Objects.equals(password, "abc"))
+                {
+                    HttpSession session = req.getSession();
+                    session.setAttribute("username", username);
+                    resp.sendRedirect(req.getContextPath()+"/manage/admin.jsp");
+                }else {
+                    req.getRequestDispatcher("login/login.jsp").forward(req,resp);
+                }
+            }
+        }
+        ```
+    - `login.jsp`
+        ```jsp
+        <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
+        <html>
+        <head>
+            <title>用户登录</title>
+        </head>
+        <body>
+
+        <h2>欢迎登录系统</h2>
+
+        <form action="${pageContext.request.contextPath}/check" method="post">
+
+            用户名: <input type="text" name="username" placeholder="请输入用户名" required><br><br>
+
+            密&nbsp;&nbsp;&nbsp;码: <input type="password" name="password" placeholder="请输入密码" required><br><br>
+
+            <input type="submit" value="登 录">
+            <input type="reset" value="重 置">
+
+        </form>
+
+        </body>
+        </html>
+        ```
+
+#### Filter路径
+
+1. url-pattern : Filter 的拦截路径, 即浏览器在请求什么位置的资源时，过滤器会进行拦截过
+滤
+2. 精确匹配 `<url-pattern>/a.jsp</url-pattern>` 对应的请求地址 `http://ip[域名]:port/工程路径/a.jsp`会拦截
+3. 目录匹配 `<url-pattern>/manage/*</url-pattern>`对应的请求地址 `http://ip[域名]:port/工程路径/manage/xx`，即 web 工程 manage 目录下所有资源会拦截
+4. 后缀名匹配 `<url-pattern>*.jsp</url-pattern>` 后缀名可变，比如 `*.action`，`*.do` 等等对应
+的 请求地址 `http://ip[域名]:port/工程路径/xx.jsp` , 后缀名为 `.jsp` 请求会拦截
+5. **Filter 过滤器它只关心请求的地址是否匹配**，不关心请求的资源是否存在
+
+#### Filter生命周期
+
+1. 流程
+    - 当Web工程启动时，会执行构造器和init方法。
+    - 当Http请求到TomCat时，如果匹配到Filter的`url-pattern`，`doFilter`就会被调用。
+    - 当Web工程停止，Filter销毁。
+
+2. 运行
+    - Filter在Web中启动时，由TomCat创建Filter实例，调用Filter的无参构造器，同时调用`init`
+    - 创建Filter实例时，同时创建一个`FilterConfig`对象，通过`init`传入，可由此获取`Filter`的相关配置信息。
+    - 当一个Http请求与Filter的`url-pattern`匹配时，就会调用`doFilter`方法
+    - 在调用`doFilter`方法时，TomCat会同时创建`ServletRequest`、`ServletResponse`和`FilterChain`对象，并通过`doFilter`传入。
+    - 后面的请求目标资源（如：jsp、Servlet等）会继续传递这里的`ServletRequest`和`ServletResponse`对象。
+
+#### `FilterConfig`
+
+1. `FilterConfig`接口示意
+    ```java
+    public interface FilterConfig {
+        String getFilterName();
+
+        ServletContext getServletContext();
+
+        String getInitParameter(String var1);
+
+        Enumeration<String> getInitParameterNames();
+    }
+    ```
+
+2. 说明
+    - FilterConfig是Filter过滤器的配置类
+    - TomCat每次创建Filter的时候，也会创建一个`FilterConfig`对象，这里包含了Filter配置文件的配置信息。
+
+3. 示例
+    - 在`web.xml`中作如下配置
+        ```xml
+        <!-- Filter配置 -->
+        <filter>
+            <filter-name>HspFilterConfig</filter-name>
+            <filter-class>com.hspedu.filter.HspFilterConfig</filter-class>
+            
+            <!-- 初始参数配置 -->
+            <init-param>
+                <param-name>ip</param-name>
+                <param-value>166.66.66.66</param-value>
+            </init-param>
+            
+            <init-param>
+                <param-name>port</param-name>
+                <param-value>8888</param-value>
+            </init-param>
+        </filter>
+
+        <!-- Filter映射配置 -->
+        <filter-mapping>
+            <filter-name>HspFilterConfig</filter-name>
+            <url-pattern>/abc/*</url-pattern>
+            <!-- 可以根据需要添加其他映射配置，例如：
+            <servlet-name>YourServlet</servlet-name>
+            或指定具体的URL模式 -->
+        </filter-mapping>
+        ```
+
+#### 过滤器链（FilterChain）
+
+>Tomcat 怎么决定谁先谁后？（核心排雷点）
+>既然有多个过滤器，执行的先后顺序就成了决定生死的关键（比如：必须先处理好中文乱码，然后再去读取参数校验，否则读到的密码全是乱码）。
+>
+>如果你用 `web.xml` 配置（推荐多个时使用）：
+>极其严谨！Tomcat 会严格按照你在 `web.xml` 中编写 `<filter-mapping>` 标签的从上到下的物理顺序来执行。谁写在上面，谁就先拦截。这也是为什么大型项目里哪怕有十几个过滤器也不会乱套的原因。
+>
+>如果你用 `@WebFilter` 注解配置（极度坑爹）：
+>Tomcat 是根据过滤器类名的首字母字母表顺序来决定先后顺序的。比如 `AuthFilter`（验证登录）永远会比 `EncodingFilter`（处理编码）先执行（因为 A 排在 E 前面）。如果硬要用注解控制顺序，老鸟们通常会给类名加上序号，比如命名为 `Filter01_Encoding`、`Filter02_Auth` 来强行排队。
+>**这里的“名称”，严格指的是你的 Java 类的类名（Class Name），而不是你在注解里写的其他任何属性（不是`filterName`）。**
+
+1. 图解
+    ![javaweb_Filter03](./img/javaweb_Filter03.png)
+
+2. 应用场景
+    - 数据库事务，事务结束后执行后置代码。
+
+3. FilterChain 注意事项和细节
+
+    - 多个`filter`和目标资源在一次 http 请求，在同一个线程中
+    - 当一个请求 url 和`filter`的 `url-pattern` 匹配时, 才会被执行, 如果有多个匹配上，就会顺序执行，形成一个`filter`调用链(底层可以使用一个数据结构搞定)
+    - 多个`filter`共同执行时,因为是一次 `http` 请求, 使用同一个 `request` 对象
+    - 多个`filter`执行顺序，和 `web.xml` 配置顺序保持一
+    - `chain.doFilter(req, resp)`方法 将执行下一个过滤器的 `doFilter` 方法, 如果后面没有过滤器，则执行目标资源。
+    - 小结：注意执行过滤器链时, 顺序是(用前面的案例分析) 
+        ```text
+        Http请求 -> A 过滤器 dofilter()-> A 过滤器前置代码 -> A 过滤器 chain.doFilter() -> B 过滤器 dofilter() -> B 过滤器前置代码 -> B过滤器 chain.doFilter() -> 目标文件 -> B过滤器后置代码 -> A过滤器后置代码 ->返回给浏览器页面/数据
+        ```
+
+## JQuery（前端）
+
+### 基本内容
+
+1. 官方文档
+    - https://www.w3school.com.cn/jquery/index.asp
+    - https://jquery.cuishifeng.cn/
+
+2. 基本介绍
+    - jQuery 是一个快速的，**简洁的 javaScript 库**，使用户能更方便地处理 HTML,css,dom... 
+        - 框架和库的区别：框架具有开发规范和封装的库，学习成本高，库相对灵活。
+    - 提供方法、events、选择器，并且方便地为网站提供 AJAX 交互
+    - 其宗旨是—WRITE LESS,DO MORE,写更少的代码,做更多的事情. 
+    - jQuery 实现了浏览器的兼容问题
+    
+3. 原理示意
+    ![javaweb_JQuery_structure](./img/javaweb_JQuery_structure.img)
+
+4. 下载与引入
+    - 下载：https://jquery.com/download/
+    - 像引入一个js脚本一样引入这个js文件
+        ```html
+        <script type="text/javascript" src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
+        ```
+
+### 快速入门
+
+1. 需求
+    - 点击一个按钮，弹出"Hello, JQuery!"
+    - 使用传统的dom编程。
+        ```html
+        <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+        <html>
+        <head>
+            <title>Title</title>
+            <script type="text/javascript">
+                window.onload = function () {
+                    var btn02 = document.getElementById("btn02");
+                    btn02.onclick = function () {
+                        alert("haha");
+                    }
+                }
+            </script>
+        </head>
+        <body>
+        <p><button onclick="alert('你好！')">点击</button></p>
+        <p><button id="btn02">点击</button></p>
+
+        </body>
+        </html>
+        ```
+    - 使用JQuery完成
+        ```html
+        <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+        <html>
+        <head>
+            <title>Title</title>
+            <script type="text/javascript" src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
+            <script>
+                /*
+                    $(function (){})等效于
+                    window.onload = function(){}
+                */
+                $(
+                    function (){
+                        var $btn01 = $("#btn01");
+                        $btn01.click(function (){
+                            alert("hello!!!")
+                        })
+                    }
+                )
+            </script>
+        </head>
+        <body>
+        <button id="btn01">点我</button>
+        </body>
+        </html>
+        ```
+
+2. 特点
+
+    - 初次使用 `jquery` , 你会觉得语法比较奇怪，其实 `jquery` 的底层仍然是 js,只是做了封装
+    - `$(function () {}`等价 `window.onload = function () {}` 
+    - `$()` 可以理解成是一个函数，可以定义 `function $(id) {} ...`
+    - `$("#btn01")` 底层: `document.getElementById("btn01")` 
+    - 注意 `$("#btn01")` 不能写成 `$("btn01")`
+    - 通过`$("#btn01")` 返回的对象就是 `jquery` 对象(即进行了封装)，而不是原生的 `dom` 对象
+        - 通过debug可知，jQuery是数组对象
+
+3. 编程准则
+    - JQuery中获取对象的方法是`$("#id")`
+    - 编程中，规定JQuery对象的命名以`$`开头（不强制，但建议）。
+
+### JQuery对象
+
+#### 特点
+
+1. JQuery对象就是DOM对象包装后产生的对象。
+    - 比如：`$("#test").html()`意思是指：获取`ID`为`test`的元素内的html代码。其中`html()`是jQuery里的方法
+    - 这段代码等同于用DOM实现代码：`document.getElementById("id").innerHTML;`
+2. jQuery对象是jQuery独有的。
+    - 如果一个对象是jQuery对象，那么它就可以使用jQuery里的方法，如：`$("#id").html();`
+3. 约定：如果获取的是 jQuery 对象，那么要在变量前面加上`$`，比如: 
+    - `var $variable = jQuery 对象` 
+    - `var variable = DOM 对象`
+
+#### 对象转换
+
+1. DOM对象转JQuery对象：
+    对于一个DOM对象，只需用`$()`将DOM对象包起来即可。
+    ```js
+    var dom01 = document.getElementById("id01");
+    var $dom01 = $(dom01);
+    ```
+
+2. JQuery对象转DOM对象
+    - JQuery是一个数组对象。
+    - 通过`[index]`或`.get(index)`即可获取DOM对象。
+    - 一般来说，`index`是`0`。
+    ```js
+    var $dom01 = $(dom01);
+    var dom011 = $dom01[0];
+    var dom012 = $dom01.get(0);
+    ```
+
+### jQuery 选择器
+
+#### 基本介绍
+
+1. **选择器是 jQuery 的核心**。在 jQuery 中，无论是对 DOM 进行遍历、绑定事件处理程序，还是进行 Ajax 操作，几乎所有的基础操作都依赖于选择器来定位元素。
+2. **jQuery 选择器的优点：**
+    - **简洁的写法（完全兼容 CSS 选择器语法）**
+        - `$("#id")`：ID 选择器，等价于 `document.getElementById("id");`
+        - `$(".class")`：类选择器，等价于 `document.getElementsByClassName("class");`
+        - `$("tagName")`：标签选择器，等价于 `document.getElementsByTagName("tagName");`
+    - **优秀的容错机制**
+        - 原生 DOM 如果获取不到对象，调用其属性或方法会导致程序报错阻塞。而 jQuery 即使选中了一个不存在的对象，也不会报错，而是静默失败（返回 `undefined` 或空对象）。
+        - **代码示例：**
+            ```javascript
+            /* 假设页面中不存在 ID 为 "a" 的 DOM 元素 */
+            
+            // 1. 原生 DOM 表现
+            var a = document.getElementById("a");
+            console.log(a.value); // 报错：TypeError: Cannot read properties of null
+            
+            // 2. jQuery 表现
+            var $a = $("#a");
+            console.log($a.val()); // 不报错，正常输出：undefined
+            ```
+
+#### 基本选择器
+
+1. 基本介绍
+基本选择器是 jQuery 中最常用、也最简单的选择器。它主要通过元素的 `id`、`class` 和标签名来查找 DOM 元素。
+
+1. 常用基本选择器
+
+    1. **ID 选择器 (`#id`)**
+        - **用法**: `$("#myDiv")`
+        - **说明**: 直接选择 HTML 中 `id="myDiv"` 的元素。
+        - **返回值**: 单个元素组成的集合（因为 HTML 中 id 应该是唯一的）。
+
+    2. **标签/元素选择器 (`element`)**
+        - **用法**: `$("div")`
+        - **说明**: 直接使用 HTML 已经定义的标签名进行选择，例如 `div`, `input`, `a` 等等。
+        - **返回值**: 元素集合。
+
+    3. **类选择器 (`.class`)**
+        - **用法**: `$(".myClass")`
+        - **说明**: 选择 HTML 代码中 `class="myClass"` 的元素。因为同一个页面中 class 可以被多个元素复用，所以通常会选中一组元素。
+        - **返回值**: 元素集合。
+
+    4. **通配符选择器 (`*`)**
+        - **用法**: `$("*")`
+        - **说明**: 匹配页面上的所有元素。常用于结合上下文来搜索或重置样式。
+        - **返回值**: 包含所有元素的集合。
+
+    5. **群组选择器 (`selector1, selector2, ...`)**
+        - **用法**: `$("div, span, p.myClass")`
+        - **说明**: 将每一个选择器匹配到的元素合并后一起返回。你可以指定任意多个选择器，用逗号隔开。
+        - **注意**: 其中 `p.myClass` 是交集选择器，表示匹配“既是 `<p>` 标签，又包含 `class="myClass"` 的元素”。
+        - **返回值**: 合并后的元素集合。
+
+1. 应用实例
+
+    以下是基本选择器在实际操作中的代码演示（通常配合 `.css()` 方法修改样式）：
+
+    ```javascript
+    // 假设这些代码运行在 base-selector.html 页面中
+
+    // 1. 改变 id 为 one 的元素的背景色为 #0000FF
+    $("#one").css("background-color", "#0000FF");
+
+    // 2. 改变 class 为 mini 的所有元素的背景色为 #FF0033
+    $(".mini").css("background-color", "#FF0033");
+
+    // 3. 改变元素名为 <div> 的所有元素的背景色为 #00FFFF
+    $("div").css("background-color", "#00FFFF");
+
+    // 4. 改变所有元素的背景色为 #00FF33
+    $("*").css("background-color", "#00FF33");
+
+    // 5. 改变所有的 <span> 元素和 id 为 two 的元素的背景色为 #3399FF
+    $("span, #two").css("background-color", "#3399FF");
+    ```
+
+#### 层次选择器
+
+1. 基本介绍
+如果想通过 DOM 元素之间的层次关系来获取特定元素（例如后代元素、子元素、相邻元素、兄弟元素等），则需要使用层次选择器。
+
+
+1. 常用层次选择器
+
+    1. **后代选择器 (`ancestor descendant`)**
+        - **用法**: `$("form input")`
+        - **说明**: 在给定的祖先元素下匹配**所有后代元素**。不仅包括直接子元素（儿子），还包括孙子、重孙等所有层级的后代。（注意选择器中间是一个**空格**）
+        - **返回值**: 元素集合。
+
+    2. **子代选择器 (`parent > child`)**
+        - **用法**: `$("form > input")`
+        - **说明**: 在给定的父元素下匹配所有**直接子元素**。注意要与后代选择器区分开，它只匹配“儿子”这一层级。
+        - **返回值**: 元素集合。
+
+    3. **相邻兄弟选择器 (`prev + next`)**
+        - **用法**: `$("label + input")`
+        - **说明**: 匹配紧接在 `prev` 元素后的**下一个相邻**的同辈元素（必须是紧挨着的）。
+        - **返回值**: 元素集合。
+
+    4. **一般兄弟选择器 (`prev ~ siblings`)**
+        - **用法**: `$("form ~ input")`
+        - **说明**: 匹配 `prev` 元素之后的**所有同辈**元素。匹配的是它**之后**的同辈元素，不包含该元素自身，后辈元素也不被匹配。注意：`("prev ~ div")` 选择器只能选择 `#prev` 元素**后面**的同辈元素；而 jQuery 中自带的 **`.siblings()` 方法与前后位置无关**，只要是同辈节点就可以选取。
+        - **返回值**: 元素集合。
+
+1. 应用实例
+
+    以下是层次选择器在实际操作中的代码演示：
+
+    ```javascript
+    // 1. 改变 <body> 内所有 <div>（后代元素）的背景色为 #0000FF
+    $("body div").css("background-color", "#0000FF");
+
+    // 2. 改变 <body> 内子 <div>（仅限直接子元素）的背景色为 #FF0033
+    $("body > div").css("background-color", "#FF0033");
+
+    // 3. 改变 id 为 one 的下一个相邻 <div> 兄弟的背景色为 #0000FF
+    $("#one + div").css("background-color", "#0000FF");
+
+    // 4. 改变 id 为 two 的元素后面的所有兄弟 <div> 的元素的背景色为 #0000FF
+    $("#two ~ div").css("background-color", "#0000FF");
+
+    // 5. 改变 id 为 two 的元素所有 <div> 兄弟元素（不管前后）的背景色为 #0000FF
+    // 注意：这里需求是“所有兄弟”，所以用兄弟选择器 ~ 无法满足前面的兄弟，应当使用 siblings() 方法
+    $("#two").siblings("div").css("background-color", "#0000FF");
+    ```
+
+#### 基础过滤选择器
+
+1. 基本介绍
+基础过滤选择器通过特定的过滤规则来筛选出所需的 DOM 元素。过滤规则与 CSS 中的伪类选择器语法相同，即选择器都以一个冒号（`:`）开头。
+
+1. 常用基础过滤选择器
+
+    1. **第一个元素选择器 (`:first`)**
+        - **用法**: `$("tr:first")`
+        - **说明**: 匹配找到的第一个元素。
+        - **返回值**: 单个元素组成的集合。
+
+    2. **最后一个元素选择器 (`:last`)**
+        - **用法**: `$("tr:last")`
+        - **说明**: 匹配找到的最后一个元素。与 `:first` 相对应。
+        - **返回值**: 元素集合。
+
+    3. **排除选择器 (`:not(selector)`)**
+        - **用法**: `$("input:not(:checked)")`
+        - **说明**: 去除所有与给定选择器匹配的元素。类似于“非”，例如上述用法表示获取没有被选中的 `input` 元素。
+        - **返回值**: 元素集合。
+
+    4. **偶数索引选择器 (`:even`)**
+        - **用法**: `$("tr:even")`
+        - **说明**: 匹配所有索引值为偶数的元素，从 `0` 开始计数（JS 数组索引规则）。例如选择 table 中的行，第 1 行的索引是 0（偶数），第 3 行的索引是 2（偶数）。
+        - **返回值**: 元素集合。
+        
+
+    5. **奇数索引选择器 (`:odd`)**
+        - **用法**: `$("tr:odd")`
+        - **说明**: 匹配所有索引值为奇数的元素，从 `0` 开始计数。与 `:even` 相对应。
+        - **返回值**: 元素集合。
+
+    6. **等于索引选择器 (`:eq(index)`)**
+        - **用法**: `$("tr:eq(0)")`
+        - **说明**: 匹配一个给定索引值的元素。`eq(0)` 就是获取第一个元素。括号里面的是索引值，不是物理排列数。
+        - **返回值**: 元素集合。
+
+    7. **大于索引选择器 (`:gt(index)`)**
+        - **用法**: `$("tr:gt(0)")`
+        - **说明**: 匹配所有大于给定索引值的元素（不包含该索引值自身）。
+        - **返回值**: 元素集合。
+
+    8. **小于索引选择器 (`:lt(index)`)**
+        - **用法**: `$("tr:lt(2)")`
+        - **说明**: 匹配所有小于给定索引值的元素（不包含该索引值自身）。
+        - **返回值**: 元素集合。
+
+    9. **标题元素选择器 (`:header`)**
+        - **用法**: `$(":header").css("background", "#EEE")`
+        - **说明**: 匹配如 `h1`, `h2`, `h3` 之类的标题元素。这是专门用来获取标题元素的固定写法。
+        - **返回值**: 元素集合。
+
+    10. **动画元素选择器 (`:animated`)**
+        - **用法**: `$("div:animated")`
+        - **说明**: 匹配所有正在执行动画效果的元素。固定写法。
+        - **返回值**: 元素集合。
+
+1. 应用实例
+
+    以下是基础过滤选择器在实际操作中的代码演示：
+
+    ```javascript
+    // 1. 改变第一个 div 元素的背景色为 #0000FF
+    $("div:first").css("background-color", "#0000FF");
+
+    // 2. 改变最后一个 div 元素的背景色为 #0000FF（即从上到下，从左到右搜索到的最后一个<div>）
+    $("div:last").css("background-color", "#0000FF");
+
+    // 3. 改变 class 不为 one 的所有 div 元素的背景色为 #0000FF
+    $("div:not(.one)").css("background-color", "#0000FF");
+
+    // 4. 改变索引值为偶数的 div 元素的背景色为 #0000FF (索引从 0 开始算，即视觉上的第 1, 3, 5... 个)
+    $("div:even").css("background-color", "#0000FF");
+
+    // 5. 改变索引值为奇数的 div 元素的背景色为 #0000FF (即视觉上的第 2, 4, 6... 个)
+    $("div:odd").css("background-color", "#0000FF");
+
+    // 6. 改变索引值为大于 3 的 div 元素的背景色为 #0000FF (改变第 5 个及之后的 div)
+    $("div:gt(3)").css("background-color", "#0000FF");
+
+    // 7. 改变索引值为等于 3 的 div 元素的背景色为 #0000FF (改变第 4 个 div)
+    $("div:eq(3)").css("background-color", "#0000FF");
+
+    // 8. 改变索引值为小于 3 的 div 元素的背景色为 #0000FF (改变第 1、2、3 个 div)
+    $("div:lt(3)").css("background-color", "#0000FF");
+
+    // 9. 改变所有的标题元素的背景色为 #0000FF
+    $(":header").css("background-color", "#0000FF");
+    ```
+
+#### 内容过滤选择器
+
+1. 基本介绍
+内容过滤选择器的过滤规则主要体现在它所包含的子元素和文本内容上。
+
+1. 常用内容过滤选择器
+
+    1. **包含文本选择器 (`:contains(text)`)**
+        - **用法**: `$("div:contains('John')")`
+        - **说明**: 匹配包含给定文本的元素。这个选择器非常实用，当我们要选择的判断条件不是 DOM 标签而是文本时，它就派上了用场。它的作用是查找被标签“围”起来的文本内容是否包含指定的内容。
+        - **返回值**: 元素集合。
+
+    2. **空元素选择器 (`:empty`)**
+        - **用法**: `$("td:empty")`
+        - **说明**: 匹配所有不包含子元素或者文本的空元素（即标签内部完全为空，连空格和换行都没有）。
+        - **返回值**: 元素集合。
+
+    3. **包含元素选择器 (`:has(selector)`)**
+        - **用法**: `$("div:has(p)").addClass("test")`
+        - **说明**: 匹配含有选择器所匹配的元素的元素。例如 `$("div:has(p)")` 表示选择内部包含了 `<p>` 标签的 `<div>` 元素。
+        - **返回值**: 元素集合。
+
+    4. **父元素（非空）选择器 (`:parent`)**
+        - **用法**: `$("td:parent")`
+        - **说明**: 匹配含有子元素或者文本的元素。注意：这里是伪类选择器 `:parent`，不是 jQuery 的遍历方法 `.parent()`。它与上面讲的 `:empty` 是互斥的（反义词）。
+        - **返回值**: 元素集合。
+
+1. 应用实例
+
+    以下是内容过滤选择器在实际操作中的代码演示：
+
+    ```javascript
+    // 1. 改变含有文本 'di' 的 div 元素的背景色为 #0000FF
+    $("div:contains('di')").css("background-color", "#0000FF");
+
+    // 2. 改变不包含子元素(或者文本元素) 的 div 空元素的背景色为 #0000FF
+    $("div:empty").css("background-color", "#0000FF");
+
+    // 3. 改变内部含有 class 为 mini 元素的 div 元素的背景色为 #0000FF
+    $("div:has(.mini)").css("background-color", "#0000FF");
+
+    // 4. 改变含有子元素(或者文本元素)的 div 元素的背景色为 #0000FF
+    $("div:parent").css("background-color", "#0000FF");
+
+    // 5. 改变不含有文本 'di' 的 div 元素的背景色 (组合使用 :not 和 :contains)
+    $("div:not(:contains('di'))").css("background-color", "#0000FF");
+    ```
+
+#### 可见度过滤选择器
+
+1. 基本介绍
+可见度过滤选择器是根据元素在页面中的“可见”和“不可见”状态来筛选特定元素的。
+
+1. 常用可见度过滤选择器
+
+    1. **不可见元素选择器 (`:hidden`)**
+        - **用法**: `$("tr:hidden")`
+        - **说明**: 匹配所有的不可见元素。这包括在 CSS 中设置了 `display: none` 的元素，以及 HTML 属性为 `<input type="hidden">` 的隐藏域。
+        - **补充注意**: 在 jQuery 的逻辑中，只要元素不占据页面布局空间，就被认为是 hidden。如果元素只是透明度为 0（`opacity: 0`）或者占位隐藏（`visibility: hidden`），它依然占据页面空间，**不会**被 `:hidden` 选中。
+        - **返回值**: 元素集合。
+        
+
+    2. **可见元素选择器 (`:visible`)**
+        - **用法**: `$("tr:visible")`
+        - **说明**: 匹配所有的可见元素。与 `:hidden` 相对应，只要元素在页面中占据实际的物理布局空间，即使由于 `visibility: hidden` 而在视觉上看不见，它在 jQuery 眼中依然算作 `:visible`。
+        - **返回值**: 元素集合。
+
+1. 应用实例
+
+    以下是可见度过滤选择器在实际操作中的代码演示：
+
+    ```javascript
+    // 1. 改变所有可见的 div 元素的背景色为 #0000FF
+    $("div:visible").css("background-color", "#0000FF");
+
+    // 2. 选取所有不可见的 div 元素，利用 jQuery 中的 show() 方法将它们显示出来，并设置其背景色为 #0000FF
+    // (这里利用了 jQuery 的链式编程特性)
+    $("div:hidden").show().css("background-color", "#0000FF");
+
+    // 3. 选取所有的文本隐藏域 (<input type="hidden">)，并打印它们的值
+    // 注意：val() 方法默认只能获取匹配集合中第一个元素的值。要打印所有的值，需要使用 each() 进行遍历。
+    $("input:hidden").each(function() {
+        console.log($(this).val());
+    });
+    ```
+
+#### 属性过滤选择器
+
+1. 基本介绍
+属性过滤选择器的过滤规则是通过元素的 HTML 属性（如 `id`, `name`, `title` 等）及其属性值来获取相应的 DOM 元素。
+
+1. 常用属性过滤选择器
+
+
+    1. **包含属性选择器 (`[attribute]`)**
+        - **用法**: `$("div[id]")`
+        - **说明**: 匹配包含给定属性的元素。例子中是选取了所有带 `id` 属性的 `<div>` 标签。
+        - **返回值**: 元素集合。
+
+    2. **属性等于选择器 (`[attribute=value]`)**
+        - **用法**: `$("input[name='newsletter']")`
+        - **说明**: 匹配给定的属性是某个特定值的元素。例子中选取了所有 `name` 属性精确等于 `newsletter` 的 `<input>` 元素。
+        - **返回值**: 元素集合。
+
+    3. **属性不等于选择器 (`[attribute!=value]`)**
+        - **用法**: `$("input[name!='newsletter']")`
+        - **说明**: 匹配所有不含有指定的属性，或者属性不等于特定值的元素。此选择器等价于 `:not([attr=value])`。如果要匹配“含有特定属性但值不等于特定值”的元素，请使用 `[attr]:not([attr=value])` 进行组合过滤。之前学过的 `:not` 在这里派上了用场。
+        - **返回值**: 元素集合。
+
+    4. **属性以特定值开始选择器 (`[attribute^=value]`)**
+        - **用法**: `$("input[name^='news']")`
+        - **说明**: 匹配给定的属性是以某些值**开始**的元素（类似于正则里的 `^` 代表开头）。
+        - **返回值**: 元素集合。
+
+    5. **属性以特定值结尾选择器 (`[attribute$=value]`)**
+        - **用法**: `$("input[name$='letter']")`
+        - **说明**: 匹配给定的属性是以某些值**结尾**的元素（类似于正则里的 `$` 代表结尾）。
+        - **返回值**: 元素集合。
+
+    6. **属性包含特定值选择器 (`[attribute*=value]`)**
+        - **用法**: `$("input[name*='man']")`
+        - **说明**: 匹配给定的属性是**包含**某些值的元素（只要属性值字符串中含有该片段即可）。
+        - **返回值**: 元素集合。
+
+    7. **复合属性选择器 (`[attr1][attr2][attrN]`)**
+        - **用法**: `$("input[id][name$='man']")`
+        - **说明**: 复合属性选择器，需要**同时满足多个条件**时使用。这是一个组合，例子中选择的是所有含有 `id` 属性，并且它的 `name` 属性是以 `man` 结尾的 `<input>` 元素。
+        - **返回值**: 元素集合。
+
+1. 应用实例
+
+    以下是属性过滤选择器在实际操作中的代码演示（需求：选取特定元素，并改变其背景色为 #0000FF）：
+
+    ```javascript
+    // 1. 含有属性 title 的 div 元素
+    $("div[title]").css("background-color", "#0000FF");
+
+    // 2. 属性 title 值等于 "test" 的 div 元素
+    $("div[title='test']").css("background-color", "#0000FF");
+
+    // 3. 属性 title 值不等于 "test" 的 div 元素 (注意：连 title 属性都没有的 div 也会被选中)
+    $("div[title!='test']").css("background-color", "#0000FF");
+
+    // 4. 属性 title 值以 "te" 开始的 div 元素
+    $("div[title^='te']").css("background-color", "#0000FF");
+
+    // 5. 属性 title 值以 "est" 结束的 div 元素
+    $("div[title$='est']").css("background-color", "#0000FF");
+
+    // 6. 属性 title 值含有 "es" 的 div 元素
+    $("div[title*='es']").css("background-color", "#0000FF");
+
+    // 7. 选取有属性 id 的 div 元素，然后在结果中选取属性 title 值含有 “es” 的 div 元素 (复合属性选择器)
+    $("div[id][title*='es']").css("background-color", "#0000FF");
+    ```
+
+#### 子元素过滤选择器
+
+1. 基本介绍
+子元素过滤选择器是通过 DOM 元素之间的父子关系，并根据子元素在父元素内部的位置（索引）来进行过滤的选择器。**特别注意：子元素过滤选择器的索引是从 `1` 开始计数的。**
+
+1. 常用子元素过滤选择器
+
+    1. **特定位置子元素选择器 (`:nth-child(index/even/odd/equation)`)**
+        - **用法**: `$("ul li:nth-child(2)")`
+        - **说明**: 匹配其父元素下的第 N 个子元素或奇偶元素。这个选择器和基础过滤中的 `:eq()` 有些类似，但**最大的不同点在于：`:nth-child()` 是从 `1` 开始计数的，而 `:eq()` 是从 `0` 开始计数的**。
+        
+        - **扩展用法详解**:
+            - `:nth-child(even)` 或 `:nth-child(odd)`: 能选取每个父元素下的索引值为偶数或奇数的子元素。
+            - `:nth-child(2)`: 能选取每个父元素下的第 2 个子元素。
+            - `:nth-child(3n)`: 能选取每个父元素下的索引值是 3 的倍数的子元素（n 从 1 开始）。
+            - `:nth-child(3n + 1)`: 能选取每个父元素下的索引值是 3n + 1 的子元素。
+        - **返回值**: 元素集合。
+
+    2. **第一个子元素选择器 (`:first-child`)**
+        - **用法**: `$("ul li:first-child")`
+        - **说明**: 匹配每个父元素下的第一个子元素。注意区别：之前学的 `:first` 在整个匹配结果中只返回**全局的唯一一个**元素；而 `:first-child` 是针对父元素的，它将为**每一个**父元素匹配一个第一个子元素，结果可能包含多个元素。
+        
+        - **返回值**: 元素集合。
+
+    3. **最后一个子元素选择器 (`:last-child`)**
+        - **用法**: `$("ul li:last-child")`
+        - **说明**: 匹配每个父元素下的最后一个子元素。同样地，`:last` 只匹配全局最后一个元素，而此选择符将为每个父元素匹配各自的最后一个子元素。
+        - **返回值**: 元素集合。
+
+    4. **唯一子元素选择器 (`:only-child`)**
+        - **用法**: `$("ul li:only-child")`
+        - **说明**: 如果某个元素是其父元素中**唯一**的子元素，那它将会被匹配。如果父元素中还含有其他兄弟元素，那将不会被匹配。意思就是：只有独生子才会被匹配！
+        - **返回值**: 元素集合。
+
+1. 应用实例
+
+    以下是子元素过滤选择器在实际操作中的代码演示（注意选择器中间空格的含义，代表后代中的子元素）：
+
+    ```javascript
+    // 1. 每个 class 为 one 的 div 父元素下的第 2 个子元素，改变其背景色为 #0000FF
+    $("div .one:nth-child(2)").css("background-color", "#0000FF");
+
+    // 2. 每个 class 为 one 的 div 父元素下的第一个子元素
+    $("div .one:first-child").css("background-color", "#0000FF");
+
+    // 3. 每个 class 为 one 的 div 父元素下的最后一个子元素
+    $("div .one:last-child").css("background-color", "#0000FF");
+
+    // 4. 如果 class 为 one 的 div 父元素下仅仅只有一个子元素，那么选中这个子元素
+    $("div .one:only-child").css("background-color", "#0000FF");
+    ```
+
+#### 表单对象属性过滤选择器
+
+1. 基本介绍
+表单对象属性过滤选择器主要是根据表单元素的状态属性（如可用、不可用、选中等）对所选择的表单元素进行精确过滤。
+
+1. 常用表单对象属性过滤选择器
+
+    1. **可用元素选择器 (`:enabled`)**
+        - **用法**: `$("input:enabled")`
+        - **说明**: 匹配所有可用元素。意思是查找所有 `input` 等表单元素中，不带有 `disabled="disabled"` 属性的元素。
+        - **返回值**: 元素集合。
+
+    2. **不可用元素选择器 (`:disabled`)**
+        - **用法**: `$("input:disabled")`
+        - **说明**: 匹配所有不可用元素。与 `:enabled` 相对应，专门匹配带有 `disabled` 属性的表单元素（这类元素通常呈现灰色，且无法与用户交互）。
+        - **返回值**: 元素集合。
+
+    3. **选中元素选择器 (`:checked`)**
+        - **用法**: `$("input:checked")`
+        - **说明**: 匹配所有被选中的元素。**注意：这个选择器主要针对复选框（checkbox）和单选框（radio），不包括 `<select>` 下拉列表中的 `<option>`。**
+        - **返回值**: 元素集合。
+
+    4. **下拉框选中元素选择器 (`:selected`)**
+        - **用法**: `$("select option:selected")`
+        - **说明**: 匹配所有选中的 `<option>` 元素。这是专门为下拉列表（`<select>`）设计的过滤选择器。
+        - **返回值**: 元素集合。
+
+1. 应用实例
+
+    以下是表单对象属性过滤选择器在实际操作中的代码演示：
+
+    ```javascript
+    // 1. 利用 jQuery 对象的 val() 方法改变表单内可用 <input> 元素的值
+    $("input:enabled").val("这里是可用状态的输入框");
+
+    // 2. 利用 jQuery 对象的 val() 方法改变表单内不可用 <input> 元素的值
+    $("input:disabled").val("此输入框已被禁用");
+
+    // 3. 利用 jQuery 对象的 length 属性获取多选框(checkbox)选中的个数
+    // (先限定 type 为 checkbox，再过滤 checked 状态)
+    var checkedCount = $("input[type='checkbox']:checked").length;
+    console.log("选中的个数为：" + checkedCount);
+
+    // 4. 利用 jQuery 对象的 text() 方法获取下拉框选中的内容
+    // (由于下拉框可能是多选 multiple，通常使用 each 进行遍历获取每个选中的值)
+    $("select option:selected").each(function() {
+        console.log($(this).text()); // 打印选中的文本内容
+    });
+    ```
+
+#### 表单选择器
+
+1. 基本介绍
+表单选择器是为了更方便、快捷地获取表单内的各类相关元素而设计的一组特有选择器。它们本质上大多是属性过滤选择器（如 `[type="..."]`）的简写形式。
+
+1. 常用表单选择器
+
+    1. **所有表单元素选择器 (`:input`)**
+        - **用法**: `$(":input")`
+        - **说明**: 匹配所有 `<input>`, `<textarea>`, `<select>` 和 `<button>` 元素。**注意区别**：它不仅匹配 `<input>` 标签，而是匹配几乎所有的表单控件元素。
+        - **返回值**: 元素集合。
+
+    2. **单行文本框选择器 (`:text`)**
+        - **用法**: `$(":text")`
+        - **说明**: 匹配所有的单行文本框（即 `<input type="text">`）。
+        - **返回值**: 元素集合。
+
+    3. **密码框选择器 (`:password`)**
+        - **用法**: `$(":password")`
+        - **说明**: 匹配所有密码框（即 `<input type="password">`）。
+        - **返回值**: 元素集合。
+
+    4. **单选按钮选择器 (`:radio`)**
+        - **用法**: `$(":radio")`
+        - **说明**: 匹配所有单选按钮（即 `<input type="radio">`）。
+        - **返回值**: 元素集合。
+
+    5. **复选框选择器 (`:checkbox`)**
+        - **用法**: `$(":checkbox")`
+        - **说明**: 匹配所有复选框（即 `<input type="checkbox">`）。
+        - **返回值**: 元素集合。
+
+    6. **提交按钮选择器 (`:submit`)**
+        - **用法**: `$(":submit")`
+        - **说明**: 匹配所有提交按钮（包括 `<input type="submit">` 和 `<button type="submit">`）。
+        - **返回值**: 元素集合。
+
+    7. **图像域选择器 (`:image`)**
+        - **用法**: `$(":image")`
+        - **说明**: 匹配所有图像形式的提交按钮（即 `<input type="image">`）。
+        - **返回值**: 元素集合。
+
+    8. **重置按钮选择器 (`:reset`)**
+        - **用法**: `$(":reset")`
+        - **说明**: 匹配所有重置按钮（包括 `<input type="reset">` 和 `<button type="reset">`）。
+        - **返回值**: 元素集合。
+
+    9. **普通按钮选择器 (`:button`)**
+        - **用法**: `$(":button")`
+        - **说明**: 匹配所有普通按钮。这个包括 `<input type="button">` 以及直接写的 `<button>` 元素。
+        - **返回值**: 元素集合。
+
+    10. **文件域选择器 (`:file`)**
+        - **用法**: `$(":file")`
+        - **说明**: 匹配所有文件上传域（即 `<input type="file">`）。
+        - **返回值**: 元素集合。
+
+    11. **隐藏元素选择器 (`:hidden`)**
+        - **用法**: `$("input:hidden")`
+        - **说明**: 匹配所有的隐藏域（`<input type="hidden">`）或不可见元素。**特别注意**：如果要专门选取表单里的 hidden 控件，必须加上标签名写成 `$("input:hidden")`；如果直接写 `$(":hidden")`，则会匹配页面中**所有**的不可见元素（包括 `display: none`、宽度或高度为 0 的普通 `div`、`span` 等）。
+        - **返回值**: 元素集合。
+
+1. 应用实例
+
+    以下是表单选择器在实际操作中的代码演示（利用选择器获取对应表单控件并操作其属性或样式）：
+
+    ```javascript
+    // 1. 获取表单中所有的控件，并禁用它们
+    $(":input").prop("disabled", true);
+
+    // 2. 将所有单行文本框的背景色改为浅灰色
+    $(":text").css("background-color", "#EEE");
+
+    // 3. 获取页面中的所有密码框，并清空其值
+    $(":password").val("");
+
+    // 4. 将所有的单选按钮默认选中
+    $(":radio").prop("checked", true);
+
+    // 5. 将所有的表单隐藏域的值打印出来（注意：使用 input:hidden 精确匹配）
+    $("input:hidden").each(function() {
+        console.log($(this).val());
+    });
+    ```
+
+### jQuery 的 DOM 操作
+
+#### 页面加载完毕后的几种触发方法
+
+1. 基本介绍
+在前端开发中，如果要用 JavaScript 为 DOM 元素添加交互事件，必须确保这些 DOM 元素已经在页面上加载（渲染）完毕了，否则会找不到对应的元素。因此我们需要使用特定的加载完毕触发方法来包裹我们的逻辑代码。
+
+
+1. 几种常见的触发方法
+
+    1. **JS 原生 (`window.onload`)**
+        - **代码**: 
+          ```javascript
+          window.onload = function() { ... }
+          ```
+        - **说明**: 这是最传统的原生写法。它必须等待网页中所有的 DOM 结构解析完毕，**并且所有外部资源（如图片、音频、外部 iframe 等）全部下载完成后**才会触发执行。
+        - **缺点**: 如果页面包含大量大尺寸图片，代码的执行会被严重拖慢，导致用户早期点击无反应。此外，一个页面中只能使用一次，多次编写会被相互覆盖。
+
+    2. **jQuery 标准 (`$(document).ready()`)**
+        - **代码**: 
+          ```javascript
+          $(document).ready(function() { ... });
+          ```
+        - **说明**: 只要网页的 **DOM 树（HTML 结构）绘制完毕就立刻执行**，完全不需要理会外部关联资源（如大图）有没有下载完。
+        - **优点**: 执行速度极快，保证了极佳的用户体验。且同一个页面中可以编写无数次，它们会按照书写的先后顺序排队依次执行，绝不会互相冲突。
+
+    3. **jQuery 简化 (`$(function(){})`)**
+        - **代码**: 
+          ```javascript
+          $(function() { ... });
+          ```
+        - **说明**: 这是 `$(document).ready()` 的极致简写（语法糖）形式。其底层原理、执行时机和功能与标准写法**完完全全一模一样**。
+        - **建议**: 为了代码简洁，在实际的企业级项目开发中，几乎 100% 都是使用这种简化写法来作为 jQuery 代码的入口。
+
+#### 查找节点与修改属性
+
+1. 基本介绍
+    - 查找到所需要的元素之后，可以调用 jQuery 对象的 `attr()` 方法来获取或修改它的各种属性值。
+    - `attr("attr"[, "val"])`
+
+2. 示例
+    ```js
+    // 获取 id 为 logo 的图片的 src 属性值
+    var imgSrc = $("#logo").attr("src"); 
+    // 将该图片的 src 修改为新的路径
+    $("#logo").attr("src", "new-logo.png");
+    ```
+
+#### 创建与插入节点
+
+1. 创建节点
+    1. **工厂函数 `$()`**
+        - **用法**: `$(html标签)`
+        - **说明**: 会根据传入的 HTML 标记字符串创建一个 jQuery 对象并返回。
+        - **注意**: 动态创建的新元素节点不会被自动添加到文档中，需要使用下面介绍的方法将其插入。创建单个元素时需注意闭合标签，如 `$("<p/>")` 或 `$("<p></p>")`。创建时可直接将文本和属性一并写出。
+
+1. 内部插入法 (在元素内部插入，变为子节点)
+    
+    1. **`append(content)`**
+        - **说明**: `A.append(B)`，将 B 追加到 A 内部的结尾处。B 成为 A 的最后一个子节点。
+    2. **`appendTo(content)`**
+        - **说明**: `A.appendTo(B)`，将 A 追加到 B 内部的结尾处。A 成为 B 的最后一个子节点。
+    3. **`prepend(content)`**
+        - **说明**: `A.prepend(B)`，将 B 插入到 A 内部的开始处。B 成为 A 的第一个子节点。
+    4. **`prependTo(content)`**
+        - **说明**: `A.prependTo(B)`，将 A 插入到 B 内部的开始处。A 成为 B 的第一个子节点。
+
+1. 外部插入法 (在元素外部插入，变为兄弟节点。**此方法不仅能增加节点，还可以移动现有节点**)
+    
+    1. **`after(content)`**
+        - **说明**: `A.after(B)`，在 A 之后插入 B。B 成为 A 后面的兄弟节点。
+    2. **`insertAfter(content)`**
+        - **说明**: `A.insertAfter(B)`，将 A 插入到 B 的后面。A 成为 B 后面的兄弟节点。
+    3. **`before(content)`**
+        - **说明**: `A.before(B)`，在 A 之前插入 B。B 成为 A 前面的兄弟节点。
+    4. **`insertBefore(content)`**
+        - **说明**: `A.insertBefore(B)`，将 A 插入到 B 的前面。A 成为 B 前面的兄弟节点。
+
+1. 示例
+    1. 简单示例
+        ```js
+        // 工厂函数创建一个全新的 <li> 节点
+        var $newLi = $("<li>这是一个新创建的列表项</li>"); 
+        // 内部插入：将新节点追加到 ul 列表的末尾 (成为最后一个子节点)
+        $("ul").append($newLi); 
+        // 外部插入：在 id 为 box 的 div 后面紧挨着插入一个段落 (成为兄弟节点)
+        $("#box").after("<p>我是 box 后面的新段落</p>");
+        ```
+
+    1. **原生 DOM 方式创建并插入节点 (参考 `test1` 方法)**
+        - **目标**: 添加“重庆”节点到“上海”节点内部。
+        - **实现**: 
+            ```js
+            var myli = document.createElement("li"); // 1. 创建元素
+            myli.setAttribute("id", "cq");           // 2. 设置属性
+            myli.innerHTML = "重庆";                 // 3. 设置内容
+            document.getElementById("sh").appendChild(myli); // 4. 追加到目标节点
+            ```
+        - **说明**: 原生方法步骤繁琐，需要频繁调用原生 API 来组装节点。
+
+    2. **jQuery 创建节点 (两种方式)**
+        - **一步到位法**: 直接传入包含完整 HTML 结构、属性和内容的字符串。
+            ```js
+            var $myli = $("<li id='cq' name='chongqing'>重庆</li>");
+            ```
+        - **逐步构建法**: 先创建空标签，再利用 jQuery 方法链式添加文本和属性。
+            ```js
+            var $myli = $("<li></li>").text("重庆").attr("id", "cq").attr("name", "chongqing");
+            ```
+        - **说明**: jQuery 的工厂函数 `$()` 极大简化了节点的创建过程。日常开发中推荐“一步到位法”，更加简洁。
+
+    3. **内部插入：追加到末尾 (`append` / `appendTo`)**
+        - **目标**: 添加“重庆”到“上海”内部的最后面。
+        - **实现**:
+            ```js
+            // 方式 1：父元素.append(新元素) —— 在 $('#sh') 内部的后面添加 $myli
+            $('#sh').append($myli); 
+            
+            // 方式 2：新元素.appendTo(父元素) —— 把 $myli 添加到 $('#sh') 内部的后面
+            // $myli.appendTo($('#sh'));
+            ```
+        - **说明**: 结果是新创建的节点成为了目标元素的**最后一个子节点**。
+
+    4. **内部插入：插入到开头 (`prepend` / `prependTo`)**
+        - **目标**: 添加“成都”到整个城市列表（`#city`）的最前面。
+        - **实现**:
+            ```js
+            var $myli = $("<li id='cd' name='chengdu'>成都</li>");
+            // 方式 1：父元素.prepend(新元素)
+            $('#city').prepend($myli);
+            
+            // 方式 2：新元素.prependTo(父元素)
+            // $myli.prependTo($('#city'));
+            ```
+        - **说明**: 结果是新创建的节点成为了目标元素的**第一个子节点**。
+
+    5. **外部插入：插入到目标之后 (`after` / `insertAfter`)**
+        - **目标**: 添加“成都”到“北京”节点的后面。
+        - **实现**:
+            ```js
+            // 方式 1：目标元素.after(新元素/HTML字符串)
+            // $("#bj").after("<li id='cd' name='chengdu'>成都</li>");
+            
+            // 方式 2：新元素/HTML字符串.insertAfter(目标元素)
+            $("<li id='cd' name='chengdu'>成都</li>").insertAfter($('#bj'));
+            ```
+        - **说明**: 结果是新创建的节点成为了目标元素的**后一个兄弟节点**。外部插入不会改变父子关系，只改变平级关系的排列。
+
+    6. **外部插入：插入到目标之前 (`before` / `insertBefore`)**
+        - **目标**: 添加“成都”到“吉林”节点的前面。
+        - **实现**:
+            ```js
+            var $cd = $("<li id='cd' name='chengdu'>成都</li>");
+            // 方式 1：目标元素.before(新元素)
+            // $("#jl").before($cd);
+            
+            // 方式 2：新元素.insertBefore(目标元素)
+            $cd.insertBefore($('#jl'));
+            ```
+        - **说明**: 结果是新创建的节点成为了目标元素的**前一个兄弟节点**。
+
+#### 删除节点
+
+1. 常用删除方法
+    1. **`remove()`**
+        - **说明**: 从 DOM 中删除所有匹配的元素。当某个节点被删除后，该节点所包含的所有后代节点将被同时删除。此方法会返回一个指向已被删除节点的引用（意味着你可以把它存入变量，稍后再插入到其他地方）。
+    2. **`empty()`**
+        - **说明**: 清空节点。仅仅清空元素中的所有后代节点和文本，但不删除该元素本身及其属性。
+
+#### 复制节点
+
+1. 常用复制方法
+    1. **`clone()`**
+        - **说明**: 克隆匹配的 DOM 元素，返回克隆后的副本。注意：此时复制的新节点不具备原节点上绑定的任何行为（事件）。
+    2. **`clone(true)`**
+        - **说明**: 复制元素的同时，连同元素中绑定的事件一起克隆过来。
+
+#### 替换节点
+
+1. 常用替换方法
+    1. **`replaceWith()`**
+        - **说明**: `A.replaceWith(B)`，将所有匹配的元素 A 都替换为指定的 B 元素。
+    2. **`replaceAll()`**
+        - **说明**: `A.replaceAll(B)`，颠倒的 `replaceWith()` 方法，将 A 替换到所有的 B 元素上。
+    3. **注意**
+        - **说明**: 若在替换之前已经在原元素上绑定了事件，替换后原先绑定的事件会与原先的元素一起消失。
+
+#### 属性操作
+
+1. 基本介绍
+在 jQuery 中，操作元素的属性主要有两套 API：`attr()` 体系和 `prop()` 体系。理解它们之间的底层区别，是避免表单状态 Bug 的关键。
+
+1. 常用属性方法
+
+    1. **`attr()`**
+        - **说明**: 获取或设置元素的 **HTML 属性（Attribute）**。传递一个参数时为获取该属性值；传递两个参数时为设置该属性值。
+        - **补充**: jQuery 中有很多方法都是“读写合一”的，如 `attr()`, `html()`, `text()`, `val()`, `css()` 等。
+        - **适用场景**: 适合操作非布尔值的标准属性（如 `src`, `href`, `title`），以及写在 HTML 标签上的**自定义属性**（如 `data-id`）。
+
+    2. **`removeAttr()`**
+        - **说明**: 删除指定元素的指定 HTML 属性。
+
+    3. **`prop()`**
+        - **说明**: 获取或设置元素的 **DOM 内存属性（Property）**。语法表现与 `attr()` 一致（单参数读，双参数写）。
+        - **适用场景**: **强烈推荐**用于处理**布尔类型的表单状态属性**（如 `checked`, `selected`, `disabled`, `readonly` 等）。
+
+    4. **`removeProp()`**
+        - **说明**: 用来删除由 `.prop()` 方法设置的属性集。注意：不要用此方法来删除原生的 DOM 属性（如 `checked`, `disabled`），这会导致该属性彻底损坏，如果想重置状态，应使用 `.prop("checked", false)`。
+
+1. 核心考点：`attr()` 与 `prop()` 的区别与特点
+    
+
+    1. **侧重点不同（前世与今生）**
+        - `attr()` 操作的是文档节点属性。它看重的是 **HTML 源码**里写了什么（前世）。
+        - `prop()` 操作的是 JS 对象属性。它看重的是浏览器当前内存中维护的**实时状态**（今生）。
+    
+    2. **布尔值返回结果不同**
+        - 对于复选框的 `checked` 状态，如果用 `attr("checked")`，选中时可能返回 `"checked"`，未选中返回 `undefined`，处理起来极其麻烦。
+        - 而使用 `prop("checked")`，会始终极其稳定地返回标准布尔值 `true` 或 `false`。
+
+    3. **黄金法则**
+        - 自定义属性用 `attr()`。
+        - 只有 `true/false` 两个状态的表单属性，**无脑用 `prop()`**。
+
+1. 应用实例
+
+    以下是 `attr()` 和 `prop()` 在实际开发中的对比演示：
+
+    ```javascript
+    // 场景 1：获取自定义属性（必须用 attr）
+    // HTML: <div id="box" data-index="100"></div>
+    var idxAttr = $("#box").attr("data-index"); // 成功获取到字符串 "100"
+    var idxProp = $("#box").prop("data-index"); // 获取失败，返回 undefined
+
+
+    // 场景 2：获取表单选中状态（强烈推荐用 prop）
+    // HTML: <input type="checkbox" id="agree" checked="checked">
+    
+    // 假设此时用户在页面上【手动取消了勾选】该复选框：
+    console.log($("#agree").attr("checked")); // 依然输出 "checked" (它死板地读取 HTML 初始源码)
+    console.log($("#agree").prop("checked")); // 输出 false (精确反映了用户操作后的当前真实状态)
+
+
+    // 场景 3：实际开发中的经典应用（全选/取消全选）
+    $("#selectAll").click(function() {
+        // 将页面上所有复选框的真实选中状态，设置为与“全选按钮”当前的真实状态一致
+        $(":checkbox").prop("checked", $(this).prop("checked"));
+    });
+    ```
+
+#### 样式操作 (Class 属性控制)
+
+1. 核心思路解析
+在 jQuery 中，虽然可以用 `.css()` 直接修改具体的颜色、大小，但更推荐的做法是：**在 CSS 文件里提前写好各种状态的 `.class` 样式类，然后通过 jQuery 动态地给元素“穿上”或“脱下”这些 class**。这样能做到结构（HTML）、表现（CSS）和行为（JS）的完美分离。
+
+1. 常用样式方法详解
+
+    1. **粗暴覆盖样式 (`attr("class", value)`)**
+        - **说明**: 直接修改标签的 `class` 属性。原有的所有 class 都会被无情抹除，替换为你指定的新 class。
+        - **弊端**: 容易误伤其他有用的基础样式，日常开发中**不推荐**频繁使用此方法来控制样式。
+
+    2. **追加样式 (`addClass(class)`)**
+        - **说明**: 为元素叠加一个新的 class 类名。原有样式不受影响。如果是添加多个类，可以用空格隔开，如 `addClass("class1 class2")`。
+
+    3. **移除样式 (`removeClass(class)`)**
+        - **说明**: 精准删除元素上的某个 class 类名。如果不传参数（即直接调用 `removeClass()`），则会清空该元素身上所有的 class。
+
+    4. **切换样式 (`toggleClass(class)`)**
+        - **说明**: 智能开关。检查元素是否含有指定的 class，**有就删除，没有就添加**。极大地简化了状态切换的代码逻辑（省去了写 `if...else` 的麻烦）。
+
+    5. **判断样式 (`hasClass(class)`)**
+        - **说明**: 用于条件判断。检查元素身上是否包含某个特定的 class。包含则返回 `true`，不包含返回 `false`。
+
+1. 综合应用实例
+
+    假设我们有一个网页盒子，默认是浅色模式，我们想通过几个按钮来控制它的样式切换：
+
+    ```html
+    <style>
+        .box { width: 200px; height: 100px; transition: 0.3s; } /* 基础样式永远保留 */
+        .light-theme { background: #EEE; color: #333; }       /* 浅色主题 */
+        .dark-theme { background: #333; color: #EEE; }        /* 深色主题 */
+        .highlight { border: 2px solid red; font-size: 20px;} /* 高亮描边 */
+    </style>
+
+    <div id="myBox" class="box light-theme">这是一个测试盒子</div>
+    ```
+
+    ```javascript
+    // jQuery 操作演示：
+
+    // 1. addClass 追加高亮：盒子不仅保持浅色主题，还多了一个红色描边
+    $("#btn-add").click(function() {
+        $("#myBox").addClass("highlight"); 
+    });
+
+    // 2. removeClass 移除高亮：红色描边消失，盒子依然保持浅色主题
+    $("#btn-remove").click(function() {
+        $("#myBox").removeClass("highlight"); 
+    });
+
+    // 3. toggleClass 夜间模式切换：
+    // 点一下，如果是浅色就变深色；再点一下，深色变浅色。完全不需要写 if 判断！
+    $("#btn-toggle").click(function() {
+        // 同时切换浅色类和深色类，实现无缝互换
+        $("#myBox").toggleClass("light-theme dark-theme"); 
+    });
+
+    // 4. hasClass 状态判断：
+    $("#btn-check").click(function() {
+        // 检查盒子现在是不是处于夜间模式
+        if ($("#myBox").hasClass("dark-theme")) {
+            alert("当前是夜间模式哦！");
+        } else {
+            alert("当前是白天模式！");
+        }
+    });
+
+    // 5. 错误示范 (attr 覆盖)：
+    // 如果这样写，box 和 light-theme 这两个自带衣服都会被强行脱掉，
+    // 盒子会失去宽高（因为 .box 没了），变成一个纯粹的红框框，页面布局就乱了。
+    // $("#myBox").attr("class", "highlight"); 
+    ```
+
+#### 获取 HTML, 文本和值
+
+1. 基本介绍
+这三个方法主要用于操作 DOM 元素内部的内容或表单控件的值。它们同样遵循 jQuery “读写合一”的原则（无参时为获取，有参时为设置）。
+
+1. 常用内容方法
+
+    1. **`html()`**
+        - **说明**: 读取或设置所选元素的内容（包含并解析内部的 HTML 标记），类似于原生 JS 的 `innerHTML`。常用于动态渲染富文本或 DOM 结构。
+
+    2. **`text()`**
+        - **说明**: 读取或设置某个元素中的纯文本内容（忽略且不解析 HTML 标记），类似于原生 JS 的 `innerText`。常用于安全地展示用户输入的普通文本，防止 XSS 攻击（脚本注入）。
+
+    3. **`val()`**
+        - **说明**: 读取或设置表单元素（`<input>`, `<select>`, `<textarea>`）的值，类似于原生 JS 的 `value` 属性。
+        - **核心进阶（选择框的特殊魔法）**:
+            - **下拉框取值**: 对于 `<select>`，调用 `.val()` 会直接获取当前被选中的 `<option>` 的 `value` 值。如果是多选下拉框（`<select multiple>`），它会直接返回一个**包含所有选中值的数组**。
+            - **传数组自动勾选/回显**: 这是一个杀手级特性！当你给 `.val()` 传入一个**数组**时，jQuery 会自动去页面里寻找匹配的单选框、复选框或下拉项，并**自动将它们设为选中/勾选状态**。这在做“表单数据修改回显”功能时极其方便。
+            
+
+1. 应用实例（重点解析 `val()` 的选择框操作）
+
+    以下是 `val()` 在不同表单控件中的实际应用演示：
+
+    ```javascript
+    // 场景 1：普通文本框的读写
+    var username = $("#username").val(); // 获取用户输入的值
+    $("#username").val("李四"); // 将输入框的内容强制修改为“李四”
+
+    // 场景 2：单选下拉列表 (<select>) 的操作
+    // HTML: <select id="city"><option value="bj">北京</option><option value="sh">上海</option></select>
+    var currentCity = $("#city").val(); // 获取当前选中的城市，例如返回 "bj"
+    $("#city").val("sh"); // 极简赋值：下拉框会在 UI 上自动切换并显示“上海”
+
+    // 场景 3：多选下拉列表 (<select multiple>) 的取值
+    // 返回结果直接是一个数组，例如：["reading", "sports"]
+    var selectedHobbies = $("#hobbies").val(); 
+
+    // 场景 4：神奇的数组赋值（表单数据一键回显）
+    // 假设页面上有多个复选框，对应的 value 分别是 "apple", "banana", "orange"
+    // 传统做法需要遍历一个个去加 checked 属性。在 jQuery 中，只需传入一个数组：
+    $(":checkbox").val(["apple", "orange"]); // jQuery 会自动把 value 为 apple 和 orange 的复选框打上勾！
+    
+    // 同样适用于单选框（Radio）的回显
+    $(":radio").val(["female"]); // 自动选中 value 为 "female" 的那个单选框
+    ```
+
+#### 常用遍历节点方法
+
+1. 常用遍历方法
+    
+    1. **`children()`**
+        - **说明**: 取得匹配元素的所有**直接子元素**组成的集合。只考虑直接关联的子代，不深入后代。
+    2. **`next()` / `nextAll()`**
+        - **说明**: 取得匹配元素**后面**的紧邻同辈元素 / 后面所有的同辈元素。
+    3. **`prev()` / `prevAll()`**
+        - **说明**: 取得匹配元素**前面**的紧邻同辈元素 / 前面所有的同辈元素。
+    4. **`siblings()`**
+        - **说明**: 取得匹配元素前后**所有**的同辈兄弟元素集合。
+    5. **链式过滤与定位**
+        - **说明**: 遍历后可继续链式调用进行筛选。如 `nextAll().eq(index)` 获取指定位置的兄弟；`nextAll().filter("标签")` 对获取到的同辈元素进行条件过滤。
+
+####  CSS-DOM 操作
+
+1. 常用 CSS 方法
+    1. **`css()`**
+        - **说明**: 获取和设置元素的内联样式属性。
+    2. **透明度设置**
+        - **说明**: 直接利用 `css("opacity", "0.5")` 即可获取和设置元素透明度，jQuery 底层处理了浏览器的兼容性。
+    3. **`height()` / `width()`**
+        - **说明**: 获取和设置元素高度与宽度。设置值时若只传递数字，默认单位是 `px`；若需使用其他单位则需传字符串，例如 `height("2em")`。
+    4. **`offset()`**
+        - **说明**: 获取元素在当前视窗中的相对位移。返回的对象包含 `top` 和 `left` 两个属性。此方法只对可见元素有效。
+
+#### jQuery 中隐式传入的 this
+
+1. 基本介绍
+在 jQuery 的事件处理函数（如 `click()`, `hover()`）或遍历方法（如 `each()`）的回调函数中，jQuery 会在底层自动改变函数的执行上下文，将 `this` 关键字**隐式地指向当前正在操作的那个原生 DOM 元素**。
+
+1. 核心区分：`this` 与 `$(this)`
+    
+    1. **`this` (原生 DOM 对象)**
+        - **说明**: 它是 JavaScript 原生的 DOM 节点对象。你可以直接调用它的原生属性和方法（如 `this.id`, `this.value`, `this.innerHTML` 等）。
+        - **注意**: 原生 DOM 对象**不能**直接调用 jQuery 的方法（例如写成 `this.html()` 会导致程序报错）。
+
+    2. **`$(this)` (jQuery 对象)**
+        - **说明**: 它是通过 jQuery 的工厂函数 `$()` 将原生的 `this` 包装起来后产生的新对象。
+        - **优势**: 经过包装后，它就变成了一个彻头彻尾的 jQuery 对象，可以使用 jQuery 提供的所有强大且兼容性好的 API（如 `$(this).html()`, `$(this).css()`, `$(this).siblings()` 等）。
+
+1. 常见应用场景
+
+    1. **事件处理函数 (Event Handlers)**
+        - **说明**: 当为一组元素批量绑定事件时，回调函数内部的 `this` 永远精确指向**当前触发该事件的那个具体元素**。这在列表点击、隔行变色、选项卡切换等场景中极其常用。
+
+    2. **遍历方法 (`each()`)**
+        - **说明**: 在使用 `.each(function(index, element))` 遍历 jQuery 集合时，每次循环中的 `this` 都会指向**当前正在被遍历的那个具体的 DOM 元素**（其实它就等同于回调函数中的第二个参数 `element`）。
+
+1. 特别避坑：箭头函数陷阱
+
+    1. **ES6 箭头函数与 `this`**
+        - **说明**: ES6 的箭头函数 `() => {}` **没有自己的 `this`**，它会向外层寻找并继承词法作用域的 `this`（在浏览器中通常是全局的 `window` 对象）。
+        - **后果**: 如果在 jQuery 的事件或 `each` 回调中使用了箭头函数，jQuery 就**无法**将触发事件的原生 DOM 元素隐式绑定给 `this` 了。
+        - **解决方案**: 当你需要使用 jQuery 隐式传入的 `this` 时，**务必使用传统的 `function() {}` 声明**。
+
+1. 应用实例
+
+    以下是 `this` 和 `$(this)` 在实际开发中的典型代码演示（建议结合使用：用原生 `this` 读取属性效率更高，用 `$(this)` 操作 DOM 更方便）：
+
+    ```javascript
+    // 场景 1：在事件处理中使用
+    $("ul li").click(function() {
+        // 此时的 this 指向的是当前被点击的那个具体的 <li> 原生 DOM 节点
+        
+        // 1. 使用原生 DOM 方式获取文本 (性能极高)
+        var text1 = this.innerHTML; 
+        
+        // 2. 使用 jQuery 方式获取文本 (功能强大，能处理兼容性)
+        var text2 = $(this).text(); 
+        
+        // 3. 链式操作修改被点击元素的样式 (利用 $(this) 实现排他思想)
+        $(this).css("color", "red").siblings().css("color", "black");
+    });
+
+    // 场景 2：在 each 遍历中使用
+    $("input[type='text']").each(function(index) {
+        // 此时的 this 指向当前循环到的那个 <input> 原生对象
+        
+        // 如果输入框为空，则利用 $(this) 给它设置默认值
+        if (this.value === "") { // 推荐：这里用原生属性判断，性能更好
+            $(this).val("请输入内容..."); // 推荐：这里用 jQuery 方法赋值，代码更简洁
+        }
+    });
+
+    // 场景 3：错误示范（箭头函数陷阱）
+    $("button").click(() => {
+        // 警告：由于使用了箭头函数，这里的 this 会指向外层的 Window 对象！
+        console.log(this); // 输出: Window {...}
+        
+        // $(this).hide(); // 这样做不仅隐藏不了按钮，还会把整个窗口内的某些内容搞乱
+    });
+    ```
+
+#### 【案例1】多选框案例分析
+
+1. 案例截图
+    ![javaweb_JQuery_example01](./img/javaweb_JQuery_example01.png)
+2. 案例需求
+    - 点击`->`把左边选中的移动到右边
+    - 点击`==>`把左边全部移动到右边
+    - 双击左边或者右边的某个选项，将其自动移动到另外一边
+3. 实现代码
+    ```js
+        $(function () {
+        //全部移动右边
+        $("#add_all").click(
+            function (){
+                $("#first").children().appendTo($("#second"));
+            }
+        )
+        //选中的移到右边
+        $("#add").click(
+            function (){
+                $("#first option:selected").appendTo($("#second"));
+            }
+        )
+        //双击移到右边
+        $("#first option").dblclick(
+            function (){
+                $(this).appendTo($("#second"));
+            }
+        )
+        //全部移动左边
+        $("#remove_all").click(
+            function (){
+                $("#second").children().appendTo($("#first"));
+            }
+        )
+        //选中的移到左边
+        $("#remove").click(
+            function (){
+                $("#second option:selected").appendTo($("#first"));
+            }
+        )
+        //双击移到左边
+        $("#second option").dblclick(
+            function (){
+                $(this).appendTo($("#first"));
+            }
+        )
+    })
+    ```
+
+4. 缺陷
+    - 在你的多选框项目中，当你用 `$("#first option").dblclick(...)` 时，你是在页面刚加载完的那一刻，给当时存在的 `<option>` 元素挨个打上了“双击监听器”。这会带来两个致命问题：
+
+        - **动态元素失效（你遇到的 Bug）**： 如果一个 `<option>` 被移动到了右边，或者你通过 JS 新生成了一个 `<option>` 插进列表，这个新来或者移动过的元素是没有绑定事件的。因为它错过了页面刚加载时的那次“集体绑定”。
+
+        - **内存消耗大**： 如果你有一个列表包含 1000 个 `<li>` 或 `<option>`，直接绑定意味着要在内存里创建 1000 个监听器，这会让网页变得卡顿。
+
+    - **核心原理**：事件冒泡（Event Bubbling）
+        - 事件委托能够成立，全靠浏览器 DOM 的一个特性——**事件冒泡**。
+        - 当你点击页面上的一个内层元素（比如 `<option>`）时，这个点击事件并不会停留在那里，而是像水里的泡泡一样，一层一层向上传递给它的父元素，直到最外层的 `document`。
+        - 事件委托的逻辑就是顺水推舟：
+        - 既然子元素（option）被点击后，无论如何都会通知父元素（select），那我们干脆不在子元素上挂监听器了，直接在父元素上挂一个监听器。
+        - 当父元素监听到点击时，它会问一句：“刚才这个点击，最初是哪个后代触发的？”（底层通过 `event.target` 获取）。如果确认是目标子元素触发的，就执行相应的代码。
+
+    - jQuery 中的代码演进
+        在 jQuery 中，事件委托的写法非常简单优雅，主要使用 `.on()` 方法。    
+        - ❌ 错误示范（直接绑定在子元素上）：
+            ```JavaScript
+            // 只能绑定现有的 option，新加的无效
+            $("#first option").on("dblclick", function() {
+                $(this).appendTo($("#second"));
+            });
+            ```
+        - ✅ 正确示范（事件委托到父容器）：
+        ```JavaScript
+        // 把耳朵（监听器）长在父容器 #first 上
+        // 但是只对触发源是 option 的事件做出反应
+        $("#first").on("dblclick", "option", function() {
+            // 这里的 this 依然会准确指向被双击的那个 option
+            $(this).appendTo($("#second"));
+        });
+        ```
+    - **注意**：在下面给出的进阶代码中： `$("#first").dblclick(...)` 配合 `$("option:selected", this)` 是一种变体的父级处理方式，而上面使用 `.on()` 的写法才是最正宗、最标准的“事件委托”语法
+
+4. 进阶版
+    直接把双击事件绑定在了 `option` 元素上。当页面刚加载时，左侧的选项确实有了双击事件。但是，如果你把`选项 1`移动到了右侧，然后再移动回左侧，它的双击事件可能会**失效**（具体取决于 jQuery 的底层处理和浏览器）。更稳妥的做法是**事件委托**，或者直接把双击事件绑定在 `<select>` 父容器上，让它去寻找被选中的 `option`。
+    ```html
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>高颜值多选框穿梭框应用</title>
+        <!-- 引入官方 jQuery -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        
+        <style>
+            /* 引入好看的全局字体 */
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+            body {
+                font-family: 'Inter', system-ui, -apple-system, sans-serif;
+                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                margin: 0;
+                height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            /* 核心卡片容器 */
+            .transfer-container {
+                background-color: #ffffff;
+                padding: 30px 40px;
+                border-radius: 16px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+                display: flex;
+                align-items: center;
+                gap: 24px;
+            }
+
+            /* 列表区域样式 */
+            .list-box {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .list-box label {
+                font-size: 14px;
+                font-weight: 600;
+                color: #333;
+                text-align: center;
+            }
+
+            /* 下拉框美化 */
+            select[multiple] {
+                width: 180px;
+                height: 260px;
+                padding: 8px;
+                border: 2px solid #e2e8f0;
+                border-radius: 8px;
+                outline: none;
+                font-size: 14px;
+                color: #4a5568;
+                background-color: #f8fafc;
+                transition: border-color 0.3s ease;
+                overflow-y: auto;
+            }
+
+            select[multiple]:focus {
+                border-color: #667eea;
+            }
+
+            select[multiple] option {
+                padding: 8px 12px;
+                margin-bottom: 4px;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            /* 选项悬浮和选中状态 */
+            select[multiple] option:hover {
+                background-color: #e2e8f0;
+            }
+
+            select[multiple] option:checked {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }
+
+            /* 操作按钮组 */
+            .action-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .btn {
+                width: 44px;
+                height: 44px;
+                border: none;
+                border-radius: 50%;
+                background-color: #f1f5f9;
+                color: #475569;
+                font-weight: bold;
+                font-size: 16px;
+                cursor: pointer;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            }
+
+            .btn:hover {
+                background-color: #667eea;
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
+            }
+
+            .btn:active {
+                transform: translateY(0);
+            }
+        </style>
+
+        <script type="text/javascript">
+            $(function () {
+                // 1. 全部移动右边
+                $("#add_all").click(function (){
+                    $("#first").children().appendTo($("#second"));
+                });
+
+                // 2. 选中的移到右边
+                $("#add").click(function (){
+                    $("#first option:selected").appendTo($("#second"));
+                });
+
+                // 3. 双击移到右边 (修复版逻辑：事件绑定在 select 上)
+                $("#first").dblclick(function (){
+                    $("option:selected", this).appendTo($("#second"));
+                });
+
+                // 4. 全部移动左边
+                $("#remove_all").click(function (){
+                    $("#second").children().appendTo($("#first"));
+                });
+
+                // 5. 选中的移到左边
+                $("#remove").click(function (){
+                    $("#second option:selected").appendTo($("#first"));
+                });
+
+                // 6. 双击移到左边 (修复版逻辑)
+                $("#second").dblclick(function (){
+                    $("option:selected", this).appendTo($("#first"));
+                });
+            });
+        </script>
+    </head>
+    <body>
+
+        <div class="transfer-container">
+            
+            <!-- 左侧列表 -->
+            <div class="list-box">
+                <label>待选列表</label>
+                <select name="first" multiple="multiple" id="first">
+                    <option value="选项 1">🍎 选项 1</option>
+                    <option value="选项 2">🍌 选项 2</option>
+                    <option value="选项 3">🍇 选项 3</option>
+                    <option value="选项 4">🍊 选项 4</option>
+                    <option value="选项 5">🍉 选项 5</option>
+                    <option value="选项 6">🍓 选项 6</option>
+                    <option value="选项 7">🥝 选项 7</option>
+                    <option value="选项 8">🍒 选项 8</option>
+                </select>
+            </div>
+
+            <!-- 按钮控制区 -->
+            <div class="action-buttons">
+                <button id="add" class="btn" title="选中右移">&#8250;</button>          <!-- 单右箭头 -->
+                <button id="add_all" class="btn" title="全部右移">&#187;</button>      <!-- 双右箭头 -->
+                <button id="remove" class="btn" title="选中左移">&#8249;</button>       <!-- 单左箭头 -->
+                <button id="remove_all" class="btn" title="全部左移">&#171;</button>   <!-- 双左箭头 -->
+            </div>
+
+            <!-- 右侧列表 -->
+            <div class="list-box">
+                <label>已选列表</label>
+                <select name="second" multiple="multiple" id="second">
+                    <option value="选项 9">🍍 选项 9</option>
+                </select>
+            </div>
+
+        </div>
+
+    </body>
+    </html>
+    ```
+
+## 数据交换和异步请求 - JSON & Ajax
+
+### 基本内容
+
+1. **核心概念**
+    - **全称**: JavaScript Object Notation (JavaScript 对象表示法)。
+    - **定位**: 它是目前 Web 开发中最流行的一种**轻量级**的文本数据交换格式。
+    - **跨语言特性**: JSON 是完全独立于语言的。虽然名字里带着 JavaScript，但它几乎被所有主流编程语言（如 Java、PHP、C#、Go、Python 等）完美支持，是前后端沟通的“世界语”。
+    - **特点**: 具有极强的自我描述性，人类阅读友好，机器解析也极快。
+    - *[W3School JSON 在线手册](https://www.w3school.com.cn/js/js_json_intro.asp)*
+    - *[W3School Ajax 在线手册](https://www.w3school.com.cn/js/js_ajax_intro.asp)*
+
+2. JSON 语法规则 (核心)
+    1. **键值对 (映射)**: 数据以键值对的形式存在，用冒号 `:` 表示。格式为 `"键名" : 值`。**特别注意：JSON 的键名（Key）必须是字符串，且必须严格使用双引号 `""` 包裹（不能用单引号）。**
+    2. **数据分隔**: 同一层级并列的多个数据之间，必须用逗号 `,` 分隔。例如：`"name":"jack", "age":12`。
+    3. **对象表示 (Object)**: 数据的集合（对象）用大括号 `{}` 包裹。例如：`{"name":"jack", "age":12}`。
+    4. **数组表示 (Array)**: 并列数据的集合（数组）用方括号 `[]` 包裹。数组内部可以包含普通值、JSON 对象，甚至是另一个数组。例如：`[{"k1":10}, {"k2":20}]`。
+    5. **支持的值类型 (Value)**: 
+        - 字符串 (`string`)
+        - 数字 (`number`)
+        - 对象 (`object`)
+        - 数组 (`array`)
+        - 布尔值 (`true`, `false`)
+        - 空值 (`null`)
+
+### JSON 快速入门实例
+1. **JSON 定义与嵌套演示**
+    在 JavaScript 中，定义一个结构丰富的 JSON 对象的标准写法如下：
+    ```javascript
+    // 声明一个包含各种数据类型的 JSON 对象
+    var myJson = { 
+        "key1": "前端开发",           // 字符串类型
+        "key2": 123,                 // Number (数字) 类型
+        "key3": [1, "hello", 2.3],   // 数组类型
+        "key4": {                    // 嵌套的 JSON 对象
+            "age": 12, 
+            "name": "jack" 
+        }, 
+        "key5": [                    // JSON 数组 (数组内部嵌套了多个 JSON 对象)
+            { "k1": 10, "k2": "milan" },
+            { "k3": 30, "k4": "smith" }
+        ]
+    };
+    ```
+
+2. **实用例子**
+    ```html
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>实用 JSON 案例 - 用户信息展示</title>
+        <script type="text/javascript">
+            // 模拟后端 API 返回的真实业务 JSON 数据
+            var responseData = {
+                "status": 200,                  // Number 类型：HTTP 状态码
+                "message": "数据获取成功",        // 字符串：接口提示信息
+                "data": {                       // JSON 对象：实际的核心数据包裹在这里
+                    "userId": 10086,            // Number 类型：用户ID
+                    "username": "前端开发工程师", // 字符串：用户名
+                    "skills": ["HTML", "JavaScript", "Vue"], // 数组：技能标签
+                    "contact": {                // 嵌套 JSON 对象：联系方式
+                        "email": "dev@example.com",
+                        "phone": "13800000000"
+                    },
+                    "projects": [               // JSON 数组：包含了多个对象的数组（企业开发最高频格式）
+                        {"id": 1, "name": "企业官方网站", "status": "已上线"},
+                        {"id": 2, "name": "后台管理系统", "status": "开发中"}
+                    ]
+                }
+            };
+
+            // 页面 DOM 加载完毕后执行渲染逻辑
+            window.onload = function() {
+                // 提取核心数据部分，方便后续调用
+                var user = responseData.data;
+
+                // 1. 渲染基础属性 (字符串、数字)
+                document.getElementById("u-name").innerHTML = user.username;
+                document.getElementById("u-id").innerHTML = user.userId;
+
+                // 2. 渲染嵌套对象里的属性
+                document.getElementById("u-email").innerHTML = user.contact.email;
+
+                // 3. 获取数组里的特定元素 (比如获取第一个技能)
+                document.getElementById("u-first-skill").innerHTML = user.skills[0];
+
+                // 4. 遍历 JSON 对象数组并拼接 HTML (实际开发中最常见的列表渲染)
+                var projectHtml = "";
+                for (var i = 0; i < user.projects.length; i++) {
+                    var p = user.projects[i];
+                    projectHtml += "<li>项目名称: " + p.name + " | 状态: " + p.status + "</li>";
+                }
+                document.getElementById("u-projects").innerHTML = projectHtml;
+            };
+        </script>
+    </head>
+    <body>
+        <h1>用户信息卡片 (纯数据渲染演示)</h1>
+        
+        <p><strong>用户名:</strong> <span id="u-name"></span></p>
+        <p><strong>用户ID:</strong> <span id="u-id"></span></p>
+        <p><strong>联系邮箱:</strong> <span id="u-email"></span></p>
+        <p><strong>主打技能:</strong> <span id="u-first-skill"></span></p>
+        
+        <p><strong>项目经历列表:</strong></p>
+        <ul id="u-projects"></ul>
+    </body>
+    </html>
+    ```
+
+### JSON 对象与字符串对象的互相转换
+
+1. 核心方法介绍 (序列化与反序列化)
+    在前端开发中，浏览器内置了一个全局的 `JSON` 对象，专门用于处理 JSON 数据格式的转换。
+    非常像基本类型的相互转化，如`Integer.parse()`和`Integer.toString()`
+    1. **对象转字符串 (`JSON.stringify(jsonObj)`)**
+        - **功能**: 将一个活生生的 JS/JSON 对象转换成一个纯文本的 JSON 字符串（这个过程在计算机术语中通常称为**序列化 Serialize**）。
+        - **场景**: 当你需要把前端的数据发送给后端接口时，必须先调用此方法将其转为字符串。
+    2. **字符串转对象 (`JSON.parse(jsonString)`)**
+        - **功能**: 将一个格式正确的 JSON 字符串重新解析成一个 JS/JSON 对象（这个过程通常称为**反序列化 Deserialize**）。
+        - **场景**: 当你接收到后端接口返回的一长串文本数据时，必须先调用此方法将其“激活”为对象，才能方便地用 `.` 去读取里面的属性。
+
+1. 注意事项与避坑细节 (极其重要)
+
+    1. **非破坏性操作**
+        - `JSON.stringify()` 和 `JSON.parse()` 都会返回一个**全新的结果**，它们绝对不会去修改你传入的那个原始变量。
+
+    2. **定义 JS 对象时的引号规则**
+        - 在单纯编写 JavaScript 代码定义对象时，属性名和字符串值既可以使用单引号 `''`，也可以使用双引号 `""`，甚至属性名可以不加引号（如 `{name: 'jack', age: 10}`）。
+
+    3. **JSON 字符串的严格双引号规则 (高频报错点)**
+        - 当你要把一个原生字符串转换成 JSON 对象时（即调用 `JSON.parse()`），字符串内部的键名和字符串值**必须严格使用双引号 `""` 包裹**！
+        - **错误示范**: `var str = "{'name': '小狗'}"; JSON.parse(str);` （这里用了单引号，会直接抛出语法解析错误）。
+        - **正确示范**: `var str = '{"name": "小狗"}'; JSON.parse(str);`
+
+    4. **`stringify` 的标准化输出**
+        - 无论你最初定义 JS 对象时写得多随意（单引号、没引号），只要经过 `JSON.stringify()` 转换，输出的字符串一定会被它强行格式化为**全部采用双引号包裹**的标准 JSON 字符串格式。因此它的输出结果总是可以被安全地重新 `parse()` 解析。
+
+1. 基础应用实例
+
+    ```javascript
+    // 1. 定义一个原生的 JS 对象
+    var jsonObj = {"name": "前端教育", "age": 10};
+
+    // 2. 对象 -> 字符串 (准备发送给后端)
+    var jsonStr = JSON.stringify(jsonObj);
+    console.log("转换后的字符串:", jsonStr); // 输出: '{"name":"前端教育","age":10}'
+    console.log("类型变成了:", typeof jsonStr); // 输出: string
+
+    // 3. 字符串 -> 对象 (模拟收到后端数据并解析)
+    // 注意：被解析的字符串内部必须是双引号
+    var jsonObj2 = JSON.parse(jsonStr);
+    console.log("重新解析出的对象:", jsonObj2);
+    console.log("可以读取属性了:", jsonObj2.name); // 输出: 前端教育
+    ```
+
+### JSON 在 Java 中的使用 (基于 Gson 库)
+
+1. 基本说明
+    1. **第三方依赖**: Java 原生并不包含处理 JSON 的便捷类，使用 JSON 前需要引入第三方包。本教程使用的是 `gson.jar`。
+    2. **Gson 简介**: Gson 是由 Google 开源并提供维护的一个 Java 类库。它的核心职责就是**在 Java 对象和 JSON 数据之间进行完美的相互映射**。
+    3. **核心功能**: 轻松实现“JSON 字符串”与“Java 对象”的深度双向转换（序列化与反序列化）。
+
+1. 核心应用场景
+    在后端开发与前端进行数据交互时，最常遇到的 Gson 转换场景主要有以下三种：
+    
+
+    1. **JavaBean 对象 <-> JSON 字符串**
+        - **说明**: 将单个普通的 Java 实体类对象（如一个 `Book` 对象、`User` 对象）转换为 JSON 对象格式的字符串。
+    2. **List 集合 <-> JSON 字符串**
+        - **说明**: 将包含多个 Java 对象的 `List` 集合转换为 JSON 数组格式的字符串。这是后端向前端返回“列表数据”（如商品列表、新闻列表）时最标准、最高频的做法。
+    3. **Map 集合 <-> JSON 字符串**
+        - **说明**: 将 Java 中的 `Map` 键值对集合直接映射为 JSON 字符串。通常用于结构不固定、动态拼装的响应数据。
+
+1. 应用实例准备
+    为了演示以上三种核心场景，我们通常需要准备两个文件：
+    1. **实体类 (`Book.java`)**: 作为一个标准的 JavaBean，定义书本的属性（如书名、价格等），提供相应的 Getter/Setter 方法。
+    2. **测试类 (`JavaJson.java`)**: 编写具体的 Gson 转换代码，演示上述三种集合与 JSON 的来回转换过程。
+    3. 示例代码
+        ```java
+        package com.lcq.json;
+
+        import com.google.gson.Gson;
+        import com.google.gson.reflect.TypeToken;
+
+        import java.util.ArrayList;
+        import java.util.List;
+
+        public class JavaJson {
+            public static void main(String[] args) {
+                // 初始化转换引擎
+                Gson gson = new Gson();
+
+                System.out.println("====== 1. JavaBean 对象与 JSON 转换 ======");
+                Book aha = new Book(1, "aha");
+
+                // 正向：对象 -> JSON 字符串
+                String jsonStr = gson.toJson(aha);
+                System.out.println("序列化结果: " + jsonStr); 
+                // 输出: {"id":1,"name":"aha"}
+
+                // 反向：JSON 字符串 -> 对象
+                Book bookObj = gson.fromJson(jsonStr, Book.class);
+                System.out.println("反序列化结果: " + bookObj); 
+                // 输出: Book{id=1, name='aha'}
+
+
+                System.out.println("\n====== 2. List 集合与 JSON 转换 ======");
+                // 【优化点】：这里强烈建议使用泛型 List<Book>，而不是 ArrayList<Object>
+                // 这样可以在编译阶段保证类型安全，防止向集合中混入非 Book 类型的数据
+                List<Book> books = new ArrayList<>();
+                books.add(bookObj);
+                books.add(new Book(2, "book2"));
+
+                // 正向：List 集合 -> JSON 数组格式的字符串
+                String listJsonStr = gson.toJson(books);
+                System.out.println("List转JSON: " + listJsonStr); 
+                // 输出: [{"id":1,"name":"aha"},{"id":2,"name":"book2"}]
+
+                // 反向：JSON 数组字符串 -> List 集合 (核心难点)
+                // 说明：由于 Java 泛型擦除机制，Gson 无法直接知道 List 里装的是什么。
+                // 必须使用 TypeToken 生成一个匿名内部类实例，利用 getType() 获取完整的泛型类型信息。
+                List<Book> restoredList = gson.fromJson(listJsonStr, new TypeToken<ArrayList<Book>>() {}.getType());
+                
+                // 打印底层提取到的完整类型：java.util.ArrayList<com.lcq.json.Book>
+                System.out.println("底层解析类型: " + new TypeToken<ArrayList<Book>>() {}.getType());
+                
+                // 打印最终还原的集合数据
+                System.out.println("还原后的List: " + restoredList);
+                // 输出: [Book{id=1, name='aha'}, Book{id=2, name='book2'}]
+            }
+        }
+        ```
+
+    2. **代码重点解析**
+        - **泛型规范**: 在封装将要转化为 JSON 的集合时，务必指明具体的泛型类型（如 `List<Book>`）。
+        - **`TypeToken` 黑科技**: 它是 Gson 为了应对**Java 泛型擦除**而专门设计的一个类。当你需要把 JSON 字符串反序列化为带有泛型的集合（如 `List<T>`, `Map<K, V>`）时，**必须且只能**通过 `new TypeToken<你要的类型>(){}.getType()` 这种看似奇怪的语法，把完整的类型信息传递给 `fromJson` 方法。
+
+### Ajax 基本介绍
+
+1. **Ajax 是什么？**
+    - **全称**: AJAX 即 "Asynchronous JavaScript And XML"（异步 JavaScript 和 XML）。
+    - **核心定义**: 它不是一种新的编程语言，而是一种使用现有标准的新方法。它允许浏览器在**不重新加载整个网页的情况下**，与服务器进行少量数据交换，从而实现对网页的**局部更新**。
+    - (1)异步请求(2)发送指定数据(3)局部刷新
+
+2. **Ajax 经典应用场景 (无刷新体验)**
+    - **搜索提示**: 在百度/谷歌输入关键字时，下拉框自动提示相关的搜索词。
+    - **动态加载数据**: 无需刷新页面即可展开的树形菜单、省市区级联/联动菜单。
+    - **提升用户体验**: 注册时输入框失去焦点立刻提示“用户名已存在”；带有真实进度的文件上传条。
+    - **电子商务应用**: 动态更新购物车数量、无刷新计算总价。
+    - **动态数据看板**: 页面局部定时刷新最新数据，例如猫眼专业版的实时票房看板、股票大盘数据。
+
+### Ajax 原理与传统 Web 的区别
+
+1. **传统的 Web 应用 (同步请求)**
+    - **工作流**: 
+        1. 浏览器发出 HTTP 同步请求（通常是提交表单，携带所有数据如 `uname=xx&pwd=xx`）。
+        2. 服务端接收数据并进行业务处理。
+        3. 服务器通过 HTTP 响应，将**完整的 HTML 页面**返回给浏览器，浏览器重新渲染。
+    - **致命缺点**:
+        1. **数据冗余**: 表单提交会把所有数据一股脑发给服务端，数据量大且经常包含无意义的内容。
+        2. **页面挂起 (阻塞)**: 在服务端没有返回 HTTP 响应之前，浏览器前端页面处于**死等状态（白屏）**，用户体验极差。
+        3. **全量刷新**: 无法进行局部刷新，哪怕只改动一个字，也要整体刷新整个页面，极度浪费网络带宽。
+    - **图解**:
+        ![javaweb_ajax_traditionalApp](./img/javaweb_ajax_traditionalApp.png)
+
+2. **Ajax 架构应用 (异步请求)**
+    - **工作流 (基于 XMLHttpRequest)**: 
+        1. **创建引擎**: 前端创建 `XMLHttpRequest` 对象（即 Ajax 引擎对象）。
+        2. **异步发送**: 通过该对象，仅将**指定的数据**异步发送给服务端。
+        3. **绑定回调**: 提前指定好当数据返回时，由哪个 JS 函数来接手处理（本质上是一个事件绑定）。
+        4. **局部渲染**: 服务端处理完毕并返回轻量级数据（支持 JSON、XML 或普通文本），前端得到数据后，利用 JS 进行 DOM 操作，完成页面的**局部刷新**。
+    - **核心优点**:
+        1. **按需传输**: 精准发送和接收指定数据，数据量小，响应速度极快。
+        2. **无感体验 (非阻塞)**: `XMLHttpRequest` 是异步发送的，浏览器**不需要等待**服务端响应，用户可以无缝继续操作页面的其他元素。
+        3. **前后端解耦**: 彻底实现了视图展示与数据处理的分离。
+    - **图解**:
+        ![javaweb_ajax_ajaxApp](./img/javaweb_ajax_ajaxApp.png)
+
+### 快速入门
+
+#### 补充核心知识点：XMLHttpRequest (XHR) 基本用法详解
+
+`XMLHttpRequest` 是原生 JavaScript 实现 Ajax 的核心对象。一个完整的 Ajax 请求，必然要经过以下标准四步曲：
+
+
+
+1. **第一步：创建 XHR 对象 (实例化)**
+    ```javascript
+    var xhr = new XMLHttpRequest();
+    ```
+    - **说明**: 这是所有 Ajax 操作的起点，相当于你打开了浏览器的一个“隐形后台下载通道”。
+    - **兼容性注意**: IE6 及更早版本不支持此对象，需要用 `new ActiveXObject("Microsoft.XMLHTTP")`（现在的项目中基本可忽略）。
+
+2. **第二步：配置请求参数 (`open` 方法)**
+    ```javascript
+    // 语法: xhr.open(method, url, async)
+    xhr.open("GET", "/api/checkUser?name=king", true);
+    ```
+    - **`method`**: 请求类型，通常是 `"GET"` 或 `"POST"`（必须大写）。
+    - **`url`**: 请求的服务器接口地址。如果是 GET 请求，参数直接拼接在 URL 后面。
+    - **`async`**: 布尔值，是否异步。`true` 表示异步（绝大多数情况下的选择，不会阻塞页面）；`false` 表示同步（会卡死页面，官方已强烈不推荐使用）。
+
+3. **第三步：发送请求 (`send` 方法)**
+    ```javascript
+    // GET 请求写法 (参数已在 open 的 url 里了)
+    xhr.send(); 
+    // 或者 xhr.send(null);
+
+    // POST 请求写法 (参数放在 send 里，且前面必须加请求头)
+    // xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    // xhr.send("name=king&age=20"); 
+    ```
+    - **说明**: 这一步才是真正把网络数据包发送给服务器。
+
+4. **第四步：监听状态并处理响应 (`onreadystatechange` 事件)**
+    这一步其实通常写在 `send()` 之前，用于时刻盯着请求的进度。
+    ```javascript
+    xhr.onreadystatechange = function() {
+        // 核心判断逻辑：请求已完成 且 服务器成功返回
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            // 提取服务器返回的纯文本字符串数据
+            var result = xhr.responseText; 
+            console.log("服务器返回的数据:", result);
+            
+            // 如果服务器返回的是 XML 格式的数据，则使用 xhr.responseXML 获取
+        }
+    };
+    ```
+
+---
+
+**🔥 高频面试考点：`readyState` 和 `status` 的区别**
+
+很多初学者分不清这两个状态的区别，其实它们各司其职：
+
+1. **`xhr.readyState` (Ajax 引擎自身的状态)**
+    表示当前这个 XHR 对象“跑到哪一步了”，它有 5 个固定值：
+    - `0` (UNSENT): 未初始化。已经创建了 XHR 对象，但还没调用 `open()`。
+    - `1` (OPENED): 已建立连接。调用了 `open()`，但还没调用 `send()`。
+    - `2` (HEADERS_RECEIVED): 已发送。调用了 `send()`，且接收到了响应头。
+    - `3` (LOADING): 正在接收。正在下载服务器返回的数据。
+    - **`4` (DONE): 请求完成。数据已经全部接收完毕。（我们写代码只关心这个状态）**
+
+2. **`xhr.status` (HTTP 协议的状态码)**
+    表示“服务器态度的反馈”，只有当 `readyState` 到达 4 之后，看这个才有意义：
+    - **`200` (OK)**: 一切正常，服务器成功处理了请求。
+    - `404` (Not Found): 请求的 URL 接口找不到。
+    - `500` (Internal Server Error): 后端服务器代码报错了（比如空指针异常、SQL 语法错误）。
+
+#### JavaScript 原生 Ajax 请求
+
+1. Ajax文档
+    - 在线文档：https://www.w3school.com.cn/js/js_ajax_intro.asp
+
+1. **应用实例需求分析**
+    - **交互流程**: 在注册表单输入用户名 -> 点击“验证用户名”按钮 -> 触发 Ajax 请求。
+    - **后端处理**: 服务端接收请求并验证该用户名是否已被占用（本例先硬编码假定 `king` 被占用）。
+    - **数据返回**: 如果被占用，服务端以 **JSON 格式**返回该用户的信息；如果未被占用，返回空字符串。
+    - **前端渲染**: 前端接收到响应后，进行页面**局部刷新**（在输入框旁边提示错误信息，而不刷新整个注册页面）。
+
+2. **小思考：为什么要返回 JSON 信息，而不是直接返回一个 `true` 或 `false` 字符串？**
+    - **解答**: 为了**可扩展性**。如果只返回 `"false"`，前端只能干巴巴地提示不可用。如果返回 JSON 结构（例如 `{"code": 400, "msg": "king已被占用", "data": {"userId": 1, "email": "king@qq.com"}}`），前端不仅能提示错误，甚至还能做更多的交互（比如：提示该账号绑定的邮箱前缀，或者推荐相似的未占用用户名）。这就是现代前后端分离的数据交互规范。
+
+### 【进阶】通过数据库在后端完成重名验证
+
+#### 数据库准备
+
+1. 指令
+    ```sql
+    create database if not exists javaweb_ajax;
+
+    use javaweb_ajax;
+
+    create table `user`(
+        `id` int auto_increment primary key ,
+        `name` varchar(20) not null ,
+        `password` char(32) ,
+        `email` varchar(50)
+    )
+
+    insert into user (name, password, email)
+    values ('king',md5('123456'),'king@example.com');
+    ```
+
+#### 后端核心准备
+
+1. **核心控制器 (`CheckUserServlet.java`)**
+    - **亮点解析**: 
+        1. **规范响应头**: 严格使用 `application/json;charset=utf-8`，告诉浏览器返回的是标准 JSON 数据。
+        2. **防御编程一 (判空拦截)**: 在查询数据库前，严格校验前端传来的 `name` 是否为空。避免浪费数据库资源，也防止引发后端异常。
+        3. **防御编程二 (数据脱敏)**: 当用户名存在时，绝不把包含密码等敏感信息的完整 `User` 对象直接塞进 JSON 返回给前端，切断安全隐患。
+
+1. `CheckUserServlet.java`
+    ```java
+    package com.lcq.servlet;
+
+    import com.google.gson.Gson;
+    import com.lcq.bean.CheckMessage;
+    import com.lcq.bean.User;
+    import com.lcq.dao_.UserDAO;
+
+    import javax.servlet.ServletException;
+    import javax.servlet.annotation.WebServlet;
+    import javax.servlet.http.HttpServlet;
+    import javax.servlet.http.HttpServletRequest;
+    import javax.servlet.http.HttpServletResponse;
+    import java.io.IOException;
+    import java.sql.SQLException;
+
+    @WebServlet(urlPatterns = {"/CheckUser"})
+    public class CheckUserServlet extends HttpServlet {
+
+        // 优化：DAO 可以作为实例变量复用，不需要每次请求都 new 一个
+        private UserDAO userDAO = new UserDAO();
+
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            // 1. 修正响应头：标准的 JSON MIME 类型是 application/json，而不是 text/json
+            resp.setContentType("application/json;charset=utf-8");
+
+            Gson gson = new Gson();
+            CheckMessage checkMessage = new CheckMessage();
+
+            // 2. 获取参数
+            String name = req.getParameter("name");
+
+            // 🌟 防御编程第一道防线：参数校验 (防二号炸弹)
+            if (name == null || name.trim().isEmpty()) {
+                checkMessage.setMessage("用户名不能为空！");
+                resp.getWriter().write(gson.toJson(checkMessage));
+                return; // 直接终止后续操作
+            }
+
+            String sql = "select * from `user` where `name`=?";
+
+            try {
+                // 去数据库查询
+                User user = userDAO.querySingle(sql, User.class, name);
+
+                // 🌟 防御编程第二道防线：防空指针 (防一号炸弹)
+                if (user != null) {
+                    // 如果能查到 user，说明数据库里有这个名字
+                    checkMessage.setMessage("抱歉，该用户名已被注册");
+                    // ⚠️ 严禁在这里执行 checkMessage.setUser(user)，防止密码泄露！
+                    checkMessage.setUser(user);
+                } else {
+                    // 如果查不到，说明名字可以用
+                    checkMessage.setMessage("恭喜，该用户名可用！");
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                checkMessage.setMessage("服务器开小差了，请稍后再试");
+            }
+
+            // 3. 将结果转为 JSON 并响应给前端
+            String json = gson.toJson(checkMessage);
+            resp.getWriter().write(json);
+        }
+
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            this.doPost(req, resp);
+        }
+    }
+    ```
+
+2. `JDBCDruidUtils.java`
+    - 注意，在javaweb-MAVEN项目中，要将配置文件放置到`resources`文件夹中。
+    - 在 Java Web 开发和 Maven 项目中，读取配置文件的唯一正确姿势是：使用 `ClassLoader` 从“类路径（Classpath）”中读取。
+    - 因为无论你的代码是在本地运行，还是被打成了压缩包，类加载器永远能准确地找到跟你代码放在一起的配置文件。
+    - 请确保你的 `druid.properties` 文件准确无误地放在了 `src/main/resources` 目录下。
+    ```java
+    package com.lcq.utils;
+
+    import com.alibaba.druid.pool.DruidDataSourceFactory;
+
+    import javax.sql.DataSource;
+    import java.io.FileInputStream;
+    import java.io.IOException;
+    import java.io.InputStream;
+    import java.sql.Connection;
+    import java.sql.ResultSet;
+    import java.sql.SQLException;
+    import java.sql.Statement;
+    import java.util.Properties;
+
+    public class JDBCDruidUtils {
+        private static Properties info = null;
+        private static DataSource dataSource = null;
+
+        static {
+            info = new Properties();
+            try {
+                String filepath = "druid.properties";
+
+                // 🌟 核心修改：使用类加载器读取 classpath 下的文件
+                InputStream is = JDBCDruidUtils.class.getClassLoader().getResourceAsStream(filepath);
+
+                // 增加一个贴心的判空，防止拼写错误导致 NullPointerException
+                if (is == null) {
+                    throw new RuntimeException("在 classpath 下找不到 druid.properties 文件！请检查是否放在了 resources 目录下。");
+                }
+
+                info.load(is);
+
+                dataSource = DruidDataSourceFactory.createDataSource(info);
+            } catch (IOException e) {
+                // 实际开发中，可以抛出运行时异常
+                // 1. 这样可以将编译异常转换成运行时异常。
+                // 2. 这时，调用者可以选择捕获异常，也可以选择默认处理该异常，比较方便。
+                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public static Connection getConnection() {
+            Connection conn = null;
+            try {
+                conn = dataSource.getConnection();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+            return conn;
+        }
+
+        public static void close(Connection conn, Statement stmt, ResultSet rs) {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (stmt != null) {
+                    stmt.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    ```
+
+3. pom.xml
+    ```xml
+    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+        <modelVersion>4.0.0</modelVersion>
+        <groupId>com.lcq</groupId>
+        <artifactId>json-ajax</artifactId>
+        <packaging>war</packaging>
+        <version>1.0-SNAPSHOT</version>
+        <name>json-ajax Maven Webapp</name>
+        <url>http://maven.apache.org</url>
+        <properties>
+            <servlet-api.version>3.1.0</servlet-api.version>
+            <jsp-api.version>2.3.3</jsp-api.version>
+            <jstl.version>1.2.5</jstl.version>
+        </properties>
+
+        <dependencies>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${servlet-api.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.servlet.jsp</groupId>
+                <artifactId>javax.servlet.jsp-api</artifactId>
+                <version>${jsp-api.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.taglibs</groupId>
+                <artifactId>taglibs-standard-impl</artifactId>
+                <version>${jstl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.taglibs</groupId>
+                <artifactId>taglibs-standard-spec</artifactId>
+                <version>${jstl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.8.9</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid</artifactId>
+                <version>1.2.28</version>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>5.1.49</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-dbutils</groupId>
+                <artifactId>commons-dbutils</artifactId>
+                <version>1.7</version>
+            </dependency>
+        </dependencies>
+        <build>
+            <finalName>json-ajax</finalName>
+        </build>
+    </project>
+    ```
+
+#### 前端代码
+
+1. `login.jsp`
+    - 必须添加`<button type=""button" id="CheckButton">验证用户名</button>`指定`type`防止默认表单跳转。
+    ```js
+    <%--
+    Created by IntelliJ IDEA.
+    User: 85035
+    Date: 2026/3/15
+    Time: 20:19
+    To change this template use File | Settings | File Templates.
+    --%>
+    <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
+    <html>
+    <head>
+        <title>用户注册</title>
+        <script type="text/javascript" src="${pageContext.request.contextPath}/js/jquery-4.0.0.min.js"></script>
+        <script type="text/javascript">
+            $(function () {
+                $("#CheckButton").click(
+                    function () {
+                        var xmlHttpRequest = new XMLHttpRequest();
+                        var $username = $("#username");
+                        xmlHttpRequest.open("Get", "${pageContext.request.contextPath}/CheckUser?name=" + $username.val(), true);
+                        // 当数据变化或readyState改变时执行这里
+                        xmlHttpRequest.onreadystatechange = function () {
+                            if (xmlHttpRequest.readyState == 4 && xmlHttpRequest.status == 200) {
+                                var result = JSON.parse(xmlHttpRequest.responseText);
+                                $("#CheckButton").next("span").remove();
+                                var $span = $("<span></span>");
+                                $span.text(result.message);
+                                $span.insertAfter($("#CheckButton"));
+                                $("#return_json").text(JSON.stringify(result));
+                            }
+
+                        }
+                        xmlHttpRequest.send();
+                        return false;
+                    }
+                )
+            })
+        </script>
+    </head>
+    <body>
+    <h1>用户注册</h1>
+    <form action="" method="post" name="user">
+        用户名字：<input type="text" id="username">
+        <button type=""button" id="CheckButton">验证用户名</button>
+        <br>
+        用户密码：<input type="password"><br>
+        用户邮件：<input type="email"><br>
+        <input type="submit" value="用户注册"><br>
+    </form>
+    <h1>return JSON</h1>
+    <div id="return_json"></div>
+    </body>
+    </html>
+    ```
+
+### jQuery 中的 Ajax 请求
+
+原生 JavaScript 编写 Ajax 存在代码冗长、步骤繁琐以及浏览器兼容性等痛点。为了解决这些问题，实际开发中绝大多数情况都会直接使用 jQuery 提供的 Ajax API。
+
+1. 核心方法：`$.ajax()` (万能瑞士军刀)
+    - 在线文档：https://www.w3school.com.cn/jquery/jquery_ajax_get_post.asp
+    - `$.ajax()` 是 jQuery 底层最基础、也是功能最全的 Ajax 请求方法。它通过传入一个配置对象（JSON 格式）来精细控制请求的每一个细节。
+        **常用核心参数解析：**
+        - **`url`**: (String) 请求的目标地址（接口 URL）。
+        - **`type`**: (String) 请求方式。常用的有 `"GET"` 或 `"POST"`（默认为 GET）。
+        - **`data`**: (Object/String) 发送到服务器的数据。如果是 GET 请求，jQuery 会自动帮你拼接到 URL 后面；如果是 POST，会自动放在请求体中。格式可以是字符串 `name=king&age=20`，也可以直接传 JS 对象 `{"name": "king", "age": 20}`（强烈推荐后者）。
+        - **`dataType`**: (String) **预期**服务器返回的数据类型。常用的有 `"json"`、`"text"`、`"xml"` 等。**神级特性：如果指定为 `"json"`，jQuery 会在接收到数据后自动帮你执行 `JSON.parse()`，你拿到的直接就是活生生的 JS 对象！**
+        - **`success`**: (Function) 请求成功后的回调函数。**【核心进阶：该函数完整接收 3 个按位置传递的参数】**
+            1. **`data` (第 1 个位置，99%的时间只用它)**: 服务器返回的实际数据。如果 `dataType` 设置了 json，这直接就是一个解析好的 JS 对象。
+            2. **`textStatus` (第 2 个位置，极少用)**: 描述请求状态的纯字符串（固定为 `"success"`）。
+            3. **`jqXHR` (第 3 个位置，高级场景用)**: jQuery 豪华升级版的原生请求对象，可用于提取响应头（Headers）里的特殊字段（如 Token）。
+            > **💡 架构师底层思维（按位置传参）**: JavaScript 回调函数的形参名字（如写成 `res`, `status`, `xhr` 甚至是 `a`, `b`, `c`）是随便取的，**底层只认位置，不认名字**。业界约定俗成将第一个参数命名为 `data` 或 `res`。如果不关心后续参数，可以直接省略不写（如 `success: function(res) { ... }`）。
+        - **`error`**: (Function) 请求失败（如 404、500 网络异常等）后的回调函数。
+
+2. 快捷方法：`$.get()`, `$.post()`, `$.getJSON()`
+
+    为了进一步偷懒，jQuery 在 `$.ajax()` 的基础上，又封装了几个极简的快捷方法。它们的底层依然是调用的 `$.ajax()`。
+
+    1.  **`$.get(url, [data], [success], [type])`**
+        * **说明**: 专门用于发起 GET 请求。
+        * **参数**: 请求地址，发送的数据，成功回调，返回内容格式（如 json, text）。
+
+    2.  **`$.post(url, [data], [success], [type])`**
+        * **说明**: 专门用于发起 POST 请求。用法和参数与 `$.get` 完全一致。
+
+    3.  **`$.getJSON(url, [data], [success])`**
+        * **说明**: 专门用于发起 GET 请求，并且**强制要求**服务端返回的数据必须是 JSON 格式。这个在实际开发中极其常用。
+
+3. 实战应用对比：验证用户名 (jQuery 终极重构版)
+
+    回忆一下上一节我们在 `login.jsp` 中写的原生 XHR 代码。现在，我们用 `$.ajax()` 和快捷方法 `$.get()` 来重写这段逻辑，感受一下什么叫优雅：
+
+    - **使用 `$.ajax` 重写：**
+        ```javascript
+        $("#CheckButton").click(function () {
+            $.ajax({
+                        url: "${pageContext.request.contextPath}/CheckUser",
+                        type: "GET", // 或者 "POST"
+                        data: {
+                            "name": $("#username").val() // 传入一个纯对象，jQuery 自动帮你打包
+                            },
+                        dataType: "json", // 告诉 jQuery 返回的是 JSON，自动反序列化
+                        success: function(result) {
+                            // result 已经是解析好的对象了，不需要再写 JSON.parse()！
+                            $("#CheckButton").next("span").remove();
+                            $("<span></span>").text(result.message).insertAfter($("#CheckButton"));
+                            $("#return_json").text(JSON.stringify(result));
+                            },
+                        error: function() {
+                            alert("网络请求出错了！");
+                            }
+                    });
+            return false; // 拦截表单默认提交
+        });
+        ```
+    - **使用 `$.get` 极致简写（如果不需要复杂的 error 处理）：**
+        ```javascript
+        $("#CheckButton").click(function () {
+            var url = "${pageContext.request.contextPath}/CheckUser";
+            var data = { "name": $("#username").val() };
+            
+            // 一行代码搞定发送！(url, 数据, 成功回调, 预期返回类型)
+            // 注意这里只接收了第 1 个位置的参数 result
+            $.get(url, data, function(result) {
+                $("#CheckButton").next("span").remove();
+                $("<span></span>").text(result.message).insertAfter($("#CheckButton"));
+            }, "json");
+            
+            return false;
+        });
+        ```
+
+
+## 线程数据共享和安全 - ThreadLocal
+
+### 基本内容
+1. 什么是 ThreadLocal
+    1. **核心作用**：可以实现在**同一个线程内**的数据共享，从而优雅地解决多线程数据安全问题（避免了繁琐的 `synchronized` 锁机制）。
+    2. **数据绑定**：可以给当前线程关联一个数据（普通变量、对象、数组），使用 `set()` 方法。
+    3. **类比 Map**：可以像 `Map` 一样存取数据，它的“隐式 key”就是当前线程，获取数据使用 `get()` 方法。
+    4. **单值绑定原则**：每一个 `ThreadLocal` 对象实例，**只能为当前线程关联一个数据**。如果要为当前线程关联多个不同类型的数据，就需要实例化多个 `ThreadLocal` 对象。
+    5. **定义规范**：每个 `ThreadLocal` 对象实例在定义时，通常声明为 `public static` 类型。
+    6. **生命周期**：`ThreadLocal` 中保存的数据，在当前线程销毁后，会自动释放（前提是线程真的被销毁，在线程池场景下需注意手动清理）。
+
+
+### 快速入门
+
+1. 基础实体类准备
+    - `A.java`
+        ```java
+        public class A {}
+        ```
+    - `B.java`
+        ```java
+        public class A {}
+        ```
+
+2. 测试主类
+    - `Quick01.java`
+        ```java
+        public class Quick01 implements Runnable {
+            
+            public static ThreadLocal<Object> threadLocal1 = new ThreadLocal<>();
+            public static ThreadLocal<Object> threadLocal2 = new ThreadLocal<>();
+
+            public static void main(String[] args) {
+                /*
+                ================Quick01===============
+                Object load to thread01!
+                current thread in func run() is Thread-0
+                ================Quick01Service01===============
+                current thread in Quick01Service01 is Thread-0
+                ThreadLocal1 = com.lcq.quick.A@2b2b68d3
+                ================Quick01Service02===============
+                current thread in Quick01Service02 is Thread-0
+                ThreadLocal1 = com.lcq.quick.A@2b2b68d3
+                */
+                new Thread(new Quick01()).start();
+            }
+
+            @Override
+            public void run() {
+                A a = new A();
+                B b = new B();
+
+                System.out.println("================Quick01===============");
+                threadLocal1.set(a);
+                threadLocal2.set(b);
+
+                System.out.println("Object load to thread01!");
+                System.out.println("current thread in func run() is " + Thread.currentThread().getName());
+                new Quick01Service01().update();
+            }
+        }
+        ```
+    - `Quick01Service01.java`
+        ```java
+        public class Quick01Service01 {
+            public void update() {
+                Object o = Quick01.threadLocal1.get();
+                System.out.println("================Quick01Service01===============");
+                System.out.println("current thread in Quick01Service01 is " + Thread.currentThread().getName());
+                System.out.println("ThreadLocal1 = " + o);
+
+                new Quick01Service02().update();
+            }
+        }
+        ```
+    - `Quick01Service02.java`
+        ```java
+        public class Quick01Service02 {
+            public void update() {
+                System.out.println("================Quick01Service02===============");
+                System.out.println("current thread in Quick01Service02 is "+Thread.currentThread().getName());
+                System.out.println("ThreadLocal1 = " + Quick01.threadLocal1.get());
+            }
+        }
+        ```
+
+3. 小结
+    - 每一个`ThreadLocal`对象可以携带一个数据。
+    - `ThreadLocal`对象会随当前线程不断传递。
+
+### 源码解析
+
+#### `ThreadLocal.set(T value)` 源码剖析
+
+1. 源码
+    ```java
+    public void set(T value) {
+        // 1. 获取当前正在执行这段代码的线程对象
+        Thread t = Thread.currentThread(); 
+        
+        // 2. 获取当前线程对象内部绑定的 ThreadLocalMap 实例（实质上是返回 t.threadLocals）
+        ThreadLocalMap map = getMap(t); 
+        
+        // 3. 判断该线程的 ThreadLocalMap 是否已经初始化
+        if (map != null) {
+            // 4. 如果 map 已存在，则直接存入数据。
+            // 🌟 核心细节：这里的 key 传入的是 this，也就是当前的 ThreadLocal 对象本身！
+            map.set(this, value); 
+        } else {
+            // 5. 如果 map 不存在（即该线程第一次调用 set），则为当前线程初始化创建一个 map，并存入初始的 k-v
+            createMap(t, value); 
+        }
+    }
+    ```
+2. 核心要点总结
+
+    1. **数据真正的存储位置（防坑核心）**
+    很多初学者误以为数据存在了 `ThreadLocal` 对象本身里面。源码清晰地揭示了：数据实际上是存放在了**当前线程对象 (`Thread t`) 自身的成员变量 `ThreadLocalMap` 中**。`ThreadLocal` 只是一个对外暴露的操作入口和访问凭证。
+
+    2. **Map 的 K-V 结构设计**
+        从 `map.set(this, value)` 这行代码可以看出，`ThreadLocalMap` 中存储的键值对：
+        - **Key**：永远是调用该方法的 **`ThreadLocal` 对象实例 (`this`)**。
+        - **Value**：我们真正需要线程隔离的**业务数据 (`value`)**。
+
+    3. **延迟初始化机制 (Lazy Initialization)**
+    线程在刚创建时，其内部的 `ThreadLocalMap` 默认是 `null`，并没有立马分配内存。只有当该线程第一次调用 `ThreadLocal` 的 `set` 方法时，才会走 `else` 分支触发 `createMap` 进行真正的内存分配。这种“按需加载”的设计极大地节省了系统的初始内存开销。
+
+#### `ThreadLocal.get()` 源码剖析
+1. 源码
+    ```java
+    public T get() {
+        // 1. 获取当前正在执行这段代码的线程对象
+        Thread t = Thread.currentThread(); 
+        
+        // 2. 拿到当前线程的专属数据仓库（底层就是返回 t.threadLocals）
+        ThreadLocalMap map = getMap(t); 
+        
+        // 3. 判断仓库是否已经存在（即判断该线程之前是否进行过 ThreadLocal 操作）
+        if (map != null) {
+            // 4. 🌟 核心提取：以当前的 ThreadLocal 对象本身（this）作为 Key，去仓库里查找对应的节点 Entry
+            ThreadLocalMap.Entry e = map.getEntry(this); 
+            
+            // 5. 如果成功找到了对应的键值对节点
+            if (e != null) {
+                @SuppressWarnings("unchecked")
+                // 6. 提取 Entry 中的 value 属性，并向下转型为目标泛型 T
+                T result = (T)e.value; 
+                
+                // 7. 返回属于当前线程的私有数据
+                return result; 
+            }
+        }
+        
+        // 8. 兜底逻辑：如果 map 根本不存在，或者 map 里没有这个 ThreadLocal 对应的 key，
+        // 则调用初始化方法，创建 map 并放入一个初始默认值（默认是 null），然后返回该默认值。
+        return setInitialValue(); 
+    }
+    ```
+
+2. 核心要点总结
+
+    1. **绝对的线程安全与隔离**
+        从源码 `getMap(t)` 可以再次印证：每次调用 `get()` 方法，它都是先精准定位到“当前线程 (`Thread.currentThread()`)”，然后再去该线程独有的内存空间里拿数据。这就如同每个人去银行取钱，都是先刷自己的身份证进入各自的账户，绝对不会拿错别人的钱。
+
+    2. **精巧的 `this` 引用寻址**
+        `map.getEntry(this)` 是整段代码的灵魂。一个线程里可能会存放很多个不同的共享数据（比如用户数据、数据库连接等），它们都存在同一个 `ThreadLocalMap` 里。怎么区分呢？就是靠你当时声明的那个特定的 `ThreadLocal` 变量实例（即代码里的 `this`）来作为唯一标识（Key）进行提取的。
+
+    3. **优雅的兜底与懒加载机制 (`setInitialValue`)**
+        - 如果你在一个线程中，**没有先调用 `set()`，而是直接调用了 `get()`，程序绝不会报空指针异常（NullPointerException）**。
+        - 它会优雅地走到最后的 `return setInitialValue();`。这个方法底层会帮你把 `ThreadLocalMap` 建好，并把当前 `ThreadLocal` 对象作为 Key，将 `null`（或者你重写的初始值）作为 Value 存进去，最后返回这个初始值。这种设计极大地增强了代码的健壮性。
+
+
+### ThreadLocal 的实际意义与核心应用场景
+
+脱离了底层源码，在真实的业务开发中，`ThreadLocal` 的存在到底是为了解决什么问题？总结起来就是两点：**“传参解耦”** 与 **“无锁化保平安”**。
+
+1. 核心意义一：拒绝“参数透传”的地狱（上下文传递）
+    - **痛点场景**：
+        - 在 Java Web 开发中，一个用户的 HTTP 请求通常会经过一层层的调用链：`Filter/Interceptor` -> `Controller` -> `Service` -> `Manager` -> `DAO`。
+        - 如果在最外层的拦截器中解析出了当前登录的用户信息（比如 `User` 对象），而最底层的 `DAO` 层在记录日志时需要用到这个 `User` 的 ID。
+    - **糟糕的做法**：把 `User` 对象作为参数，从 Controller 一层一层往下传。这意味着你所有的业务方法签名都要被迫加上一个 `User user` 参数，代码极度冗余且耦合。
+
+    - **ThreadLocal 的救场**：
+        - 在请求刚进入系统时（如拦截器），提取用户信息并存入 `ThreadLocal`：`UserContext.set(user)`。
+        - 然后在后续的任意层级（哪怕是调用链深达十几层底层的 DAO），只要还在同一个线程内，直接调用 `UserContext.get()` 就能瞬间拿到当前请求的用户信息。
+        - **实际应用**：Spring Security 中的 `SecurityContextHolder` 存放登录用户信息、全链路追踪的 `TraceId` 传递，底层几乎全靠 `ThreadLocal`。
+
+2. 核心意义二：空间换时间，避免锁竞争（无锁线程安全）
+
+    - **痛点场景**：
+        - 有些对象在 Java 中是**非线程安全**的，比如 JDBC 的数据库连接 `Connection`，或者格式化时间的 `SimpleDateFormat`。
+        - 在多线程并发环境下，如果多个线程共享同一个 `Connection` 或 `SimpleDateFormat` 实例，必然会数据错乱报错。
+    - **糟糕的做法**：在方法里加 `synchronized` 同步锁。但这会导致原本可以并行的多线程变成了排队串行，系统性能直线下降（时间换空间）。
+
+    - **ThreadLocal 的救场**：
+        - 为每个线程分配一个属于它自己的独享对象实例。比如把 `Connection` 包装进 `ThreadLocal<Connection>` 里。
+        - 当线程需要操作数据库时，从自己的 `ThreadLocal` 里拿出专属于自己的那个 `Connection` 去用。
+        - 大家各用各的，物理隔离，彻底消灭了资源竞争，无需加任何锁，极大地提升了并发性能（空间换时间）。
+
+3. 核心意义三：保证事务的一致性（同一线程，同一连接）
+
+    - **痛点场景**：
+        在进行数据库事务控制时，一个业务逻辑（如转账）通常包含多条 SQL 语句（扣减 A 余额、增加 B 余额）。
+    - **事务的核心要求是**：这几条 SQL 必须在**同一个数据库连接 (`Connection`)** 中执行，才能保证要么同时成功，要么同时回滚。
+
+    - **ThreadLocal 的救场**：
+        - 当事务开启时，从数据库连接池拿出一个 `Connection`，并将其绑定到当前线程的 `ThreadLocal` 中。
+        - 后续在该业务流中执行的所有 DAO 数据库操作，都从这个 `ThreadLocal` 中获取同一个 `Connection`。
+        - **实际应用**：MyBatis 和 Spring 框架底层的事务管理器（`DataSourceTransactionManager`）就是用 `ThreadLocal` 来确保同一事务内的多个 DAO 操作使用的是同一个底层 JDBC 连接的。
+
+4. 💡 典型实战代码骨架（用户上下文工具类）
+
+    在企业级开发中，通常会封装一个这样的全局工具类：
+
+    ```java
+    public class UserContextHolder {
+        // 定义静态的 ThreadLocal
+        private static final ThreadLocal<User> USER_THREAD_LOCAL = new ThreadLocal<>();
+
+        // 存入数据（通常在拦截器中调用）
+        public static void setUser(User user) {
+            USER_THREAD_LOCAL.set(user);
+        }
+
+        // 获取数据（可以在 Controller/Service/DAO 任意位置调用）
+        public static User getUser() {
+            return USER_THREAD_LOCAL.get();
+        }
+
+        // 清理数据（极其重要！通常在拦截器的 afterCompletion 中调用）
+        public static void clear() {
+            USER_THREAD_LOCAL.remove();
+        }
+    }
+    ```
+
+## Web 应用常用功能 - 文件上传与下载
+
+### 基本内容
+
+1. 基本介绍
+    - **核心定位**：文件的上传和下载是 Web 开发中极其常见且不可或缺的基础功能（例如：用户头像上传、商品图片上传、报表导出等）。
+    - **大文件处理**：对于超大文件的传输（如几个 GB 的视频），通常不会直接使用基础的表单一次性上传，而是会借助专门的工具或前端插件（如支持分片上传、秒传、断点续传的组件）。
+    - **底层依赖**：在 Java Web 原生开发中，处理文件上传非常繁琐，一般不再手写底层解析流，而是直接使用成熟的第三方组件包（最经典的是 Apache 提供的 `commons-fileupload.jar` 和 `commons-io.jar`）。
+        ```xml
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.14.0</version>
+        </dependency>
+        ```
+
+### 文件上传
+
+#### 文件上传的核心原理剖析
+
+基于文件上传的全链路流程，核心知识点可以拆解为**前端配置**、**网络传输**和**后端解析**三个部分：
+
+1. **前端表单配置规范 (极其重要)**
+    * **提交方式**：依然依托于传统的 HTML 表单（Form）进行提交。
+    * **目标地址**：`action` 属性按照常规规定，指定后端接收文件的处理接口。
+    * **请求方法**：`method` 属性**必须指定为 `post`**。GET 请求容量极小且数据暴露在 URL 中，无法承载庞大的二进制文件数据。
+    * **编码类型（核心考点）**：表单的 `enctype` (`encodetype` 编码类型) 默认值是 `application/x-www-form-urlencoded`。这种默认编码只适用于普通文本，会把数据拼接成 `a=1&b=2` 的格式，**绝对不能用于传输二进制文件**。
+    * **多部分表单**：如果要上传文件，`enctype` **必须显式修改为 `multipart/form-data`**。这等同于告诉浏览器和服务器：“这次提交的数据是由多个独立部分组成的，里面既有普通的文本数据，也有复杂的二进制文件数据”。
+    - 示例
+        ```js
+        <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+        <html>
+        <head>
+            <title>文件上传演示</title>
+        </head>
+        <body>
+            <h2>请选择要上传的文件</h2>
+            <form action="${pageContext.request.contextPath}/UploadServlet" method="post" enctype="multipart/form-data">
+                用户名: <input type="text" name="username"><br><br>
+                
+                上传头像: <input type="file" name="headerPic"><br><br>
+                
+                <input type="submit" value="确认上传">
+            </form>
+        </body>
+        </html>
+        ```
+
+2. **HTTP 请求结构的异变**
+    当表单设置为 `multipart/form-data` 后，抓包观察 HTTP 请求会发现明显变化：
+    * **请求头 (Headers)**：`Content-Type` 会标识为 `multipart/form-data`，并且系统会自动生成一串随机的 `boundary`（边界字符串），用于作为分割不同数据的“隔离墙”。
+    * **请求体 (Body)**：请求体会变得非常庞大。里面的内容被 `boundary` 划分成不同的区块。在文件区块中，会声明文件类型（如 `image/jpeg`），随后紧跟着一大堆看似乱码的字符——这其实就是即将发送给服务器的、原封不动的**文件二进制流数据**。
+    - 请求节选
+        - 其中无法显示的部分为乱码（即最后一行），即上传图片的二进制数据。
+        ```http
+        POST /fileupdown/upload HTTP/1.1
+        Host: localhost:8080
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0
+        Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+        Accept-Language: zh-CN,zh;q=0.9,zh-TW;q=0.8,zh-HK;q=0.7,en-US;q=0.6,en;q=0.5
+        Accept-Encoding: gzip, deflate, br, zstd
+        Content-Type: multipart/form-data; boundary=----geckoformboundaryf53d1e72401b94a7486c94fd9591ac3
+        Content-Length: 596268
+        Origin: http://localhost:8080
+        Connection: keep-alive
+        Referer: http://localhost:8080/fileupdown/a.jsp
+        Cookie: JSESSIONID=E46659E804D97E46C314F2C1F0DF1376; Idea-e0c37dd3=7f4f7749-282f-455b-8e3d-292e8ce0f3d2
+        Upgrade-Insecure-Requests: 1
+        Sec-Fetch-Dest: document
+        Sec-Fetch-Mode: navigate
+        Sec-Fetch-Site: same-origin
+        Sec-Fetch-User: ?1
+        Priority: u=0, i
+        Pragma: no-cache
+        Cache-Control: no-cache
+
+        ------geckoformboundaryf53d1e72401b94a7486c94fd9591ac3
+        Content-Disposition: form-data; name="username"
+
+        a
+        ------geckoformboundaryf53d1e72401b94a7486c94fd9591ac3
+        Content-Disposition: form-data; name="headerPic"; filename="java_extends_theory.png"
+        Content-Type: image/png
+
+        PNG
+        
+        ------geckoformboundaryf53d1e72401b94a7486c94fd9591ac3--
+        ```
+
+    2. 请求头 (Request Headers) 关键数据解析
+        当上面的表单点击提交后，浏览器发出的 HTTP 请求头里，这两个参数起到了决定性作用：
+
+        * **`Content-Type` (内容类型)**：
+            它的值会变成类似 `multipart/form-data; boundary=---------------------------11501290124115488212670`。
+            这句话包含两个指令：第一，告诉服务器“我要传由多部分组成的数据”；第二，临时生成了一串 **`boundary`（边界分隔符）**。因为请求体里既有文本又有图片，服务器底层就是靠这串动态生成的随机字符作为“分界线”，把不同的数据一块一块切开的。
+        * **`Content-Length` (内容长度)**：
+            比如图里的 `242633`。它代表整个请求体（文本数据 + 文件二进制流）的总字节大小。在实际开发中，Tomcat 或 Nginx 服务器通常会读取这个值，用来拦截超大文件，防止服务器内存被撑爆。
+
+    3. 请求体 (Request Body) 深度解密
+        结合图片下半部分中“文件类型”、“文件数据”以及那一堆带有乱码的截图，我们可以清晰地看到多部分请求体内部的真实面貌：
+
+        1.  **被 Boundary 切割的区块**：请求体不再是传统的 `name=xxx&pic=xxx`，而是被一长串横杠开头的 `boundary` 字符串，严丝合缝地分割成了一个个独立的区块。表单里有几个 `<input>`，这里就有几个区块。
+        2.  **文件区块的内部结构**：
+            * **描述头部**：第一行通常是 `Content-Disposition: form-data; name="pic"; filename="6.jpg"`。这里把表单控件的 `name` 属性和用户本地的原始文件名 `filename` 都带过来了。
+            * **文件 Mime 类型**：第二行是 `Content-Type: image/jpeg`，用来向服务器声明这段二进制数据的真实格式。
+            * **真正的文件数据（乱码区）**：隔着一个空行之后，紧接着那一大坨人类完全看不懂的字符（图中特别标注了发给服务器的乱码），就是文件最真实的**二进制字节流**！浏览器把图片拆成原始字节发出去，服务端拿到这堆数据后，再用 Java IO 流一点点写到服务器的硬盘上，重新拼装成图片。
+        3.  **封尾标识**：在所有数据区块全部传输完毕的最末尾，会有一个结尾多出两个减号的边界线（`--boundary--`），它是整个请求体结束的唯一标志。
+
+
+
+3. **服务端处理逻辑 (Servlet 底层剥洋葱)**
+    一旦前端使用了 `multipart/form-data`，后端原本好用的 `request.getParameter()` 就会彻底失效（拿到的是 `null`）。后端必须换一套专门的逻辑来处理：
+    1. **身份确认**：首先判断当前到达的请求，到底是不是一个文件上传表单（即检查请求头里有没有 `multipart` 标识）。
+    2. **拆解数据项**：把请求体里被 `boundary` 分割的数据，拆解成一个个独立的表单项（`FileItem`）。
+    3. **分类处理普通文本**：判断拆出来的每一项是什么类型。如果只是个**普通的表单项**（比如文本输入框里的名字），就按纯文本提取出来。
+    4. **IO 提取二进制文件**：如果判断出这是一个**文件表单项**，里面装的是二进制数据，就需要借助 Java 的 IO 流技术，把它一丝不苟地读取出来。
+    5. **落盘保存**：将读取到的文件字节流，通过输出流保存到服务器硬盘上指定的目录中（注：为了防止不同用户上传同名文件导致覆盖，真实项目中通常会用 UUID 等算法为文件重新生成一个全球唯一的名字）。
+    6. 示例
+        ```java
+        package com.lcq.servlet;
+
+        import org.apache.commons.fileupload.FileItem;
+        import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+        import org.apache.commons.fileupload.servlet.ServletFileUpload;
+
+        import javax.servlet.ServletException;
+        import javax.servlet.annotation.WebServlet;
+        import javax.servlet.http.HttpServlet;
+        import javax.servlet.http.HttpServletRequest;
+        import javax.servlet.http.HttpServletResponse;
+        import java.io.File;
+        import java.io.IOException;
+        import java.util.List;
+        import java.util.UUID; // 引入 UUID 生成唯一文件名
+
+        @WebServlet(urlPatterns = {"/upload2"})
+        public class UploadServlet2 extends HttpServlet {
+            @Override
+            protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+                // 1. 判断是否是合法的文件上传表单
+                if(ServletFileUpload.isMultipartContent(req)){
+
+                    DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory();
+                    ServletFileUpload servletFileUpload = new ServletFileUpload(diskFileItemFactory);
+                    servletFileUpload.setHeaderEncoding("UTF-8"); // 防止中文文件名乱码
+
+                    try {
+                        // 2. 解析请求，拿到所有的表单项 (包含普通文本和文件)
+                        List<FileItem> fileItems = servletFileUpload.parseRequest(req);
+
+                        /*
+                        List:[
+                        name=null, StoreLocation=null, size=1 bytes, isFormField=true, FieldName=username,
+                        name=eg_bulbon.gif, StoreLocation=null, size=1107 bytes, isFormField=false, FieldName=headerPic]
+                        List: [
+                        name=null, StoreLocation=null, size=1 bytes, isFormField=true, FieldName=username,
+                        name=java_extends_theory.png, StoreLocation=E:\code\IntelliJ\apache-tomcat-8.0.50\temp\ upload_50c5a122_664e_43af_8e82_283789a93dc6_00000003.tmp,
+                        size=595929 bytes, isFormField=false, FieldName=headerPic]
+                        */
+                        System.out.println("List: " + fileItems);
+
+                        // 🌟 优化1：把创建目录的逻辑提到循环外面。只创建一次，提高性能！
+                        String realPath = req.getServletContext().getRealPath("/upload/");
+                        File uploadDir = new File(realPath);
+                        if (!uploadDir.exists()) {
+                            // mkdirs() 返回一个布尔值，如果为 false 说明创建失败
+                            if (!uploadDir.mkdirs()) {
+                                // 发现建不了，直接掀桌子，立刻终止程序并报出精准的死因
+                                throw new IOException("服务器内部错误：无法创建文件上传目录 [" + realPath + "]，请检查服务器磁盘权限！");
+                            }
+                        }
+
+                        // 3. 遍历所有的包裹
+                        for (FileItem fileItem : fileItems) {
+                            if (fileItem.isFormField()) {
+                                // 处理普通文本输入框
+                                String fieldName = fileItem.getFieldName(); // 拿到 input 的 name 属性
+                                String value = fileItem.getString("utf-8"); // 拿到用户输入的值，注意防乱码
+                                System.out.println("普通表单字段 -> " + fieldName + " : " + value);
+
+                            } else {
+                                // 处理真正的文件
+                                String originalName = fileItem.getName();
+
+                                // 🌟 优化2：防御性编程，斩断 IE 浏览器传来的绝对路径盘符
+                                originalName = new File(originalName).getName();
+
+                                // 🌟 优化3：生成 UUID 唯一前缀，彻底解决同名文件覆盖痛点
+                                String uniqueName = UUID.randomUUID().toString() + "_" + originalName;
+
+                                // 🌟 优化4：使用 File 官方推荐的 (父目录, 子文件) 构造器，杜绝斜杠拼接错误
+                                File targetFile = new File(uploadDir, uniqueName);
+                                System.out.println("文件最终落盘路径: " + targetFile.getAbsolutePath());
+
+                                // 写入磁盘
+                                fileItem.write(targetFile);
+                            }
+                        }
+
+                        // 🌟 优化5：把响应提示移出 for 循环！等所有文件处理完再统一回复前端
+                        resp.setContentType("text/html;charset=utf-8");
+                        resp.getWriter().write("<h2>文件全部上传成功！</h2>");
+
+                    } catch (Exception e) {
+                        // 将框架抛出的各种异常统一定制处理
+                        e.printStackTrace();
+                        resp.setContentType("text/html;charset=utf-8");
+                        resp.getWriter().write("<h2>服务器开小差了，上传失败！</h2>");
+                    }
+                } else {
+                    System.out.println("it is not a multipart form!");
+                    resp.setContentType("text/html;charset=utf-8");
+                    // 建议使用println()替代write()
+                    resp.getWriter().println("表单格式错误，请检查 form 的 enctype 属性！");
+                }
+            }
+
+            @Override
+            protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                // GET 请求直接转给 POST 处理，或者直接给个友好提示
+                resp.setContentType("text/html;charset=utf-8");
+                resp.getWriter().write("请使用 POST 方式提交上传表单！");
+            }
+        }
+        ```
+    7. 一些改进建议：3 个进阶级隐患💣
+        - 幽灵文件炸弹：用户什么都不选，直接点上传
+            - 症状：如果用户在网页上没选择任何文件，直接手滑点了“确认上传”按钮，你的代码依然会傻乎乎地去执行。此时 fileItem.getName() 会拿到一个空字符串 ""。
+
+            - 后果：你的服务器 `/upload/` 目录下会生成一堆只有 UUID、没有后缀名、大小为 0 字节的垃圾文件（比如 `3f68cc66_.`）。
+
+            - 处方：在处理文件逻辑的最开始，加一行极简的“非空拦截”。
+
+        - 性能核弹：单目录文件数量爆炸（极度重要）
+            - 症状：你把所有的文件都塞进了一个名叫 `/upload/` 的根目录里。
+
+            - 后果：在 Linux/Windows 文件系统中，如果一个文件夹里的文件数量超过几万个，操作系统读取、遍历这个文件夹的速度会呈现断崖式下跌。Tomcat 甚至会因为频繁的磁盘 IO 阻塞而宕机。
+
+            - 处方：按日期动态分卷！ 每天生成一个新的文件夹（比如 `/upload/2026/03/18/`），完美分散系统压力。
+
+        - 致命安全漏洞：木马伪装（WebShell 注入）
+            - 症状：目前你的代码处于“来者不拒”的状态。
+
+            - 后果：如果有黑客恶意上传了一个写满 Java 恶意代码的 `木马.jsp` 文件。虽然你加了 UUID，但只要黑客猜到或获取了文件名，通过浏览器访问这个 JSP，你的服务器防线瞬间被击穿，黑客可以直接控制你的数据库！
+
+            - 处方：严格的后缀名白名单校验！（只允许 `.jpg`、`.png` 等安全格式）。
+
+#### 文件上传的实战注意事项与细节
+
+在真实的企业级项目中，文件上传绝不是简单的“接收并保存”，为了系统的高可用和安全性，通常需要考虑以下细节：
+
+1. **目录打散（防止单目录爆炸）**
+    * **痛点**：如果将所有用户的文件都上传到同一个目录下，当文件数量达到万级甚至十万级时，操作系统的文件检索速度会呈指数级下降，甚至导致目录卡死。
+    * **规范做法**：按照日期或哈希算法将文件打散到不同目录。例如，按天创建文件夹：`upload/2026/03/18/`。
+    * 示例
+        ```java
+        public class WebUtils {
+            public static String getYearMonthDay() {
+                // 如何得到当前的日期-> java基础 日期 三代类
+                LocalDateTime ldt = LocalDateTime.now();
+                int year = ldt.getYear();
+                int monthValue = ldt.getMonthValue();
+                int dayOfMonth = ldt.getDayOfMonth();
+                String yearMonthDay = year + "/" + monthValue + "/" + dayOfMonth + "/";
+                return yearMonthDay;
+            }
+        }
+        ```
+2. **进阶的高级特性**
+    * 一个完美的文件上传系统需要考虑：**断点续传**（网络中断后能接着传）、**分片上传**（超大文件切块并行上传）、**尺寸大小控制**、**防恶意上传**（防止上传 `.jsp` 或 `.exe` 格式的木马文件脚本执行）。
+    * 实际项目中通常不会从零手写，而是采用成熟的第三方组件（如百度的 `WebUploader`，或现代前端框架中封装好的 Uploader 组件）。
+3. **严格的业务限制**
+    * 服务器的磁盘空间是极其昂贵的资源。文件上传功能必须谨慎且有限制地开放（主要用于头像、合同、证明材料等核心业务）。
+    * **防刷机制**：如果不加限制，极易被黑客恶意脚本刷爆硬盘。比如微信朋友圈限制一次最多 9 张图，普通平台的评论区通常会限制图片大小和数量。
+4. **开发环境的“灵异事件”（IDEA + Tomcat 专有坑）**
+    * **现象**：在 Web 目录下创建了 `upload` 文件夹，但在 Tomcat 启动并上传文件时，系统疯狂报错“找不到路径”。
+    * **原因**：如果 `upload` 是一个空目录，IDEA 在编译打包并将项目部署到 `out/artifacts` 目录下时，**会自动忽略并丢弃空目录**。
+    * **解决方案**：在 `upload` 目录下随便放一个占位文件（比如新建一个空的 `1.txt` 甚至 `.gitkeep`），只要目录不为空，IDEA 就会乖乖把它同步过去。实际部署到生产环境的 Linux 服务器时不存在此问题。
+
+### 文件下载
+
+#### 文件下载的核心原理剖析
+
+与文件上传的“接收与保存”相反，文件下载的全链路流程可以拆解为**前端触发**、**后端读取**和**网络响应**三个部分。其本质是将服务器磁盘上的物理文件，化作二进制水流，顺着 HTTP 响应管子浇灌给浏览器。
+
+1. **前端触发机制 (超链接或按钮)**
+    * **请求方式**：通常使用最简单的 `GET` 请求即可完成（通过 `<a>` 标签或 `window.location.href`）。
+    * **参数传递**：前端需要将目标文件的唯一标识（通常是文件名或文件 ID）作为 URL 参数传递给后端 Servlet。
+    * **中文参数陷阱**：如果文件名包含中文，浏览器在发起 GET 请求时会自动进行 URL 编码，后端接收时需注意字符集。
+    - 示例
+        ```js
+        <%@ page contentType="text/html;charset=UTF-8" language="java" isELIgnored="false" %>
+        <html>
+        <head>
+            <title>文件下载演示</title>
+        </head>
+        <body>
+        <h2>文件下载</h2>
+        <a methods="GET", href="${pageContext.request.contextPath}/fileDownload?name=1.png">下载A</a>
+        <a methods="GET", href="${pageContext.request.contextPath}/fileDownload?name=2.png">下载B</a>
+
+        </body>
+        </html>
+        ```
+
+2. **HTTP 响应结构的异变 (核心控制台)**
+    文件下载的魔法几乎全部集中在后端的 **HTTP 响应头（Response Headers）** 里。一旦设置了特定的头信息，浏览器就不再把接收到的数据当成网页渲染，而是作为文件保存。
+    * **`Content-Type` (内容类型)**：指定返回数据的 MIME 类型（如 `image/jpeg` 或 `application/pdf`）。如果不确定具体类型，通常设为通用的二进制流 `application/octet-stream`。
+    * **`Content-Disposition` (内容展示形式 - 🌟 灵魂属性)**：
+        * `inline`（默认）：浏览器会尝试在网页内联打开文件（比如直接预览图片或 PDF）。
+        * `attachment; filename="xxx.jpg"`：强制浏览器弹出下载对话框，并将下载后的文件默认命名为 `xxx.jpg`。
+    * **`Content-Length` (内容长度)**：告诉浏览器这个文件到底有多大，这样浏览器自带的下载管理器才能正确显示“下载进度条”。
+    - 响应报文节选
+        ```http
+        HTTP/1.1 200 OK
+        Server: Apache-Coyote/1.1
+        Content-Disposition: attachment; filename="=?UTF-8?B?MS5wbmc=?="
+        Content-Type: image/png
+        Transfer-Encoding: chunked
+        Date: Wed, 18 Mar 2026 07:47:51 GMT
+        ```
+
+3. **服务端处理逻辑 (Servlet 逆向组装)**
+    当后端收到下载请求后，需要一套标准的流水线来把磁盘文件变成响应流：
+    1. **获取凭证**：从 `request` 中解析出前端传来的文件名。
+    2. **安全定位**：拼接服务器的真实物理路径，找到该文件在硬盘上的位置。
+    3. **中文文件名编码**：根据前端浏览器的类型（User-Agent），对中文文件名进行特定编码（URLEncoder 或 Base64），组装好 `Content-Disposition` 的值。
+    4. **设置响应头**：将 `Content-Type`、`Content-Length` 和 `Content-Disposition` 赋予 `response`。
+    5. **IO 流对接**：开启本地文件的输入流（`FileInputStream`），对接 `response` 的输出流（`ServletOutputStream`），通过缓冲区（Buffer）将文件字节源源不断地写回客户端。
+    6. 示例（待补充）
+        ```java
+        package com.lcq.servlet;
+        
+        import org.apache.commons.io.IOUtils;
+        
+        import javax.servlet.ServletContext;
+        import javax.servlet.ServletException;
+        import javax.servlet.ServletOutputStream;
+        import javax.servlet.annotation.WebServlet;
+        import javax.servlet.http.HttpServlet;
+        import javax.servlet.http.HttpServletRequest;
+        import javax.servlet.http.HttpServletResponse;
+        import java.io.IOException;
+        import java.io.InputStream;
+        import java.nio.charset.StandardCharsets;
+        
+        @WebServlet(urlPatterns = {"/fileDownload2"})
+        public class DownLoadServlet2 extends HttpServlet {
+            @Override
+            protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        
+                // [步骤 1] 设置请求编码，防止接收到的中文文件名乱码
+                req.setCharacterEncoding("utf-8");
+                ServletContext servletContext = req.getServletContext();
+                System.out.println("DownLoadServlet is working!");
+        
+                // [步骤 2] 获取前端传递的文件名参数
+                String downLoadFileName = req.getParameter("name");
+                System.out.println("请求下载的文件名: " + downLoadFileName);
+        
+                // 🛡️ [优化 A：安全防御] 防止目录穿越攻击 (Directory Traversal)
+                // 绝不能相信前端传来的文件名！如果黑客传入 "../../../WEB-INF/web.xml"，直接拦截！
+                if (downLoadFileName == null || downLoadFileName.contains("/") || downLoadFileName.contains("\\") || downLoadFileName.contains("..")) {
+                    resp.setContentType("text/html;charset=utf-8");
+                    resp.getWriter().println("<h2>安全拦截：非法的文件名参数！</h2>");
+                    return;
+                }
+        
+                // [步骤 3] 拼接 Web 相对路径
+                String downloadFileFullPath = "/down/" + downLoadFileName;
+                System.out.println("文件相对路径: " + downloadFileFullPath);
+        
+                // [步骤 4] 尝试获取文件的输入流
+                InputStream resourceAsStream = servletContext.getResourceAsStream(downloadFileFullPath);
+        
+                // 🛡️ [优化 B：健壮性防御] 致命空指针拦截！必须先判断流是否为 null
+                if (resourceAsStream == null) {
+                    System.out.println("拦截：找不到该文件，无法提供下载！");
+                    resp.setContentType("text/html;charset=utf-8");
+                    resp.getWriter().println("<h2>抱歉，您要下载的文件不存在或已被删除！</h2>");
+                    return; // 发现文件不存在，立刻终止，彻底消灭 500 报错！
+                }
+        
+                // [步骤 5] 获取并设置文件的 MIME 类型 (给浏览器的接头暗号)
+                String mimeType = servletContext.getMimeType(downloadFileFullPath);
+                // 🛡️ [优化 C：兼容性兜底] 如果 Tomcat 不认识这个文件扩展名，默认给个纯二进制流类型
+                if (mimeType == null) {
+                    mimeType = "application/octet-stream";
+                }
+                resp.setContentType(mimeType);
+        
+                // [步骤 6] 处理不同浏览器的中文文件名乱码问题
+                String userAgent = req.getHeader("User-Agent");
+                String encodedFileName;
+                if (userAgent != null && userAgent.toLowerCase().contains("firefox")) {
+                    // 火狐浏览器：RFC 2047 Base64 编码规范
+                    String base64Name = java.util.Base64.getEncoder().encodeToString(downLoadFileName.getBytes(StandardCharsets.UTF_8));
+                    encodedFileName = "=?UTF-8?B?" + base64Name + "?=";
+                } else {
+                    // 其他主流浏览器 (Chrome, Edge)：URL 编码
+                    encodedFileName = java.net.URLEncoder.encode(downLoadFileName, "UTF-8").replaceAll("\\+", "%20");
+                }
+        
+                // [步骤 7] 设置响应头，触发浏览器的“另存为”强制下载机制
+                resp.setHeader("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"");
+        
+                // [步骤 8] IO 流对拷，将服务器文件数据写入响应流发送给客户端
+                // 🛡️ [优化 D：性能与资源管理] 使用 Java 7 的 try-with-resources 语法
+                // 确保文件流和网络流在用完后会被 100% 自动关闭，防止服务器内存泄漏和文件句柄被占用！
+                try (InputStream is = resourceAsStream;
+                    ServletOutputStream os = resp.getOutputStream()) {        
+                    IOUtils.copy(is, os);        
+                } catch (Exception e) {
+                    System.err.println("❌ 文件传输过程中发生网络或 IO 异常：");
+                    e.printStackTrace();
+                }
+            }
+        
+            @Override
+            protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                // 让 GET 请求直接复用 POST 的逻辑，无论前端怎么发请求都能下载
+                doPost(req, resp);
+            }
+        }        
+        ```
+    7. 一些改进建议：3 个进阶级隐患💣
+        * **资源泄漏危机：流未闭合**
+            * 症状：代码跑通了，文件也下载了，但是输入输出流忘了放在 `finally` 块里关闭，或者没用 try-with-resources 语法。
+            * 后果：服务器的文件句柄被长期占用，下载请求一多，服务器直接报 "Too many open files" 错误并崩溃。
+            * 处方：严格遵循 Java IO 规范，绝对保证流的关闭。
+        * **空指针与 404 灾难：文件不存在**
+            * 症状：用户请求下载一个由于某种原因已经被删除的文件。
+            * 后果：后端 `new FileInputStream(file)` 时直接抛出 `FileNotFoundException`，页面直接给用户抛出一个惨不忍睹的 500 报错栈。
+            * 处方：在 new 流之前，务必先 `if(!file.exists())` 拦截，并给前端返回友好的“文件已丢失”提示。
+        * **致命安全漏洞：目录穿透漏洞 (Path Traversal)**
+            * 症状：代码直接把前端传来的 filename 拼接到基础路径后去读文件，毫无防备。
+            * 后果：黑客把 filename 改成 `../../../../etc/passwd`（Linux 系统密码文件）或者服务器数据库配置文件。你的代码会傻乎乎地跨出 upload 目录，把系统核心机密下载给黑客。
+            * 处方：对前端传来的 filename 进行严格清洗，坚决剔除一切包含 `/` 或 `\` 的路径符号，只保留纯文件名！
+
+#### 文件下载的实战注意事项与细节
+
+在真实的企业级项目中，下载功能的健壮性同样面临着各种浏览器兼容性和架构考验：
+
+1. **中文文件名的乱码灾难（浏览器兼容性修罗场）**
+    * **痛点**：在 HTTP 响应头中塞入中文文件名，IE、Chrome 和 Firefox 有着完全不同的解码标准，极易导致用户下载下来的文件名为一堆乱码（如 `___.jpg`）。
+    * **规范做法**：后端必须通过 `request.getHeader("User-Agent")` 获取浏览器标识。若是 Firefox，通常需要将文件名进行 Base64 编码拼接；若是老版本 IE 或主流 Chrome，则需要进行 `URLEncoder.encode(filename, "UTF-8")` 处理。
+2. **浏览器的默认行为与强制下载区分**
+    * **业务抉择**：并非所有文件都需要直接下载。对于合同 PDF、用户头像，业务方通常希望用户能在网页内“预览”（使用 `inline`）；而对于报表 Excel、安装包，则要求“强制另存为”（使用 `attachment`）。这需要在 Servlet 中根据业务场景灵活切换头信息。
+3. **下载策略的区分与大文件处理**
+    * **痛点**：通过 Tomcat 的 Servlet IO 流下载小文件（几 M 内）毫无压力，但如果用来下载 1GB 的超大视频，会长期占用 Tomcat 的工作线程，导致并发能力锐减，甚至引发内存溢出。
+    * **规范做法**：
+        * **小文件/私密文件**：走 Servlet 鉴权后通过 IO 流下载。
+        * **大文件/公共静态文件**：直接甩一个静态资源的 URL 链接，让 Nginx 去处理，或者交给专业的下载工具（迅雷、网盘客户端）。
+        * **云原生方案**：若是存在 OSS 中，后端直接调用云厂商 SDK，生成一个带有过期时间（如 5 分钟后失效）的“私有下载授权签名 URL”发给前端，让客户端直接去云厂商的 CDN 节点拉取，彻底解放应用服务器。
+
+
+## 【项目】家居网购
+
+### 基本内容
+
+#### 前置技术
+
+在正式进入项目前，必须确保已经熟练掌握以下 Java 基础与核心技术，否则极易在项目实战中“听天书”：
+* **正则表达式**：用于前后端的数据格式校验。
+* **MySQL 数据库**：建表、基础 SQL 与复杂查询。
+* **JDBC 技术**：Java 连接与操作数据库的核心。
+* **数据库连接池**：Druid / C3P0 等提升数据库访问性能的技术。
+* **综合前置项目**：需要有类似“满汉楼”这种单体控制台/基础 GUI 项目的逻辑铺垫。
+
+#### 项目技术栈说明与定位
+* **当前阶段定位**：本项目采用**原生 Servlet + Filter（过滤器）** 进行开发。目的是为了吃透底层 HTTP 请求流转原理，不依赖任何高级框架。
+* **后续进阶对比**：在彻底掌握原生开发后，后续才会进阶到企业级流行的 SSM 框架或微服务架构（Vue3 + ElementPlus + Axios + SpringBoot + MyBatis-Plus）。
+
+#### 软件项目开发全生命周期 (SDLC)
+
+在真实的企业中，开发一个项目（如造价百万的财务软件或电商平台）绝不是程序员上来就写代码，而是有一套严格的工业化流水线。项目的标准开发阶段分为以下 6 步：
+
+1. **需求分析阶段**
+    * **核心人员**：需求分析师 / 产品经理 (PM)。
+        * *需求分析师*：偏向 ToB（面向企业），负责分析甲方客户的定制化需求。
+        * *产品经理*：偏向 ToC（面向大众），自己规划软件功能并推向市场。
+    * **能力要求**：懂技术底座，更要极其精通行业业务。
+        * 例如开发财务软件，必须掌握财务知识、报表流转和税务制度，有时甚至要去客户单位“卧底”上班体验流程。
+    * **核心产出**：输出《需求分析白皮书》，准确拆解客户需要实现的功能。
+        * *避坑核心*：客户往往会提一堆无效需求，或者漏掉隐藏需求。需求层必须负责“排雷”，框定项目边界。
+2. **设计阶段 (核心大脑)**
+    * **核心人员**：架构师 / 项目经理。
+    * **能力要求**：**技术**要全面深厚，且懂**项目**管理与**人员**调配。
+    * **核心产出**：设计文档（包含 UML 类图、时序图、流程图、数据库表设计、模块划分）。
+    * **核心工作**：
+        * *组建团队*：根据项目规模招募或调配开发人员。
+        * *技术选型*：决定底层基建（用原生 Servlet 还是 SpringBoot + Cloud 云原生；前端用不用 Vue；服务器是 Windows 还是 Linux；数据库用 MySQL + Redis；高并发要不要上 Nginx 等）。
+        * *原型开发*：快速产出一个 UI 交互原型，便于和甲方直观沟通并最终敲定合同签字。
+    * *💡 职业建议*：努力向这个阶段的岗位靠拢，做公司的核心人员，争取成为不可替代的基石。
+3. **开发阶段 / 实现阶段 (搬砖主力)**
+    * **核心人员**：前端 / 后端（Java）开发工程师。
+    * **核心任务**：看懂设计文档 $\rightarrow$ 理解需求 $\rightarrow$ 编写指定模块（如订单、支付模块）的代码，完成上级下达的任务。
+    * **工作流**：小组长分配任务 $\rightarrow$ 程序员自测代码 $\rightarrow$ 小组长 Code Review（代码审查） $\rightarrow$ 通过 Git 提交合并。
+        * 在一些管理扁平化的公司，也会下放设计权限给普通开发，让你自己设计数据库表和分层结构。
+4. **测试阶段 (质量把控)**
+    * **核心人员**：测试工程师 / 测试经理 (QA)。
+    * **核心任务**：执行单元测试、集成测试、系统测试。
+    * **技术栈**：黑盒测试、白盒测试、压力测试。熟练使用 Bug 管理系统（如 Jira、禅道），以及自动化/接口测试工具（Selenium、JMeter、Postman 等）。高级 QA 通常会写 Python 或 Shell 自动化脚本。
+    * *注：开发与测试阶段往往是交替执行、往复循环的（开发提交 $\rightarrow$ 测试出 Bug $\rightarrow$ 打回重构 $\rightarrow$ 再测，直到版本稳定）。*
+5. **实施阶段 (项目落地)**
+    * **核心人员**：实施工程师。
+    * **核心任务**：将开发好的系统部署到生产环境（本地机房或客户公司内部）。
+    * **能力要求**：对写代码能力要求不高，但必须精通操作系统（Linux）、网络设备配置、局域网穿透、环境搭建与数据库安装。
+    * *特点*：通常需要频繁出差去客户现场，适合喜欢到处跑、沟通能力强的人（互联网 ToC 大厂基本已通过 DevOps 自动化运维淘汰了此岗位）。
+6. **维护阶段 (售后保障)**
+    * **核心任务**：处理系统上线运行后出现的错误，进行日常巡检和数据备份。
+    * **处理流转**：大公司有专门的运维部门（OP）；小公司通常找售后或实施人员顶替。
+    * *经典的排障三板斧*：先重启服务器 $\rightarrow$ 重新配置/重装环境软件 $\rightarrow$ 依然不行则带着日志反馈给项目经理和开发组定位 Bug。
+
+#### 行业现状与求职指南
+
+* **典型企业类型**：
+    * *传统企服/软件服务商*：如用友、金蝶、东软（主要做 ToB，业务稳定，实施和需求岗位较多）。
+    * *互联网大厂*：如阿里、腾讯、字节、新浪、美团（主要做 ToC，技术迭代极快，高并发要求高）。
+* **主流招聘渠道**：BOSS直聘（目前最主流，直接和业务主管开聊）、拉勾网（垂直互联网 IT）、前程无忧/智联招聘（传统企业多）、牛客网（极其适合校招和看面经）。
+
+#### 项目开发时间分配规律
+
+千万不要以为做项目就是 100% 都在敲代码。一个健康的企业级项目，时间的分配大概遵循以下比例：
+* **需求分析：20%** （磨刀不误砍柴工，需求搞错全盘皆输）
+* **架构设计：20%** （画图、建表、技术选型）
+* **开发编码：30%** （真正的“敲键盘”时间其实只占三分之一）
+* **测试与部署：30%** （修 Bug、压力测试、环境配置往往极其耗时）
+
+#### 💡 程序员职业方向建议
+
+针对 IT 行业的长远发展，建议尽早规划自己的职业路线：
+
+1. **夯实技术底座（必经之路）**：无论未来走向何方，毕业后在纯粹的“开发岗（搬砖）”至少沉淀 2~3 年，积累解决真实业务问题的经验和代码量。
+2. **技术/管理双通道（向上突破）**：
+    * **技术路线**：高级开发工程师 $\rightarrow$ 技术专家 $\rightarrow$ **架构师**（专注于底层技术难题、高并发架构设计，薪资极高）。
+    * **管理路线**：核心骨干 $\rightarrow$ 开发组长 $\rightarrow$ **项目经理/技术总监 (CTO)**（专注于把控项目进度、跨部门协调和团队管理）。
+3. **横向转岗（降维打击）**：
+    * **转产品经理 (PM)**：懂技术的 PM 是全行业最吃香的，因为你不会提出“APP 主题随手机壳变色”这种离谱需求，且能完美压制开发团队。
+    * **转测试经理 (QA Manager)**：懂得代码底层逻辑，能写出更致命的测试用例和自动化脚本。
+4. **技术支持 / 售前顾问（沟通向）**：
+    * 适合**技术底子不错，但更擅长与人打交道、沟通能力强**的人。主要工作是跟着销售去见客户，利用专业的技术背景为客户提供软件解决方案，促成签单。（出差多，绩效提成丰厚，不用天天掉头发写代码）。
+
+### 深度剖析：JavaEE 经典三层架构与 MVC 映射关系
+
+#### 三层架构
+
+在 Java Web 开发中，为了实现高内聚低耦合，整个系统的数据流转被严格划分成了不同的层级。一条 HTTP 请求从浏览器发出到最终落盘数据库，会经历以下完整的生命周期：
+
+1. 客户端层 (Browser 浏览器)
+    - **核心动作**：发起 HTTP 请求（`http://ip:port/工程路径/资源名`），接收 HTTP 响应，对返回的数据进行解析并展示给用户。
+    - **关联技术栈**：HTML、CSS、JS、jQuery、Vue 等前端技术。
+
+2. 服务端：Web 层 / 视图层 (View & Controller)
+    这是系统对外暴露的第一道大门，直接与浏览器交互。
+    - **核心功能**：
+        1. **接收**：接收用户的 HTTP 请求，提取前端传来的参数。
+        2. **调度**：自己不处理复杂业务，而是**调用 Service 层**完成业务处理。
+        3. **响应**：拿到 Service 层的结果后，将响应数据返回给客户端。
+        4. **路由**：控制页面的跳转（转发 Forward 或重定向 Redirect）。
+    - **技术实现**：
+        - *多元化表现*：HTML、CSS、JS、jQuery、Vue（纯前端渲染）。
+        - *服务端解析组件*：原生 Servlet、JSP、Thymeleaf，以及后期的 SpringMVC 框架。
+
+3. 服务端：Service 层 / 业务层
+    这是系统真正的大脑，负责处理一切业务规则。
+    - **核心功能**：
+        1. 对具体的业务逻辑进行处理（比如：计算购物车总价、判断库存是否充足）。
+        2. 提供各种业务 API 方法供 Web 层调用。
+        3. 需要读写数据时，**调用 DAO 层**完成对数据库的操作。
+    - **技术实现**：
+        - 相对单纯，主要依赖原生 Java 技术，以及后期统治级的 Spring 框架（负责事务管理和对象注入）。
+
+4. 服务端：DAO 层 / 数据持久层 (Data Access Object)
+    这是系统与数据库沟通的唯一桥梁。
+    - **核心功能**：专门完成对底层数据库的操作，最经典的就是 **CRUD**：
+        - **C (Create)**：创建/插入数据
+        - **R (Read/Retrieve)**：查询/检索数据
+        - **U (Update)**：更新数据
+        - **D (Delete)**：删除数据
+    - **技术实现**：呈多元化发展。从早期的原生 JDBC，到配合连接池的 DBUtils/JdbcTemplate，再到如今企业级主流的持久层框架 MyBatis 及 MyBatis-Plus。
+
+5. 存储层 (Database)
+    - 负责数据的最终物理落地。常见的关系型数据库有：MySQL、Oracle、SQLServer、DB2 等。
+
+#### 企业级项目包 (Package) 命名规范
+
+为了配合上述的三层架构，Java 项目在建包（Package）时有一套行业公认的命名约束：
+
+| 逻辑分层 | 对应包名 (示例) | 说明 |
+| :--- | :--- | :--- |
+| **Web 层** | `com.lcq.furns.web` (或 `servlet`, `controller`, `handler`) | 存放 Servlet，负责接收请求，调用 Service |
+| **Service 层** | `com.lcq.furns.service` | 存放业务逻辑的 **接口 (Interface)** |
+| | `com.lcq.furns.service.impl` | 存放业务逻辑接口的 **实现类 (Impl)** |
+| **DAO 持久层** | `com.lcq.furns.dao` | 存放操作数据库的 **接口** |
+| | `com.lcq.furns.dao.impl` | 存放操作数据库接口的 **实现类** |
+| **实体对象层** | `com.lcq.furns.pojo` (或 `entity`, `domain`, `bean`) | 贯穿全层，存放对应数据库表的 JavaBean 实体类 |
+| **通用工具层** | `com.lcq.furns.utils` | 存放公共的工具类（如日期转换、JDBC 工具类等） |
+| **测试层** | `com.lcq.furns.test` | 存放单元测试代码，专门测试 DAO 和 Service |
+
+*(注：Service 和 DAO 之所以要区分“接口”和“实现类”，是为了面向接口编程，方便后期随时无缝切换底层技术方案，这也是解耦的最高境界。)*
+
+#### 核心难点解惑：MVC 与三层架构的细化映射
+
+很多初学者分不清“三层架构”和“MVC”。从第一张图的下半部分可以看出，**MVC 其实主要是在指导 Web 层及其向下调用的过程**。
+
+* **C (Controller 控制器)**：
+  * **对应实体**：Servlet / SpringMVC Controller。
+  * **职责**：接收用户请求，它是中枢神经。它决定调用哪个 Model 去处理数据，处理完后决定派发给哪个 View 去展示。
+* **M (Model 数据模型)**：
+  * **对应实体**：JavaBean（实体类） + Service（业务逻辑） + DAO（数据访问）。
+  * **职责**：可以理解为“处理数据”并“为 View 准备数据”。它包含了业务规则的运算和数据库的读写。
+* **V (View 视图)**：
+  * **对应实体**：HTML、JSP、CSS、Thymeleaf 等。
+  * **职责**：只用于显示数据，**绝对不做任何数据处理**。接收到 Controller 传来的数据后，渲染成漂亮的网页展示给用户。
+
+#### MVC 思想深度解读
+
+MVC 是一种指导软件代码拆分、单独开发、组合使用的**思想**（目的是解耦）。它最早出现在 JavaEE 的 Web 层。
+
+1. MVC 的三大核心组件：
+    * **V (View 视图)**：只负责数据和界面的显示，不掺杂任何逻辑代码。便于前端工程师和后端分离协作。
+        * *落地技术*：HTML, Vue, JSP, Thymeleaf 等。
+    * **C (Controller 控制器)**：充当“调度者”。负责接收用户的请求，调用业务层的代码去处理，拿到结果后再派发给对应的视图页面。
+        * *落地技术*：原生 Servlet，后期的 SpringMVC 等。
+    * **M (Model 模型)**：封装与业务逻辑相关的数据，通常是具体的 JavaBean 类。
+
+2. 老韩解读：Model 层的历史演变路线
+    MVC 的架构并非一成不变，随着业务复杂度的飙升，底层的 Model 层经历了以下演变：
+    1. **萌芽期**：早期的 `JSP + Servlet + JavaBean` 模式，Model 仅仅指代封装数据的实体类（JavaBean）。
+    2. **组件化期**：业务变复杂后，Model 内部开始裂变分层，拆分出了专门管业务的 **Service** 和专门管数据库的 **DAO**。
+    3. **现代化期**：随着 ORM 技术的成熟，最底层的 DAO 操作融合了强大的持久化技术框架（如 Hibernate、MyBatis、MyBatis-Plus）。
+    4. **总结**：虽然底层不断变厚、变强，但最外壳依然遵循着经典的 MVC 调度流转思想。
+
+### 创建项目
+
+#### Maven Web 项目标准目录结构与避坑指南
+1. 一个合格的企业级 Maven Web 项目，其目录结构必须像钟表齿轮一样严丝合缝。下面是标准结构树及详细解析：
+    ```text
+    furns (项目根目录)
+    ├── pom.xml                     # Maven 核心配置文件
+    ├── src                         # 源码目录
+    │   ├── main                    # 主程序目录 (会被打包进最终的生产环境)
+    │   │   ├── java                # 存放核心 Java 源代码
+    │   │   │   └── com.lcq.furns   # 基础包结构 (dao, service, web, entity, utils)
+    │   │   ├── resources           # 存放项目的静态配置文件
+    │   │   │   └── druid.properties
+    │   │   └── webapp              # Web 应用的根目录 (存放前端资源)
+    │   │       ├── css
+    │   │       ├── js
+    │   │       ├── WEB-INF         # Web 应用的安全/核心配置区
+    │   │       │   └── web.xml     # Servlet 的核心调度配置文件
+    │   │       └── index.jsp       # 默认欢迎页
+    │   └── test                    # 测试程序目录 (绝不会被打包进最终的生产环境)
+    │       ├── java                # 存放单元测试 Java 代码 (如 UserDaoTest.java)
+    │       └── resources           # 存放测试专用的配置文件
+    └── target                      # 编译后的输出目录 (由 Maven 自动生成，切勿手动修改)
+    ```
+
+1. 核心代码区 (`src/main/java`) 与避坑
+    - **规范**：这里只能存放 `.java` 后缀的源代码文件。按照三层架构建立对应的 package。
+    - **💣 避坑：非 Java 文件迷失案**
+        - **现象**：有些初学者喜欢把 `.xml` 的映射文件或者 `.properties` 配置文件直接建在 Java 包里。
+        - **后果**：Maven 在编译时，**默认只会将 `src/main/java` 目录下的 `.java` 文件编译成 `.class` 放进类路径**，它会自动过滤并丢弃所有非 Java 文件！项目一跑就报 `FileNotFoundException`。
+        - **正解**：所有配置文件老老实实放到 `resources` 目录下。
+
+2. 资源配置区 (`src/main/resources`) 与避坑
+    - **规范**：存放所有的配置文件，如数据库连接参数 `druid.properties`、日志配置 `log4j.properties` 等。这里面的文件在编译后，会直接被散落到类路径（Classpath）的根目录下。
+    - **💣 避坑：手残党命名危机**
+        - **现象**：建目录时少敲了一个字母，命名成了 `resource`。
+        - **后果**：Maven 铁面无私，只认 `resources`。叫 `resource` 它就不将其作为资源文件夹处理，导致代码里通过 Classpath 怎么都读不到配置文件。
+
+3. 前端与 Web 资源区 (`src/main/webapp`) 与避坑
+    - **规范**：存放所有的 HTML、JSP、CSS、JS 以及图片。
+    - **💣 避坑 1：IDEA 的诱导犯罪 (`web` vs `webapp`)**
+        - **现象**：如果在 IDEA 里手动添加 Web 支持，它默认生成的文件夹叫 `web`。
+        - **后果**：Maven 打包插件只认 `src/main/webapp`。如果你叫 `web`，Maven 打 `war` 包时就不会把你的前端页面打进去。必须手动去 `pom.xml` 里重新配置打包路径，非常麻烦。**强烈建议建项目时直接手动创建 `webapp` 目录**。
+    - **💣 避坑 2：`WEB-INF` 的绝对绝对安全区**
+        - **规范**：`WEB-INF` 是 Java Web 特有的安全目录。里面除了放 `web.xml`，还可以放编译后的 class 文件和引用的 jar 包。
+        - **红线**：**浏览器无法通过 URL 直接访问 `WEB-INF` 下的任何文件！** 如果你把 `login.html` 放在了这里，用户在浏览器敲地址永远是 404。必须通过后端的 Servlet 进行内部转发（`request.getRequestDispatcher()`）才能访问到。
+
+4. 测试隔离区 (`src/test`) 与避坑
+    - **规范**：必须与 `main` 平级。专门用来写 JUnit 单元测试代码。
+    - **💣 避坑：测试代码污染生产环境**
+        - **现象**：就像你之前的截图一样，把 `test` 包建在了 `main/java` 下面。
+        - **后果**：Maven 在执行 `package` 打包命令时，会把这些测试代码当成生产代码一起编译打包，最终的 `.war` 包体积臃肿，甚至可能暴露内部的测试后门和敏感测试数据。放在 `src/test` 里，Maven 打包时会自动剔除它们。
+
+5. 配置文件 (`pom.xml`) 避坑
+    - **💣 避坑：被遗忘的打包方式**
+        - **现象**：写好了所有的 Servlet 和 JSP，点击 Maven 的 package，发现 target 目录下生成的是一个 `.jar` 文件。
+        - **后果**：Tomcat 服务器只认 `.war`（Web Application Archive）包。`.jar` 包扔进 Tomcat 是跑不起来的。
+        - **正解**：在 `pom.xml` 的顶部，紧跟着 `<version>` 标签，必须加上一行 `<packaging>war</packaging>`，告诉 Maven 这是一个 Web 项目。
+
+#### 家居网购项目 - 静态前端资源结构解析
+
+这套前端资源涵盖了电商项目最核心的“前台购物”和“后台管理”两大业务线。在整合进 Java 项目前，我们需要清晰地知道每一个页面的作用：
+
+1. 静态资源文件夹 (公共基建)
+    1. * **`assets`**：资产/资源文件夹，通常存放全局的 CSS 样式表、第三方 UI 库、字体文件以及网站的公共图片（Logo、背景图等）。
+    1. * **`script`**：存放项目使用的 JavaScript 脚本文件，包含表单验证、Ajax 请求等前端交互逻辑。
+    1. * **`views`**：通常用于存放一些被抽离出来的公共页面片段（比如通用的头部导航栏 Header、底部版权栏 Footer），方便在其他页面中被引入（类似 JSP 的 include）。
+
+2. HTML 页面分类 (按业务模块划分)
+
+    1. **🌍 全局通用页面**
+        * `index.html`：商城的首页（包含商品展示、轮播图等入口）。
+        * `404.html`：经典报错页。当用户访问了不存在的路径时，跳转到此页面。
+        * `500.html`：服务器崩溃提示页。当咱们的 Java 代码抛出异常未捕获时，给用户一个友好的提示，而不是直接报出一堆看不懂的代码栈。
+
+    1. **👤 用户认证模块 (前台)**
+        * `register_ok.html` / `register_fail.html`：用户注册成功或失败后的结果提示跳转页。
+        * `login_ok.html`：用户登录成功后的提示或过渡页面。
+
+    1. **🛒 核心购物模块 (前台)**
+        * `cart.html`：购物车页面（展示已选商品、修改数量、计算总价）。
+        * `checkout.html`：结账页面（确认收货地址、支付方式、生成订单）。
+        * `order.html`：我的订单列表（查看历史购买记录）。
+        * `order_detail.html`：订单详情页（查看某个具体订单的物流、商品明细）。
+
+    1. **⚙️ 商城后台管理模块 (后台)**
+        *(注：这部分页面普通用户是看不到的，只有商城管理员有权限访问)*
+        * `manage_login.html`：管理员专属的后台登录入口。
+        * `manage_menu.html`：后台管理的主菜单面板。
+        * `furn_manage.html`：家具（商品）库管理列表。
+        * `furn_add.html`：上架新家具（商品）的表单填写页。
+        * `furn_update.html`：修改/编辑已有家具信息的页面。
+
+---
+
+💡 整合实战避坑指南：
+1. **该往哪里放？** 拿到这些文件后，所有的文件夹和 HTML 文件，应该原封不动地直接拷贝到咱们 Maven 项目的 `src/main/webapp` 目录下。
+2. **静态变动态（核心进化）**：目前这些都是后缀为 `.html` 的静态死页面（里面的家具数据都是前端写死的假数据）。随着项目的推进，我们会将这些 `.html` 修改为 `.jsp`（或使用 Thymeleaf），以便使用 Java 代码从 MySQL 数据库中读取真实的商品数据，动态渲染到页面上。
+
+
+
+### 实现功能 - 会员注册后端
+
+终于打通前后端交互了！这一节我们将实现真正的入库操作。
+
+#### 需求分析
+1. **防重名机制**：会员注册信息提交给服务器后，必须先去数据库查询。如果 `username` 在数据库中已经存在，后台需给出提示信息（用户名已被注册），并打回重新注册。
+2. **入库与跳转**：如果用户名在数据库中不存在，则将用户信息保存入库完成注册，并返回注册成功的页面（`register_ok.html`）。
+
+#### 思路分析 - 模块程序框架图
+这部分是架构设计的核心，严格遵循 JavaEE 三层架构规范。
+
+* **💡开发的黄金法则（必背）：**
+    1. **分析思路**：顺向思维。从客户端请求开始自顶向下分析（Browser $\rightarrow$ Web $\rightarrow$ Service $\rightarrow$ DAO $\rightarrow$ DB）。
+    2. **编写代码**：逆向思维。**从调用的逆序开始自底向上写代码**（DB $\rightarrow$ Entity $\rightarrow$ DAO $\rightarrow$ Service $\rightarrow$ Web）。因为上层总是依赖下层的，下层没写完，上层代码就会大面积飘红报错。
+    3. **测试规范**：步步为营。每写完一层，建议立刻用 JUnit 单元测试跑一把，绝不要等全部写完再一起测，否则找 Bug 犹如大海捞针。
+
+* **架构分层映射关系**：
+    * **Web层**：`RegisterServlet.java`。负责接收浏览器发来的注册数据，调用 Service 完成任务，根据结果转发到 `register_ok.html` 或重定向回登录/注册页。
+    * **Service层**：`MemberService.java` [接口] 与 `MemberServiceImpl.java` [实现类]。负责核心业务逻辑：先调用 DAO 查重名，不重名再调用 DAO 保存。
+    * **DAO层**：`MemberDAO.java` [接口] 与 `MemberDAOImpl.java` [实现类]。底层继承通用增删改查类 `BasicDAO`。
+    * **支撑包**：
+        * `entity包`：提供对应数据库表的 JavaBean (`Member.java`)。
+        * `utils包`：提供 Druid 数据库连接池工具类 (`JDBCUtilsByDruid.java`)。
+        * `test包`：用于存放测试 DAO 和 Service 层的 JUnit 测试类。
+
+* 图解
+    ![javaweb_furns_registerStructure](./img/javaweb_furns_registerStructure.png)
+    ![javaweb_furns_registerStructure](./img/javaweb_furns_loginStructure.png)
+    
+
+#### 代码实现
+按照“自底向上”的原则，我们先搞定数据库和实体类，再逐层往上写。
+
+1. 创建数据库和表 (`furns_db` 或 `home_furnishing`)
+    ```sql
+    -- 创建 home_furnishing 数据库
+    DROP DATABASE IF EXISTS home_furnishing;
+    CREATE DATABASE home_furnishing;
+    USE home_furnishing;
+    
+    -- 创建 member 会员表
+    CREATE TABLE member(
+        `id` INT PRIMARY KEY AUTO_INCREMENT, 
+        `username` VARCHAR(32) NOT NULL UNIQUE, 
+        `password` VARCHAR(32) NOT NULL, 
+        `email` VARCHAR(64)
+    );
+    
+    -- 插入一条测试数据
+    INSERT INTO member(`username`,`password`,`email`)
+    VALUES('admin','admin','hsp@hanshunping.net');
+    
+    -- 验证表结构和数据
+    SELECT * FROM member;
+    ```
+
+2. 编写 Entity 层 (JavaBean)
+    ```java
+    // 预留位置：创建 Member.java 实体类，属性与数据库字段一一对应，生成 Get/Set/toString 方法
+    public class Member {
+        private Integer id;
+        private String username;
+        private String password;
+        private String email;
+        //...
+    }
+    ```
+
+3. 编写 Utils 层与 BasicDAO (基础设施)
+    ```java
+    // 预留位置：编写 JDBCUtilsByDruid.java 和 BasicDAO.java
+    
+    ```
+
+4. 编写 DAO 层
+    ```java
+    // 预留位置：编写 MemberDAO 接口 和 MemberDAOImpl 实现类
+    // 需要实现的方法：根据用户名查询会员 (queryMemberByUsername) 、保存会员 (saveMember)
+    public class MemberImpl extends BasicDAO<Member> implements MemberDAO {
+        @Override
+        public Member queryMemberByUsername(String username) {
+            String sql = "select * from member where username=?";
+
+            Member member = querySingle(sql, Member.class, username);
+            return member;
+        }
+
+        @Override
+        public boolean saveMember(Member member) {
+            String sql = "insert into `member`(username,password,email)values (?,md5(?),?)";
+            int update = update(sql, member.getUsername(), member.getPassword(), member.getEmail());
+            return update>0;
+        }
+    }
+
+    ```
+
+5. 编写 Service 层
+    ```java
+    // 预留位置：编写 MemberService 接口 和 MemberServiceImpl 实现类
+    // 需要实现的方法：注册会员业务 (registerMember)、判断用户名是否存在业务 (isExistsUsername)
+    public class MemberServiceimpl implements MemberService {
+
+        private MemberDAO memberDAO = new MemberImpl();
+
+        @Override
+        public boolean registerMember(Member member) {
+            if (!isExistUsername(member.getUsername())) {
+                return memberDAO.saveMember(member);
+            }
+            System.out.println("用户已存在，驳回注册");
+            return false;
+        }
+
+        @Override
+        public boolean isExistUsername(String username) {
+            Member member = memberDAO.queryMemberByUsername(username);
+            return member != null;
+        }
+    }
+    ```
+
+6. 编写 Web 层 (Controller)
+    ```java
+    // 预留位置：编写 RegisterServlet.java
+    // 逻辑：提取表单参数封装成 Member 对象 -> 调用 Service.registerMember() -> 判断是否成功 -> 页面转发
+    @WebServlet(urlPatterns = {"/register"})
+    public class RegisterServlet extends HttpServlet {
+        private MemberService memberService = new MemberServiceimpl();
+
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            //System.out.println("Register Servlet");
+            //for(String parameter:req.getParameterMap())
+            req.getParameterMap().forEach((paramName, paramValues) -> {
+                System.out.println("参数名: " + paramName + " ===> 参数值: " + java.util.Arrays.toString(paramValues));
+            });
+
+            String username = req.getParameter("username");
+
+            if(!memberService.isExistUsername(username)){
+                Member member = new Member(null, username, req.getParameter("user-password"), req.getParameter("user-email"));
+                if(memberService.registerMember(member)){
+                    req.getRequestDispatcher("/views/member/register_ok.html").forward(req,resp);
+                }else {
+                    System.out.println("未知原因");
+                    req.getRequestDispatcher("/views/member/register_fail.html").forward(req,resp);
+                }
+            }else {
+                System.out.println(username+"已存在，注册失败");
+                req.getRequestDispatcher("/views/member/register_fail.html").forward(req,resp);
+            }
+        }
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            doGet(req, resp);
+        }
+    }    
+    ```
+
+#### 完成测试
+1. **启动项目**：部署到 Tomcat 并启动。
+2. **浏览器访问**：打开 `http://localhost:8080/jiaju_mall/views/member/login.html`。
+3. **断点调试**：
+    * 尝试注册已经存在的 `admin`，观察后端是否能正确拦截并提示“用户名已存在”。
+    * 尝试注册一个全新的用户（如 `lcq666`），观察能否成功跳转到 `register_ok.html`，并去 MySQL 数据库里 `SELECT * FROM member` 确认数据是否真实验写入库。
+
+### 【改进】会员相关操作后端实现
+
+#### 
+
+
+
+### 家居列表增删改查（后台管理：管理员操作）
+
+#### 基本框架
+
+1. 建表
+    ```sql
+    create table `furn` (
+        id int(11) unsigned primary key auto_increment, # 存放一个11位的补零数据，如：01234567890，00001234567
+        `name` varchar(64) not null ,
+        `maker` varchar(64) ,  # 制造商
+        `price` decimal(11,2), # 两位小数，整数9位
+        `sales` int unsigned not null , # 销量
+        `stock` int unsigned not null , # 库存
+        `imgPath` varchar(256) not null
+        ) charset utf8 engine innodb;
+    ```
+
+3. BasicServlet
+    - 前端通过带有`hidden`属性的`input`传入`action`属性，或者直接操作访问链接的形式，传入后端一个值来声明自己要调用的服务，后端通过反射调用同名服务。
+    ```java
+    public abstract class BasicServlet extends HttpServlet {
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String action = req.getParameter("action");
+            try {
+                Method method = this.getClass().getDeclaredMethod(action, HttpServletRequest.class, HttpServletResponse.class);
+                method.invoke(this, req,resp);
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            doGet(req, resp);
+        }
+    }
+    ```
+3. 图解
+    ![javaweb_furns_furnCRUDStructure01](./img/javaweb_furns_furnCRUDStructure01.png)
+    ![javaweb_furns_furnCRUDStructure02](./img/javaweb_furns_furnCRUDStructure02.png)
+    ![javaweb_furns_furnCRUDStructure03](./img/javaweb_furns_furnCRUDStructure03.png)
+    ![javaweb_furns_furnCRUDStructure04](./img/javaweb_furns_furnCRUDStructure04.png)
+    
+#### 常见问题解决
+
+1. 中文乱码问题
+    - 这里采用过滤器解决
+    
+    ```java
+    @WebFilter(urlPatterns = {"/*"})
+    public class EncodingFilter implements Filter {
+        @Override
+        public void init(FilterConfig filterConfig) throws ServletException {
+
+        }
+
+        @Override
+        public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+            servletRequest.setCharacterEncoding("UTF-8");
+            servletResponse.setContentType("text/html;charset=UTF-8");
+            filterChain.doFilter(servletRequest, servletResponse);
+        }
+
+        @Override
+        public void destroy() {
+        }
+    }
+    ```
+
+2. 表单的重复提交
+    - 在刷新会重复提交表单时，要将相应页面用重定向代替请求转发。
+
+3. 后端数据校验
+    - 原则，永远不相信前端送来的数据。
+    - 在存在原生的错误体系时，可以采用try-catch捕获错误来校验。
+    - 其他情况尽量不使用错误验证。
+    - 验证邮箱长度时，不要将验证逻辑写进正则，以免前端的恶意超长数据干崩服务器。
+    ```java
+    /**
+     * 后面的SpringMVC会提供JSR303后台验证框架
+     * @param req
+     * @param resp
+     * @throws ServletException
+     * @throws IOException
+     */
+    protected void addPro(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        // 1. 获取前端传递的参数
+        String name = req.getParameter("name");
+        String maker = req.getParameter("maker");
+        String priceStr = req.getParameter("price");
+        String salesStr = req.getParameter("sales");
+        String stockStr = req.getParameter("stock");
+        String imgPath = req.getParameter("imgPath");
+
+        // 2. 基础的非空与空白字符校验
+        if (name == null || name.trim().isEmpty() || maker == null || maker.trim().isEmpty()) {
+            handleError(req, resp, "家具名称和制造商不能为空！");
+            return; // 必须 return，终止后续执行
+        }
+
+        BigDecimal price = BigDecimal.ZERO;
+        int sales = 0;
+        int stock = 0;
+
+        // 3. 类型转换与正则/业务校验 (结合 Try-Catch)
+        try {
+            price = new BigDecimal(priceStr);
+            sales = Integer.parseInt(salesStr);
+            stock = Integer.parseInt(stockStr);
+
+            // 业务逻辑校验：数值不能为负数
+            if (price.compareTo(BigDecimal.ZERO) < 0 || sales < 0 || stock < 0) {
+                handleError(req, resp, "价格、销量和库存不能为负数！");
+                return;
+            }
+        } catch (NumberFormatException | NullPointerException e) {
+            // 捕获前端乱传非数字字符（如 price="abc"）导致的异常
+            handleError(req, resp, "输入的数据格式不正确，请输入有效的数字！");
+            return;
+        }
+
+        // 4. 数据完全合法，封装对象并保存
+        Furn furn = new Furn();
+        furn.setName(name);
+        furn.setMaker(maker);
+        furn.setPrice(price);
+        furn.setSales(sales);
+        furn.setStock(stock);
+
+        // 如果没有上传图片，可以给一个默认路径
+        if (imgPath == null || imgPath.trim().isEmpty()) {
+            furn.setImgPath("assets/images/default.jpg");
+        } else {
+            furn.setImgPath(imgPath);
+        }
+
+        int i = furnService.addFurn(furn);
+        if (i > 0) {
+            System.out.println("furn add: ok!");
+            // 防止表单重复提交的优秀做法：重定向
+            resp.sendRedirect(req.getContextPath() + "/manage/furn?action=list");
+        } else {
+            handleError(req, resp, "添加失败，请稍后重试！");
+        }
+    }
+    ```
+4. 数据回显
+    - 通过req携带一个需要回显的对象furn。
+    ```html
+    <table>
+        <thead>
+        <tr>
+            <th>图片</th>
+            <th>家居名</th>
+            <th>商家</th>
+            <th>价格</th>
+            <th>销量</th>
+            <th>库存</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td class="product-thumbnail">
+                <a href="#"><img class="img-responsive ml-3" src="${furn.imgPath}"
+                                    alt=""/></a>
+                <input hidden="hidden" name="imgPath" value="${furn.imgPath}">
+            </td>
+            <td class="product-name"><input name="name" style="width: 60%" type="text" value="${furn.name}"/></td>
+            <td class="product-name"><input name="maker" style="width: 90%" type="text" value="${furn.maker}"/></td>
+            <td class="product-price-cart"><input name="price" style="width: 90%" type="text" value="${furn.price}"/></td>
+            <td class="product-quantity">
+                <input name="sales" style="width: 90%" type="text" value="${furn.sales}"/>
+            </td>
+            <td class="product-quantity">
+                <input name="stock" style="width: 90%" type="text" value="${furn.stock}"/>
+            </td>
+            <td>
+            <!-- <a href="#"><i class="icon-pencil"></i></a>-->
+            <!-- <a href="#"><i class="icon-close"></i></a>-->
+                <input type="submit" style="width: 90%;background-color: silver;border: silver;border-radius: 20%;" value="修改家居"/>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    ```
+
+5. 确认删除
+    ```js
+    <script>
+        $(function () {
+            // 绑定点击事件到所有 class 为 delete-btn 的元素上
+            $(".delete-btn").click(function () {
+                // 获取当前点击行所在的 <tr> 元素中的商品名称（假设你想提示具体删了啥）
+                // 这里我们通过 DOM 树查找：从当前 <a> 标签向上找父级 <tr>，再在 <tr> 里找所有的 <td>，取第 2 个 <td> 的文本
+                var furnName = $(this).closest("tr").find("td:eq(1)").text();
+
+                // 弹出原生的浏览器确认框
+                // 如果用户点击“取消”，confirm 会返回 false，return false 就会阻止 <a> 标签的默认跳转行为
+                return confirm("你确定要删除【" + furnName + "】这个家具吗？");
+            });
+        });
+    </script>
+    ```
+
+#### BeanUtils
+
+1. BeanUtils
+    - maven依赖项
+    - 实际使用
+
+1. Maven 依赖 (Dependency)
+在你的 pom.xml 中引入 Apache Commons BeanUtils。通常它会自动依赖 commons-logging，但为了保险起见，建议保持版本稳定：
+
+    ```XML
+    <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>1.9.4</version>
+    </dependency>
+    ```
+2. 注意事项
+    - 这个方法会将不合法的数值转换为0，比如销量输入a，后端的BeanUtil不会抛出错误，而是会选择将数据置0，需要执行以下操作避免情况发生：
+        ```java
+        try {
+                // 🌟 核心修复：注册严格模式的转换器 (使用无参构造器) 🌟
+                // 无参构造器代表：如果转换失败，不使用默认值，而是直接抛出 ConversionException
+                ConvertUtils.register(new IntegerConverter(), Integer.class);
+                ConvertUtils.register(new IntegerConverter(), int.class); // 兼容基本类型 int
+                ConvertUtils.register(new BigDecimalConverter(), BigDecimal.class);
+                
+                // 现在再执行 populate，如果 price 是 "a"，就会瞬间抛出异常，进入 catch 块！
+                BeanUtils.populate(furn, req.getParameterMap());
+                System.out.println(furn);
+
+                // ... (后续的非空校验、负数校验和入库逻辑保持不变)
+                
+            } catch (Exception e) {
+                // 捕获到 ConversionException，正常进入错误处理分支
+                e.printStackTrace(); // 建议在控制台打印一下，看看是不是报了 ConversionException
+                handleError(req, resp, "输入的数据格式不正确，请输入有效的数字！");
+            }
+        ```
+    - 在实际开发里，**BeanUtils + 业务校验** 要一起使用，不能只靠自动封装。
+
+3. 使用 BeanUtils 重构后的代码
+    使用了 BeanUtils.populate 后，你不再需要手动一个个 set 属性，也不需要手动写 Integer.parseInt。BeanUtils 会自动帮你完成基础的类型转换。
+    修改后的 add 方法如下：
+    ```Java
+    import org.apache.commons.beanutils.BeanUtils;
+
+    // ... 其他导入省略
+
+    protected void add(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Furn furn = new Furn();
+        
+        try {
+            // 1. 核心魔法：一键将前端传来的参数注入到 furn 对象中
+            // 注意：这要求前端表单的 name 属性（如 name="price"）必须和 Furn 类的属性名完全一致！
+            BeanUtils.populate(furn, req.getParameterMap());
+
+            // 2. 业务非空校验 (BeanUtils 只负责封装，业务规则还得自己写)
+            if (furn.getName() == null || furn.getName().trim().isEmpty() || 
+                furn.getMaker() == null || furn.getMaker().trim().isEmpty()) {
+                handleError(req, resp, "家具名称和制造商不能为空！");
+                return;
+            }
+
+            // 3. 业务逻辑校验：数值不能为负数
+            // 注意此时 furn 里的 price, sales, stock 已经被 BeanUtils 自动转换成了正确的类型
+            if (furn.getPrice().compareTo(BigDecimal.ZERO) < 0 || furn.getSales() < 0 || furn.getStock() < 0) {
+                handleError(req, resp, "价格、销量和库存不能为负数！");
+                return;
+            }
+
+            // 4. 处理图片默认值
+            if (furn.getImgPath() == null || furn.getImgPath().trim().isEmpty()) {
+                furn.setImgPath("assets/images/product-image/default.jpg");
+            }
+
+            // 5. 调用 Service 保存数据
+            int i = furnService.addFurn(furn);
+            if (i > 0) {
+                System.out.println("furn add: ok!");
+                resp.sendRedirect(req.getContextPath() + "/manage/furn?action=list");
+            } else {
+                handleError(req, resp, "添加失败，请稍后重试！");
+            }
+
+        } catch (Exception e) {
+            // 如果前端在 price 栏输入了字母 "abc"，BeanUtils 在尝试转换为 BigDecimal 时会抛出异常
+            // 我们在这里捕获异常，并返回友好的格式错误提示
+            e.printStackTrace(); // 打印日志方便后台排查
+            handleError(req, resp, "输入的数据格式不正确，请输入有效的数字！");
+        }
+    }
+
+    /**
+    * 原有的错误处理和数据回显方法保持不变
+    */
+    private void handleError(HttpServletRequest req, HttpServletResponse resp, String errorMsg) throws ServletException, IOException {
+        req.setAttribute("errorMsg", errorMsg);
+        // 回显数据直接从 req.getParameter 拿，因为 req 里的原始字符串没变
+        req.setAttribute("name", req.getParameter("name"));
+        req.setAttribute("maker", req.getParameter("maker"));
+        req.setAttribute("price", req.getParameter("price"));
+        req.setAttribute("sales", req.getParameter("sales"));
+        req.setAttribute("stock", req.getParameter("stock"));
+        
+        req.getRequestDispatcher("/views/manage/furn_add.jsp").forward(req, resp);
+    }
+    ```
+
+### 
