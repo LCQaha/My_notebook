@@ -6733,3 +6733,1911 @@ Nacos + Spring Cloud LoadBalancer
 + RestClient/OpenFeign/Gateway
 application.yml通过spring.config.import显式导入配置
 ```
+
+
+你说得对。前面只是把“怎么调用”写出来了，但真正做项目时还缺少最关键的几件事：
+
+> **这个类从哪个包来？pom.xml 到底加什么？谁需要加依赖？配置写在哪里？如果配 Nacos 又需要什么？哪些依赖是调用技术本身的，哪些只是辅助依赖？**
+
+下面重新按你的笔记形式整理，而且统一使用你现在的微服务思路：
+
+```text
+member-service-provider
+        ↑
+        │ 远程查询会员
+        │
+order-service-consumer
+```
+
+统一接口：
+
+```text
+GET /members/{id}
+```
+
+---
+
+# 远程调用
+
+## 基本介绍
+
+1. 微服务之间无法像单体项目一样直接调用另一个服务中的 Spring Bean。
+
+   单体：
+
+   ```java
+   @Autowired
+   private MemberService memberService;
+
+   memberService.getMember(1L);
+   ```
+
+   因为：
+
+   ```text
+   Controller
+       ↓
+   MemberService
+       ↓
+
+   位于同一个 JVM
+   ```
+
+2. 微服务：
+
+   ```text
+   order-service
+   JVM 1
+       │
+       │ 网络
+       ↓
+   member-service
+   JVM 2
+   ```
+
+   此时必须通过：
+
+   ```text
+   HTTP
+   RPC
+   消息队列
+   ...
+   ```
+
+   等方式完成跨进程通信。
+
+3. 本节重点学习：
+
+   ```text
+   HttpClient
+   RestTemplate
+   OpenFeign
+   RPC（以 Dubbo 为实例）
+   ```
+
+---
+
+# Maven 依赖和 Java 包
+
+### 基本介绍
+
+1. 学习这些技术前首先区分：
+
+   ```text
+   Maven dependency
+   ```
+
+   和：
+
+   ```java
+   import xxx.xxx.Xxx;
+   ```
+
+2. Maven 依赖负责：
+
+   > 把对应 jar 下载到项目并加入 classpath。
+
+   例如：
+
+   ```xml
+   <dependency>
+       <groupId>org.springframework.boot</groupId>
+       <artifactId>spring-boot-starter-web</artifactId>
+   </dependency>
+   ```
+
+3. Java `import` 才是：
+
+   > 在代码中使用 jar 里面的具体类。
+
+   例如：
+
+   ```java
+   import org.springframework.web.client.RestTemplate;
+   ```
+
+4. 所以：
+
+   ```text
+   pom.xml
+
+   spring-boot-starter-web
+             ↓
+         spring-web.jar
+             ↓
+   org.springframework.web.client.RestTemplate
+   ```
+
+这两个概念以后一定不要混。
+
+---
+
+# HttpClient
+
+## 简介
+
+1. HttpClient 是什么？
+
+   * 广义上指 **HTTP 客户端**。
+   * Java 本身从较新的 JDK 中已经提供官方 HTTP Client。
+   * 你的 Java 17 可以直接使用：
+
+   ```java
+   java.net.http.HttpClient
+   ```
+
+   JDK 17 的 `java.net.http` 包同时提供 `HttpClient`、`HttpRequest` 和 `HttpResponse`，支持同步及异步 HTTP 调用。([Home][1])
+
+2. 最重要的一点：
+
+   > **JDK HttpClient 不需要 Maven 引入。**
+
+   因为它就是 JDK 自带的。
+
+---
+
+## 依赖
+
+### 1. JDK HttpClient 本身
+
+不需要：
+
+```xml
+<dependency>
+    ...
+</dependency>
+```
+
+你的项目是 Java 17，直接使用即可。
+
+### 2. Java 包
+
+```java
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+```
+
+所以：
+
+```text
+JDK 17
+  │
+  └── java.net.http
+          │
+          ├── HttpClient
+          ├── HttpRequest
+          └── HttpResponse
+```
+
+---
+
+## 服务提供者
+
+假设 `member-service-provider` 已经是 Spring Boot Web 项目。
+
+需要：
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+```
+
+Controller：
+
+```java
+@RestController
+@RequestMapping("/members")
+public class MemberController {
+
+    @GetMapping("/{id}")
+    public MemberResp getMember(@PathVariable Long id) {
+
+        return new MemberResp(
+                id,
+                "LCQ",
+                "13800000000"
+        );
+    }
+}
+```
+
+DTO：
+
+```java
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class MemberResp {
+
+    private Long id;
+
+    private String name;
+
+    private String mobile;
+}
+```
+
+启动：
+
+```yml
+server:
+  port: 10001
+
+spring:
+  application:
+    name: member-service
+```
+
+现在：
+
+```text
+http://localhost:10001/members/1
+```
+
+能够返回：
+
+```json
+{
+    "id": 1,
+    "name": "LCQ",
+    "mobile": "13800000000"
+}
+```
+
+---
+
+## 调用实例
+
+`order-service`：
+
+```java
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+public class MemberHttpClient {
+
+    public String getMember(Long id) throws Exception {
+
+        // 1. 创建客户端
+        HttpClient client =
+                HttpClient.newHttpClient();
+
+        // 2. 创建请求
+        HttpRequest request =
+                HttpRequest.newBuilder()
+                        .uri(
+                                URI.create(
+                                    "http://localhost:10001/members/" + id
+                                )
+                        )
+                        .GET()
+                        .build();
+
+        // 3. 发出HTTP请求
+        HttpResponse<String> response =
+                client.send(
+                        request,
+                        HttpResponse.BodyHandlers.ofString()
+                );
+
+        // 4. 获得响应
+        return response.body();
+    }
+}
+```
+
+调用：
+
+```java
+String result = getMember(1L);
+```
+
+获得：
+
+```json
+{"id":1,"name":"LCQ","mobile":"13800000000"}
+```
+
+---
+
+## JSON 转 Java 对象
+
+这里出现 HttpClient 的第一个麻烦：
+
+```java
+response.body()
+```
+
+得到的是：
+
+```java
+String
+```
+
+不是：
+
+```java
+MemberResp
+```
+
+如果项目中已经有：
+
+```xml
+spring-boot-starter-web
+```
+
+通常已经有 Jackson，可以：
+
+```java
+import com.fasterxml.jackson.databind.ObjectMapper;
+```
+
+然后：
+
+```java
+ObjectMapper objectMapper =
+        new ObjectMapper();
+
+MemberResp member =
+        objectMapper.readValue(
+                response.body(),
+                MemberResp.class
+        );
+```
+
+完整过程：
+
+```text
+HttpClient
+    ↓
+HttpRequest
+    ↓
+HTTP
+    ↓
+member-service
+    ↓
+JSON
+    ↓
+HttpResponse<String>
+    ↓
+ObjectMapper
+    ↓
+MemberResp
+```
+
+---
+
+## HttpClient 的真正定位
+
+HttpClient 关心的是：
+
+```text
+我要向：
+
+http://localhost:10001/members/1
+
+发送：
+
+GET
+
+然后把：
+
+HTTP Response
+
+拿回来。
+```
+
+因此它属于比较底层的 HTTP 调用方式。
+
+> **精简记忆：HttpClient = 帮你真正构造并发送 HTTP 请求。**
+
+---
+
+# RestTemplate
+
+## 简介
+
+1. RestTemplate 是 Spring Framework 提供的同步 HTTP Client。
+
+2. 它把刚才 HttpClient 中大量工作：
+
+   ```text
+   创建Request
+   ↓
+   发请求
+   ↓
+   收Response
+   ↓
+   JSON反序列化
+   ```
+
+   进一步进行了封装。
+
+3. 最终你只需要：
+
+```java
+MemberResp member =
+        restTemplate.getForObject(
+                url,
+                MemberResp.class
+        );
+```
+
+---
+
+# RestTemplate 如何引入
+
+## 1. Maven
+
+RestTemplate 属于 Spring Web，因此最常见的是引入：
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+```
+
+然后才能：
+
+```java
+import org.springframework.web.client.RestTemplate;
+```
+
+---
+
+## 2. 常见 Java 包
+
+```java
+import org.springframework.web.client.RestTemplate;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+```
+
+如果使用负载均衡：
+
+```java
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+```
+
+---
+
+# RestTemplate 普通调用实例
+
+## 1. 创建 Bean
+
+```java
+@Configuration
+public class RestTemplateConfig {
+
+    @Bean
+    public RestTemplate restTemplate() {
+
+        return new RestTemplate();
+    }
+}
+```
+
+为什么要：
+
+```java
+@Bean
+```
+
+因为后面希望：
+
+```java
+@Autowired
+private RestTemplate restTemplate;
+```
+
+由 Spring 容器统一管理。
+
+---
+
+## 2. 调用服务
+
+```java
+@Service
+public class OrderService {
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    public MemberResp getMember(Long id) {
+
+        return restTemplate.getForObject(
+                "http://localhost:10001/members/{id}",
+                MemberResp.class,
+                id
+        );
+    }
+}
+```
+
+这里：
+
+```java
+getForObject(
+    URL,
+    返回值类型,
+    URL参数
+)
+```
+
+意思就是：
+
+```text
+发送 GET
+       ↓
+http://localhost:10001/members/1
+       ↓
+收到 JSON
+       ↓
+转换为 MemberResp
+```
+
+所以：
+
+```java
+MemberResp member =
+        restTemplate.getForObject(...);
+```
+
+直接得到 Java 对象。
+
+---
+
+# HttpClient 与 RestTemplate 对比
+
+HttpClient：
+
+```java
+HttpRequest request = ...
+HttpResponse<String> response = ...
+ObjectMapper.readValue(...)
+```
+
+RestTemplate：
+
+```java
+MemberResp member =
+        restTemplate.getForObject(
+                url,
+                MemberResp.class
+        );
+```
+
+也就是：
+
+```text
+HttpClient
+    ↓
+处理 HTTP 本身
+
+
+RestTemplate
+    ↓
+Spring 帮你处理 HTTP
+```
+
+---
+
+# RestTemplate + Nacos
+
+这里非常重要。
+
+前面的：
+
+```java
+"http://localhost:10001"
+```
+
+是写死地址。
+
+生产环境一般不能这样。
+
+假设：
+
+```text
+member-service
+
+192.168.1.10:10001
+192.168.1.11:10001
+192.168.1.12:10001
+```
+
+我们希望：
+
+```java
+http://member-service/members/1
+```
+
+---
+
+## 1. Nacos Discovery 依赖
+
+消费者需要：
+
+```xml
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+</dependency>
+```
+
+这是 Spring Cloud Alibaba 当前用于接入 Nacos 服务注册与发现的 starter。([阿里云安全中心][2])
+
+---
+
+## 2. LoadBalancer 依赖
+
+再加：
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+</dependency>
+```
+
+Spring Cloud 官方提供的 LoadBalancer Starter 就是：
+
+```text
+org.springframework.cloud
+spring-cloud-starter-loadbalancer
+```
+
+并支持 `RestTemplate`、`RestClient` 和 `WebClient` 等客户端进行客户端负载均衡。([Home][1])
+
+---
+
+## 3. 配置 Nacos
+
+消费者：
+
+```yml
+spring:
+  application:
+    name: order-service
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+```
+
+Provider 同样注册：
+
+```yml
+spring:
+  application:
+    name: member-service
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+```
+
+Nacos Discovery Starter 会接入 Spring Cloud 的服务注册/发现体系。([阿里云安全中心][3])
+
+---
+
+## 4. 添加 @LoadBalanced
+
+```java
+@Configuration
+public class RestTemplateConfig {
+
+    @Bean
+    @LoadBalanced
+    public RestTemplate restTemplate() {
+
+        return new RestTemplate();
+    }
+}
+```
+
+---
+
+## 5. 使用服务名调用
+
+原来：
+
+```java
+"http://localhost:10001/members/{id}"
+```
+
+改成：
+
+```java
+"http://member-service/members/{id}"
+```
+
+调用：
+
+```java
+MemberResp member =
+        restTemplate.getForObject(
+                "http://member-service/members/{id}",
+                MemberResp.class,
+                id
+        );
+```
+
+这时：
+
+```text
+RestTemplate
+       ↓
+member-service
+       ↓
+Spring Cloud LoadBalancer
+       ↓
+DiscoveryClient
+       ↓
+Nacos
+       ↓
+取得：
+
+192.168.1.10:10001
+192.168.1.11:10001
+192.168.1.12:10001
+       ↓
+选择一个实例
+       ↓
+发送HTTP请求
+```
+
+这才是完整的微服务 RestTemplate 调用。
+
+---
+
+# OpenFeign
+
+## 简介
+
+1. OpenFeign 还是 HTTP 调用。
+
+2. 但它进一步把：
+
+```java
+restTemplate.getForObject(...)
+```
+
+隐藏掉。
+
+3. 最终只留下：
+
+```java
+memberFeignClient.getMember(id);
+```
+
+因此：
+
+> **OpenFeign = 声明式 HTTP 客户端。**
+
+Spring Cloud OpenFeign 官方提供的 Starter 是 `spring-cloud-starter-openfeign`，并支持 Spring MVC 注解以及 Spring Cloud LoadBalancer 集成。([Home][4])
+
+---
+
+# OpenFeign 如何引入
+
+## 1. Maven
+
+消费者：
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+</dependency>
+```
+
+---
+
+## 2. Java 包
+
+开启 Feign：
+
+```java
+import org.springframework.cloud.openfeign.EnableFeignClients;
+```
+
+定义客户端：
+
+```java
+import org.springframework.cloud.openfeign.FeignClient;
+```
+
+MVC 注解：
+
+```java
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+```
+
+所以：
+
+```text
+spring-cloud-starter-openfeign
+          ↓
+org.springframework.cloud.openfeign
+          ↓
+├── @EnableFeignClients
+└── @FeignClient
+```
+
+---
+
+# OpenFeign 最简单实例：不使用 Nacos
+
+这一点很重要，因为：
+
+> **Feign 本身和 Nacos不是绑定的。**
+
+即使没有注册中心，也可以使用 Feign。
+
+---
+
+## 1. 开启 Feign
+
+```java
+@SpringBootApplication
+@EnableFeignClients
+public class OrderApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(
+                OrderApplication.class,
+                args
+        );
+    }
+}
+```
+
+---
+
+## 2. 定义 FeignClient
+
+```java
+@FeignClient(
+        name = "memberClient",
+        url = "http://localhost:10001"
+)
+public interface MemberFeignClient {
+
+    @GetMapping("/members/{id}")
+    MemberResp getMember(
+            @PathVariable("id") Long id
+    );
+}
+```
+
+---
+
+## 3. 使用
+
+```java
+@Service
+public class OrderService {
+
+    @Autowired
+    private MemberFeignClient memberFeignClient;
+
+    public MemberResp getMember(Long id) {
+
+        return memberFeignClient.getMember(id);
+    }
+}
+```
+
+现在：
+
+```java
+memberFeignClient.getMember(1L);
+```
+
+背后实际变成：
+
+```text
+Feign代理
+
+GET
+http://localhost:10001/members/1
+```
+
+---
+
+# OpenFeign + Nacos
+
+这才是你现在 Spring Cloud Alibaba 项目真正更常见的使用方式。
+
+## 消费者需要三个核心依赖
+
+### 1. OpenFeign
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+</dependency>
+```
+
+### 2. Nacos Discovery
+
+```xml
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+</dependency>
+```
+
+### 3. LoadBalancer
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+</dependency>
+```
+
+Spring Cloud OpenFeign 的负载均衡支持通过 Spring Cloud LoadBalancer 完成；官方文档明确说明 OpenFeign 可与 Spring Cloud LoadBalancer 集成。([Home][4])
+
+所以 Consumer：
+
+```text
+pom.xml
+
+OpenFeign
++
+Nacos Discovery
++
+LoadBalancer
+```
+
+---
+
+## Provider 要什么？
+
+Provider 不需要 OpenFeign，因为：
+
+> 它只是“被调用者”。
+
+Provider 通常：
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+</dependency>
+```
+
+也就是：
+
+```text
+Provider
+
+starter-web
+    ↓
+提供 Controller
+
+Nacos Discovery
+    ↓
+把自己注册到 Nacos
+```
+
+---
+
+## Consumer
+
+Consumer：
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+</dependency>
+```
+
+---
+
+## FeignClient
+
+```java
+@FeignClient(name = "member-service")
+public interface MemberFeignClient {
+
+    @GetMapping("/members/{id}")
+    MemberResp getMember(
+            @PathVariable("id") Long id
+    );
+}
+```
+
+这里：
+
+```java
+name = "member-service"
+```
+
+就是：
+
+```yml
+spring:
+  application:
+    name: member-service
+```
+
+---
+
+## 完整过程
+
+```java
+memberFeignClient.getMember(1L);
+```
+
+实际：
+
+```text
+MemberFeignClient
+        ↓
+Feign 动态代理
+        ↓
+读取：
+
+@FeignClient("member-service")
+@GetMapping("/members/{id}")
+
+        ↓
+生成：
+
+GET /members/1
+
+        ↓
+Spring Cloud LoadBalancer
+        ↓
+DiscoveryClient
+        ↓
+Nacos
+        ↓
+查询 member-service
+        ↓
+例如选择：
+
+192.168.1.11:10001
+
+        ↓
+真正访问：
+
+http://192.168.1.11:10001/members/1
+
+        ↓
+MemberController
+        ↓
+JSON
+        ↓
+Feign Decoder
+        ↓
+MemberResp
+```
+
+所以 OpenFeign 并没有：
+
+```text
+取代 Nacos
+```
+
+也没有：
+
+```text
+取代 LoadBalancer
+```
+
+它主要解决：
+
+> **“HTTP接口怎么声明和调用”的问题。**
+
+---
+
+# RPC
+
+## 简介
+
+这里不要写：
+
+```text
+引入 RPC 包
+```
+
+因为：
+
+> **RPC 不是一个 Java 库。**
+
+RPC 是：
+
+```text
+Remote Procedure Call
+远程过程调用
+```
+
+是一类技术思想。
+
+具体需要选择：
+
+```text
+Dubbo
+gRPC
+Thrift
+...
+```
+
+下面以你技术栈最容易接触的：
+
+# Dubbo
+
+作为关键实例。
+
+---
+
+# Dubbo RPC
+
+## 项目结构
+
+Dubbo 和 OpenFeign 有一个很重要的结构差异。
+
+推荐：
+
+```text
+e-commerce-center
+│
+├── member-api
+│
+│   ├── MemberRpcService.java
+│   └── MemberResp.java
+│
+├── member-service-provider
+│
+└── order-service-consumer
+```
+
+这里：
+
+```text
+member-api
+```
+
+负责定义：
+
+> **双方共同遵守的服务契约。**
+
+---
+
+# Dubbo 依赖
+
+Dubbo 官方提供 Spring Boot Starter，也提供 Nacos Starter；官方当前文档列出的分别是 `dubbo-spring-boot-starter` 和 `dubbo-nacos-spring-boot-starter`。([Apache Dubbo][5])
+
+## 1. 父工程管理 Dubbo 版本
+
+推荐 BOM：
+
+```xml
+<dependencyManagement>
+    <dependencies>
+
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-bom</artifactId>
+            <version>${dubbo.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+
+    </dependencies>
+</dependencyManagement>
+```
+
+Dubbo 官方 Spring Boot 文档也推荐通过 `dubbo-bom` 统一管理 Dubbo 组件版本。([Apache Dubbo][6])
+
+然后父工程：
+
+```xml
+<properties>
+    <dubbo.version>...</dubbo.version>
+</properties>
+```
+
+具体版本应该和你最终项目的 Spring Boot、Spring Cloud Alibaba 版本一起确定，不应该随便把某个教程版本硬塞进去。
+
+---
+
+# API 模块
+
+`member-api`：
+
+```java
+public interface MemberRpcService {
+
+    MemberResp getMember(Long id);
+}
+```
+
+DTO：
+
+```java
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class MemberResp
+        implements Serializable {
+
+    private Long id;
+
+    private String name;
+
+    private String mobile;
+}
+```
+
+这里甚至：
+
+> **不需要 Dubbo 注解。**
+
+因为它只是：
+
+```text
+Java Interface + DTO
+```
+
+这点非常重要。
+
+---
+
+# Dubbo Provider
+
+## 1. 引入依赖
+
+`member-service-provider`：
+
+```xml
+<dependency>
+    <groupId>org.apache.dubbo</groupId>
+    <artifactId>dubbo-spring-boot-starter</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.apache.dubbo</groupId>
+    <artifactId>dubbo-nacos-spring-boot-starter</artifactId>
+</dependency>
+```
+
+再依赖你的公共 API：
+
+```xml
+<dependency>
+    <groupId>com.lcq</groupId>
+    <artifactId>member-api</artifactId>
+    <version>${project.version}</version>
+</dependency>
+```
+
+---
+
+## 2. Java 包
+
+Provider 最核心：
+
+```java
+import org.apache.dubbo.config.annotation.DubboService;
+```
+
+---
+
+## 3. 实现接口
+
+```java
+@DubboService
+public class MemberRpcServiceImpl
+        implements MemberRpcService {
+
+    @Override
+    public MemberResp getMember(Long id) {
+
+        return new MemberResp(
+                id,
+                "LCQ",
+                "13800000000"
+        );
+    }
+}
+```
+
+注意：
+
+这里没有：
+
+```java
+@RestController
+@GetMapping
+```
+
+因为：
+
+> **Dubbo RPC 调用不需要通过你的 MVC Controller 才能完成。**
+
+---
+
+## 4. Provider 配置
+
+```yml
+spring:
+  application:
+    name: member-service
+
+dubbo:
+  application:
+    name: member-service
+
+  registry:
+    address: nacos://localhost:8848
+
+  protocol:
+    name: dubbo
+    port: 20880
+```
+
+Dubbo 官方支持直接通过：
+
+```text
+nacos://localhost:8848
+```
+
+配置 Nacos 注册中心；新版官方也提供专门的 Nacos Spring Boot Starter。([Apache Dubbo][5])
+
+此时注意两个端口：
+
+```text
+server.port
+```
+
+是：
+
+```text
+Spring MVC / Tomcat HTTP端口
+```
+
+例如：
+
+```text
+10001
+```
+
+而：
+
+```yml
+dubbo:
+  protocol:
+    port: 20880
+```
+
+是：
+
+```text
+Dubbo RPC 服务端口
+```
+
+所以可以出现：
+
+```text
+member-service
+
+Tomcat HTTP：
+10001
+
+Dubbo RPC：
+20880
+```
+
+这是理解 Dubbo 特别重要的一点。
+
+---
+
+# Dubbo Consumer
+
+## 1. 引入依赖
+
+`order-service-consumer`：
+
+```xml
+<dependency>
+    <groupId>org.apache.dubbo</groupId>
+    <artifactId>dubbo-spring-boot-starter</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.apache.dubbo</groupId>
+    <artifactId>dubbo-nacos-spring-boot-starter</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>com.lcq</groupId>
+    <artifactId>member-api</artifactId>
+    <version>${project.version}</version>
+</dependency>
+```
+
+---
+
+## 2. Java 包
+
+Consumer 最重要：
+
+```java
+import org.apache.dubbo.config.annotation.DubboReference;
+```
+
+---
+
+## 3. 注入远程服务
+
+```java
+@Service
+public class OrderService {
+
+    @DubboReference
+    private MemberRpcService memberRpcService;
+
+    public MemberResp getMember(Long id) {
+
+        return memberRpcService.getMember(id);
+    }
+}
+```
+
+注意：
+
+不是：
+
+```java
+@Autowired
+```
+
+而是：
+
+```java
+@DubboReference
+```
+
+因为这个：
+
+```java
+MemberRpcService
+```
+
+并不是当前 JVM 中真正存在的：
+
+```java
+MemberRpcServiceImpl
+```
+
+---
+
+## 4. Consumer 配置
+
+```yml
+spring:
+  application:
+    name: order-service
+
+dubbo:
+  application:
+    name: order-service
+
+  registry:
+    address: nacos://localhost:8848
+```
+
+---
+
+# @DubboReference 到底发生了什么？
+
+你写：
+
+```java
+@DubboReference
+private MemberRpcService memberRpcService;
+```
+
+Dubbo 实际给你的不是：
+
+```java
+MemberRpcServiceImpl
+```
+
+而是：
+
+```text
+代理对象
+```
+
+于是：
+
+```java
+memberRpcService.getMember(1L);
+```
+
+实际：
+
+```text
+OrderService
+    ↓
+MemberRpcService Proxy
+    ↓
+Dubbo
+    ↓
+Nacos
+    ↓
+查找提供 MemberRpcService 的实例
+    ↓
+member-service
+    ↓
+序列化参数：
+
+1L
+
+    ↓
+网络
+    ↓
+20880
+    ↓
+MemberRpcServiceImpl
+    ↓
+getMember(1L)
+    ↓
+MemberResp
+    ↓
+序列化
+    ↓
+网络返回
+    ↓
+反序列化
+    ↓
+OrderService
+```
+
+Dubbo 的服务发现模型就是 Provider 向注册中心注册服务实例，Consumer 订阅并获得可用实例地址。([Apache Dubbo][7])
+
+---
+
+# OpenFeign 和 Dubbo 现在就能真正比较了
+
+## OpenFeign Provider
+
+Provider：
+
+```java
+@RestController
+@RequestMapping("/members")
+public class MemberController {
+
+    @GetMapping("/{id}")
+    public MemberResp getMember(
+            @PathVariable Long id) {
+        ...
+    }
+}
+```
+
+Consumer：
+
+```java
+@FeignClient("member-service")
+public interface MemberFeignClient {
+
+    @GetMapping("/members/{id}")
+    MemberResp getMember(
+            @PathVariable Long id);
+}
+```
+
+调用：
+
+```java
+memberFeignClient.getMember(1L);
+```
+
+背后：
+
+```text
+HTTP
+
+GET /members/1
+```
+
+---
+
+# Dubbo Provider
+
+公共接口：
+
+```java
+public interface MemberRpcService {
+
+    MemberResp getMember(Long id);
+}
+```
+
+Provider：
+
+```java
+@DubboService
+public class MemberRpcServiceImpl
+        implements MemberRpcService {
+
+    @Override
+    public MemberResp getMember(Long id) {
+        ...
+    }
+}
+```
+
+Consumer：
+
+```java
+@DubboReference
+private MemberRpcService memberRpcService;
+```
+
+调用：
+
+```java
+memberRpcService.getMember(1L);
+```
+
+背后：
+
+```text
+Dubbo RPC
+```
+
+这里已经：
+
+```text
+没有 URL
+没有 @GetMapping
+没有 @PathVariable
+```
+
+这就是本质区别。
+
+---
+
+# 四种方式需要引入什么
+
+| 技术             | Consumer Maven依赖                 | 关键 Java 包                                         | 是否必须注册中心   |
+| -------------- | -------------------------------- | ------------------------------------------------- | ---------- |
+| JDK HttpClient | **不用引入**                         | `java.net.http.HttpClient`                        | 否          |
+| RestTemplate   | `spring-boot-starter-web`        | `org.springframework.web.client.RestTemplate`     | 否          |
+| OpenFeign      | `spring-cloud-starter-openfeign` | `org.springframework.cloud.openfeign.FeignClient` | 否          |
+| Dubbo          | `dubbo-spring-boot-starter`      | `org.apache.dubbo.config.annotation.*`            | 否，但微服务通常使用 |
+
+如果需要：
+
+```text
+Nacos + 服务名调用
+```
+
+RestTemplate/OpenFeign 再增加：
+
+```xml
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+</dependency>
+```
+
+Dubbo + Nacos 则增加：
+
+```xml
+<dependency>
+    <groupId>org.apache.dubbo</groupId>
+    <artifactId>dubbo-nacos-spring-boot-starter</artifactId>
+</dependency>
+```
+
+---
+
+# 最后完整比较
+
+同样查询：
+
+```text
+会员 1
+```
+
+## HttpClient
+
+你写：
+
+```java
+HttpRequest request = ...
+HttpResponse<String> response =
+        client.send(...);
+```
+
+关注：
+
+> **HTTP 报文怎么发。**
+
+---
+
+## RestTemplate
+
+你写：
+
+```java
+MemberResp member =
+        restTemplate.getForObject(
+                "http://member-service/members/{id}",
+                MemberResp.class,
+                id
+        );
+```
+
+关注：
+
+> **我要访问哪个 REST API。**
+
+---
+
+## OpenFeign
+
+你写接口：
+
+```java
+@FeignClient("member-service")
+public interface MemberFeignClient {
+
+    @GetMapping("/members/{id}")
+    MemberResp getMember(
+            @PathVariable Long id
+    );
+}
+```
+
+业务层：
+
+```java
+memberFeignClient.getMember(id);
+```
+
+关注：
+
+> **我要调用哪个声明式 HTTP 接口。**
+
+---
+
+## Dubbo RPC
+
+你写：
+
+```java
+public interface MemberRpcService {
+
+    MemberResp getMember(Long id);
+}
+```
+
+业务层：
+
+```java
+memberRpcService.getMember(id);
+```
+
+关注：
+
+> **我要调用哪个远程 Java 服务。**
+
+---
+
+因此现在可以把这一节真正压缩成：
+
+```text
+HttpClient
+│
+├── JDK自带
+├── java.net.http
+└── 自己构造HTTP请求
+        ↓
+      最底层
+
+
+RestTemplate
+│
+├── spring-boot-starter-web
+├── org.springframework.web.client.RestTemplate
+└── Spring封装HTTP
+        ↓
+      命令式
+
+
+OpenFeign
+│
+├── spring-cloud-starter-openfeign
+├── @EnableFeignClients
+├── @FeignClient
+└── HTTP接口化
+        ↓
+      声明式
+
+
+Dubbo
+│
+├── dubbo-spring-boot-starter
+├── @DubboService
+├── @DubboReference
+└── RPC服务化
+        ↓
+      远程方法调用
+```
+
+而且这里还有一个非常重要的结论：**Nacos、LoadBalancer、OpenFeign 是三个独立组件**。OpenFeign 负责“接口式 HTTP 调用”，Nacos 负责“服务注册与发现”，LoadBalancer 负责“多个实例到底选哪个”。把这三个拆开理解后，你后面的 Spring Cloud Alibaba 整套调用链就不会再混了。([Home][1])
+
+另外，`RestTemplate` 在你当前学习中仍然值得掌握旧项目用法，但现代 Spring Cloud 已经把负载均衡能力扩展到 `RestClient`，而 OpenFeign 官方也已经进入 feature-complete 状态并建议关注 Spring HTTP Service Clients。后面整理“新技术替代”时，再把 **RestClient、HTTP Interface** 单独接在这一节后面更合适。([Home][8])
+
+[1]: https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/loadbalancer.html?utm_source=chatgpt.com "Spring Cloud LoadBalancer :: Spring Cloud Commons"
+[2]: https://sca.aliyun.com/docs/2025.x/user-guide/nacos/quick-start/?utm_source=chatgpt.com "快速开始-阿里云Spring Cloud Alibaba官网"
+[3]: https://sca.aliyun.com/docs/2025.x/user-guide/nacos/advanced-guide/?utm_source=chatgpt.com "进阶指南-阿里云Spring Cloud Alibaba官网"
+[4]: https://docs.spring.io/spring-cloud-openfeign/docs/current/reference/html/?utm_source=chatgpt.com "Spring Cloud OpenFeign"
+[5]: https://dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/config/spring/spring-boot/?utm_source=chatgpt.com "Spring Boot | Apache Dubbo"
+[6]: https://dubbo.apache.org/en/overview/mannual/java-sdk/tasks/develop/springboot/?utm_source=chatgpt.com "Spring Boot | Apache Dubbo"
+[7]: https://dubbo.apache.org/zh-cn/overview/mannual/java-sdk/tasks/service-discovery/registry/?utm_source=chatgpt.com "服务发现的工作方式、基本使用方法与配置细节 | Apache Dubbo"
+[8]: https://docs.spring.io/spring-cloud-openfeign/reference/index.html?utm_source=chatgpt.com "Spring Cloud OpenFeign :: Spring Cloud Openfeign"
