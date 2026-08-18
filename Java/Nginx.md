@@ -3138,5 +3138,202 @@ sendfile                静态文件发送优化
 upstream keepalive      反向代理后端连接复用
 ```
 
+## Nginx 项目上线：以Docker学习项目为例
+
+### 基本介绍
+
+#### 设计思路
+
+本项目通过 Cloudflare Tunnel 将本机 Nginx 暴露到公网，并使用子域名 `dockerstudy.19271949.xyz` 作为访问入口。用户侧访问通常为 `https://dockerstudy.19271949.xyz`，而 Cloudflare Tunnel 与本机 Nginx 之间可以使用 `http://127.0.0.1:80`。
+
+对于一个上线的项目而言，更规范的思路应该是：
+
+- Nginx / www-data：只负责读取或反向代理
+- lcq：只负责开发、构建、提交
+- root：负责最终部署到正式目录
+- cloudflared：负责把公网请求安全送到本机 Nginx
+
+#### 整体结构
+
+1. 结构简图
+    ```text
+    用户浏览器
+        ↓ HTTPS
+    Cloudflare
+        ↓ Tunnel
+    cloudflared
+        ↓ http://127.0.0.1:80
+    Nginx
+        ├── /、/assets/*、/index.html  → /srv/www/dockerstudy.19271949.xyz/current/public
+        └── /api/*                    → http://127.0.0.1:18080 后端服务
+    ```
+
+3. 项目目录设计
+
+    ```text
+    /srv/www/dockerstudy.19271949.xyz/
+    ├── releases/
+    │   ├── 20260628-001/
+    │   │   └── public/
+    │   │       └── index.html
+    │   └── 20260628-002/
+    │       └── public/
+    ├── current -> releases/20260628-001
+    └── shared/
+    ```
+
+2. 解释
+    - `/srv`：即service data，用于存放本机对外提供服务所需的数据。对于 Web 站点，可以把 Nginx 直接读取的静态资源放在 `/srv/www/站点名/` 下。
+    - `releases`：保存每次发布的版本。
+    - `current`：软链接，指向当前正在运行的版本。
+    - `shared`：放跨版本共享内容，比如上传文件、缓存文件等。纯静态站点暂时可以不用。
+
+### 前期准备
+
+#### Ubuntu 配置
+
+1. 创建正式目录
+    ```bash
+    sudo mkdir -p /srv/www/dockerstudy.19271949.xyz/releases/20260628-001/public
+    sudo mkdir -p /srv/www/dockerstudy.19271949.xyz/shared
+    ```
+
+2. 测试页面（首页）
+    ```bash
+    sudo tee /srv/www/dockerstudy.19271949.xyz/releases/20260628-001/public/index.html > /dev/null <<'EOF'
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>Docker Study</title>
+    </head>
+    <body>
+        <h1>dockerstudy.19271949.xyz is working</h1>
+    </body>
+    </html>
+    EOF
+    ```
+
+3. 权限设置
+    ```bash
+    sudo chown -R root:root /srv/www/dockerstudy.19271949.xyz
+
+    sudo find /srv/www/dockerstudy.19271949.xyz -type d -exec chmod 755 {} \;
+    sudo find /srv/www/dockerstudy.19271949.xyz -type f -exec chmod 644 {} \;
+    ```
+
+4. 创建软链接指向最新版本
+    ```bash
+    # current -> /srv/www/dockerstudy.19271949.xyz/releases/20260628-001
+    sudo ln -sfn /srv/www/dockerstudy.19271949.xyz/releases/20260628-001 /srv/www/dockerstudy.19271949.xyz/current
+    ```
+
+#### Nginx配置
+
+1. 创建配置`/etc/nginx/sites-available/dockerstudy.conf`
+    ```nginx
+    server {
+        listen 80;
+        listen [::]:80;
+
+        server_name dockerstudy.19271949.xyz;
+
+        root /srv/www/dockerstudy.19271949.xyz/current/public;
+        index index.html index.htm;
+
+        access_log /var/log/nginx/dockerstudy.access.log;
+        error_log /var/log/nginx/dockerstudy.error.log warn;
+
+        location / {
+            try_files $uri $uri/ =404;
+        }
+
+        # bakend
+        location /api/ {
+            proxy_pass http://127.0.0.1:18080;
+
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location ~ /\.(?!well-known) {
+            deny all;
+        }
+    }
+    ```
+
+2. 启用配置
+    ```bash
+    sudo ln -s /etc/nginx/sites-available/dockerstudy.conf /etc/nginx/sites-enabled/dockerstudy.conf
+
+    sudo nginx -t
+
+    sudo systemctl reload nginx
+    ```
+
+#### Cloudflare Tunnel 配置
+
+1. 配置站点
+    ```http
+    dockerstudy.19271949.xyz
+    ```
+
+2. 转发服务到
+    ```http
+    http://127.0.0.1:80
+    ```
+
+### 发布流程
+
+1. 开发者在`~/dockerstudy-src/public`下准备好新版本
+
+2. 创建新的`release`
+    ```bash
+    sudo mkdir -p /srv/www/dockerstudy.19271949.xyz/releases/20260628-002/public
+    ```
+3. 同步文件
+    ```bash
+    sudo rsync -av --delete ~/dockerstudy-src/public/ /srv/www/dockerstudy.19271949.xyz/releases/20260628-002/public/
+    ```
+4. 修正权限
+    ```bash
+    sudo chown -R root:root /srv/www/dockerstudy.19271949.xyz/releases/20260628-002
+
+    sudo find /srv/www/dockerstudy.19271949.xyz/releases/20260628-002 -type d -exec chmod 755 {} \;
+    sudo find /srv/www/dockerstudy.19271949.xyz/releases/20260628-002 -type f -exec chmod 644 {} \;
+    ```
+5. 切换版本
+    ```bash
+    sudo ln -sfn /srv/www/dockerstudy.19271949.xyz/releases/20260628-002 /srv/www/dockerstudy.19271949.xyz/current
+
+    sudo nginx -t
+    sudo systemctl reload nginx
+    ```
+6. 出现问题进行版本回退 
+    ```bash
+    sudo ln -sfn /srv/www/dockerstudy.19271949.xyz/releases/20260628-001 /srv/www/dockerstudy.19271949.xyz/current
+
+    sudo systemctl reload nginx
+    ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
