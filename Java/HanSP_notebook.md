@@ -6196,7 +6196,7 @@ new起到的是一个分配空间的作用，声明仅是定义的过程，此�
         ```java
         public boolean add(E e) {
             // private static final Object PRESENT = new Object();
-            // put()会在键存在时替换返回当前值（这里是PRESENT），键不存在时返回null
+            // put()会在键存在时替换返回当前值（这里是PRESENT，一个`Object()`），键不存在时返回null
             // 因此，返回值为：true表示添加成功，false表示添加失败
             return map.put(e, PRESENT)==null;
         }
