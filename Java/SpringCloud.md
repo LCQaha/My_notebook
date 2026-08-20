@@ -940,6 +940,8 @@
 
 ### 简介
 
+#### 基本介绍
+
 1. 功能简介
     网关作为所有请求的必经之路，承担了每一个请求的鉴权、负载均衡、限流、熔断、服务转发等功能。
 
@@ -953,43 +955,2003 @@
     - 请求限流
     - 路径重写
 
+4. Spring Cloud Gateway提供：
+
+    * 路由。
+    * 断言。
+    * 过滤器。
+    * 服务发现。
+    * 负载均衡。
+    * 限流。
+    * 熔断。
+    * 重试。
+    * 监控。
+    * WebSocket转发。
+
+    Spring Cloud Gateway 当前提供两个主要服务器版本：
+
+    | 版本                     | 底层技术                  | 运行环境                   |
+    | ---------------------- | --------------------- | ---------------------- |
+    | Gateway Server WebFlux | WebFlux、Reactor、Netty | 响应式、非阻塞                |
+    | Gateway Server Web MVC | Spring MVC函数式API      | Tomcat、Jetty等Servlet容器 |
+
+5. 注意
+
+    当前的Spring Cloud Gateway有两种编程方式，mvc和flux，这俩我没搞得太明白，现在笔记还是有点乱。
+
+#### Spring Cloud Gateway 工作原理
+
+1. 客户端向 Spring Cloud Gateway 发出请求。然后在 Gateway Handler Mapping 中找到与请求相匹配的路由，将其发送到 Gateway Web Handler。
+2. Handler 再通过指定的过滤器链来将请求发送到我们实际的服务执行业务逻辑，然后返回。
+3. 过滤器之间用虚线分开是因为过滤器可能会在发送代理请求之前（"pre"）或之后（"post"）执行业务逻辑。
+4. Filter 在"pre"类型的过滤器可以做参数校验、权限校验、流量监控、日志输出、协议转换等，
+5. 在"post"类型的过滤器中可以做响应内容、响应头的修改，日志的输出，流量监控等有着非常重要的作用。
+
+#### 网关、注册中心和负载均衡器的关系
+
+
+1. 各部分作用
+
+    - `Nacos`：服务在哪里
+
+    - `Gateway`：请求应该进入哪个服务
+
+    - `LoadBalancer`：请求应该进入该服务的哪个实例
+
+
+2. 完整调用过程：
+
+    ```text
+    浏览器请求Gateway
+            ↓
+    Gateway根据Predicate匹配路由
+            ↓
+    根据服务名查询Nacos
+            ↓
+    LoadBalancer选择服务实例
+            ↓
+    Gateway执行过滤器
+            ↓
+    转发到具体Provider
+            ↓
+    将响应返回浏览器
+    ```
+
+3. 注意：
+    - Gateway不是注册中心，也不是单纯的LoadBalancer
+
+    - Gateway 内部可以使用 Spring Cloud LoadBalancer。
+
 ### Spring Cloud Gateway 常用配置
 
 #### 基本配置
 
+1. `pom.xml`
+
+    ```xml
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>
+        <!-- 或者引入mvc版本 -->
+            spring-cloud-starter-gateway-server-webflux
+        </artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.alibaba.cloud</groupId>
+        <artifactId>
+            spring-cloud-starter-alibaba-nacos-discovery
+        </artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>
+            spring-cloud-starter-loadbalancer
+        </artifactId>
+    </dependency>
+    ```
+
+2. `application.yml`
+    ```yaml
+    server:
+      port: 9000
+    
+    spring:
+      application:
+        name: sc-gateway
+    
+      cloud:
+    
+        gateway:
+          server:
+            webflux:
+              routes:
+                - id: member-service-route
+                  uri: lb://member-service-provider
+                  predicates:
+                    - Path=/api/member/**
+                  filters:
+                    - StripPrefix=1
+    ```
+
 #### 路由配置规则
 
-#### 常用断言
+1. 一条 Gateway 路由主要包含四部分：
+
+    ```yaml
+    - id: member-service-route
+      uri: lb://member-service-provider
+      predicates:
+        - Path=/api/member/**
+      filters:
+        - StripPrefix=1
+    ```
+
+    | 配置           | 作用          |
+    | ------------ | ----------- |
+    | `id`         | 路由唯一标识      |
+    | `uri`        | 请求转发目标      |
+    | `predicates` | 判断请求是否匹配该路由 |
+    | `filters`    | 转发前后处理请求和响应 |
+
+2. 可以把它理解为：    
+    - `Predicate`：这个请求是否归我处理？
+
+    - `Filter`：转发前后需要做什么？
+
+    - `URI`：最终转发到哪里？
+
+3. uri与负载均衡
+
+    - 固定地址：`uri: http://localhost:10001`不会使用注册中心，也无法自动负载均衡。
+
+    - 服务名称：`uri: lb://member-service-provider`
+
+        其中：
+
+        - `lb`：LoadBalancer
+
+        - `member-service-provider`：服务名称
+
+
+    - 执行过程：
+
+        ```text
+        lb://member-service-provider
+                ↓
+        查询Nacos
+                ↓
+        获得10001、10002、10003
+                ↓
+        LoadBalancer选择一个实例
+                ↓
+        生成实际转发地址
+        ```
+
+    - 如果找不到可用实例，Gateway 默认通常返回：
+
+        ```text
+        503 Service Unavailable
+        ```
+### 断言
+
+#### 基本介绍
+
+
+1. 什么是断言（Predicate）？
+
+    在 Spring Cloud Gateway 中，**断言**是路由匹配的条件。网关接收一个请求后，会依次遍历所有路由，检查该请求是否满足路由下定义的**所有断言**（逻辑与关系）。只有全部满足时，请求才会被转发到该路由指向的目标服务。
+
+    Gateway 内置了丰富的工厂类（`RoutePredicateFactory`），覆盖了绝大多数常见的路由匹配场景。
+
+2.  常用断言一览（含详细示例）
+
+    | 断言名称 | 作用 | 配置示例（YAML） | 典型场景 |
+    |---------|------|----------------|---------|
+    | **Path** | 根据请求路径匹配 | `- Path=/api/user/**` | RESTful API 路由 |
+    | **Method** | 根据 HTTP 方法匹配 | `- Method=GET,POST` | 仅允许特定方法的操作 |
+    | **Host** | 根据请求头中的 `Host` 匹配 | `- Host=**.example.com` | 多域名服务分发 |
+    | **Header** | 根据请求头是否存在及值匹配 | `- Header=X-Request-Version, v2` | 版本控制、灰度发布 |
+    | **Query** | 根据查询参数（及可选值）匹配 | `- Query=page, \\d+` | 分页请求路由 |
+    | **Cookie** | 根据 Cookie 名称及值（支持正则）匹配 | `- Cookie=sessionId, [a-f0-9]+` | 会话保持 |
+    | **RemoteAddr** | 根据客户端 IP 地址或 CIDR 匹配 | `- RemoteAddr=192.168.1.0/24` | 内网访问限制 |
+    | **After** | 在指定时间之后匹配 | `- After=2026-08-02T10:00:00+08:00` | 活动开启 |
+    | **Before** | 在指定时间之前匹配 | `- Before=2026-08-02T18:00:00+08:00` | 活动结束 |
+    | **Between** | 在指定时间段内匹配 | `- Between=2026-08-02T10:00, 2026-08-02T18:00` | 限时优惠 |
+    | **Weight** | 按权重将请求分发到不同路由（按比例分流） | `- Weight=groupA, 80` | 灰度发布、AB测试 |
+
+    > **注意**：所有断言可以组合使用，请求需要同时满足所有条件才会匹配。
+
+#### 常用断言示例
+
+1. Path 断言 – 路径匹配
+    最常用，支持 `**`（任意层级）、`*`（单级）、`?`（单个字符）等通配符，也支持使用 `{segment}` 捕获路径变量。
+
+    ```yaml
+    spring:
+    cloud:
+        gateway:
+        routes:
+            - id: user_route
+            uri: lb://user-service
+            predicates:
+                - Path=/api/user/**, /api/admin/**
+    ```
+
+    **捕获变量**：
+    ```yaml
+    - Path=/order/{id}
+    ```
+    可以通过 `ServerWebExchange.getAttribute("id")` 获取。
+
+
+2. Method 断言 – HTTP 方法
+    限制请求必须为指定方法（GET、POST、PUT、DELETE 等）。
+
+    ```yaml
+    - Method=GET,HEAD
+    ```
+
+    常用于对写操作路由单独处理。
+
+
+3. Host 断言 – 域名匹配
+    支持通配符 `*` 和 `?`。例如：
+    - `*.example.com` 匹配 `api.example.com`, `www.example.com`
+    - `??.example.com` 匹配 `ab.example.com` 但不匹配 `abc.example.com`
+
+    ```yaml
+    - Host=api.example.com, **.test.com
+    ```
+
+
+4. Header 断言 – 请求头
+    需要同时指定头名称和期望的值（支持正则表达式）。
+
+    ```yaml
+    - Header=X-User-Role, admin|manager
+    ```
+
+    若只检查头是否存在，可以使用 `Header=MyHeader`（Spring Cloud 2021+ 支持）。
+
+    
+
+5. Query 断言 – 查询参数
+    可以仅指定参数名，或同时指定参数名和值的正则。
+
+    ```yaml
+    - Query=token                 # 存在 token 参数即可
+    - Query=page, \\d+            # page 必须是数字
+    ```
+
+
+
+6. Cookie 断言
+    需要 Cookie 名称和值的正则表达式。
+
+    ```yaml
+    - Cookie=JSESSIONID, [A-Z0-9]+
+    ```
+
+
+7. RemoteAddr 断言 – IP 白名单
+    支持单个 IP 或 CIDR 网段（如 `192.168.1.0/24`）。
+
+    ```yaml
+    - RemoteAddr=10.0.0.0/8, 172.16.0.0/12
+    ```
+
+8. 时间断言（After / Before / Between）
+    时间格式为 ZonedDateTime（ISO 8601），例如 `2026-08-02T10:00:00+08:00`。
+
+    - **After**：当前时间 >= 指定时间
+    - **Before**：当前时间 <= 指定时间
+    - **Between**：指定时间段内
+
+    ```yaml
+    - Between=2026-08-02T09:00+08:00, 2026-08-02T17:00+08:00
+    ```
+
+9. Weight 断言 – 路由级别权重分流
+    这是一个**针对同一组内的多个路由**按比例分配流量的机制。
+    每个路由需要指定**组名**和**权重值**（整数），同一组内权重之和不必为 100，实际比例 = 该路由权重 / 同组所有路由权重之和。
+    
+    ```yaml
+    spring:
+      cloud:
+        gateway:
+          routes:
+            - id: v1_route
+              uri: http://v1.example.com
+              predicates:
+                - Path=/api/**
+                - Weight=groupA, 80   # 占 80%
+    
+            - id: v2_route
+              uri: http://v2.example.com
+              predicates:
+                - Path=/api/**
+                - Weight=groupA, 20   # 占 20%
+    ```
+
+    这样，访问 `/api/**` 的请求会按 8:2 比例分流到 v1 和 v2 服务。
+
+    > **注意**：Weight 断言必须与其他断言（如 Path）配合使用，因为它本身只做权重分配，不限制请求特征。
+
+#### 组合断言实例
+
+1. 一个真实的灰度发布场景：只允许携带 `X-Version=v2` 头的、来自内网 IP 的 GET 请求，在某个时间段内路由到新版服务。
+    
+    ```yaml
+    - id: gray_route
+      uri: lb://new-service
+      predicates:
+        - Method=GET
+        - Header=X-Version, v2
+        - RemoteAddr=192.168.0.0/16
+        - Between=2026-08-02T00:00+08:00, 2026-08-03T00:00+08:00
+        - Weight=gray-group, 30   # 在满足上述条件的请求中，再按30%比例进入该路由
+    ```
+
+#### 自定义断言
+
+1. 如果内置断言无法满足业务需求，你可以实现 `AbstractRoutePredicateFactory` 并扩展配置类，然后通过 `META-INF/spring.factories` 注册。例如实现一个“根据用户等级”的断言。
+
+2. 示例：
+    ```java
+    @Component
+    public class UserLevelRoutePredicateFactory 
+            extends AbstractRoutePredicateFactory<UserLevelRoutePredicateFactory.Config> {
+
+        public UserLevelRoutePredicateFactory() {
+            super(Config.class);
+        }
+
+        @Override
+        public Predicate<ServerWebExchange> apply(Config config) {
+            return exchange -> {
+                // 从请求头或token中获取用户等级，与config.getLevel()比较
+                return config.getLevel().equals("VIP");
+            };
+        }
+
+        public static class Config {
+            private String level;
+            // getter/setter
+        }
+    }
+    ```
+
+    YAML 中使用：
+    - `UserLevelRoutePredicateFactory`这个类名会被自动切割后缀`RoutePredicateFactory`，识别字段`UserLevel`
+    ```yaml
+    - UserLevel=VIP
+    ```
+
+### 过滤器
 
 #### 常用过滤器
 
 
-## 负载均衡
+1. 常用过滤器一览
 
+    | Filter                 | 作用       |
+    | ---------------------- | -------- |
+    | `StripPrefix`          | 删除路径前缀   |
+    | `PrefixPath`           | 增加路径前缀   |
+    | `SetPath`              | 重新设置路径   |
+    | `RewritePath`          | 使用正则改写路径 |
+    | `AddRequestHeader`     | 增加请求头    |
+    | `RemoveRequestHeader`  | 删除请求头    |
+    | `SetRequestHeader`     | 设置请求头    |
+    | `AddResponseHeader`    | 增加响应头    |
+    | `RemoveResponseHeader` | 删除响应头    |
+    | `AddRequestParameter`  | 增加请求参数   |
+    | `SetStatus`            | 修改响应状态码  |
+    | `RequestSize`          | 限制请求体大小  |
+    | `Retry`                | 请求失败后重试  |
+    | `CircuitBreaker`       | 熔断和降级    |
+    | `RequestRateLimiter`   | 请求限流     |
+
+2. 示例
+
+    - 增加请求头：
+
+        ```yaml
+        filters:
+          - AddRequestHeader=X-Gateway-Source, sc-gateway
+        ```
+        
+    - Provider 可以读取：
+
+        ```text
+        X-Gateway-Source: sc-gateway
+        ```
+        
+    - 删除请求头：
+
+        ```yaml
+        filters:
+          - RemoveRequestHeader=X-Internal-Token
+        ```
+        
+    - 限制请求体大小：
+
+        ```yaml
+        filters:
+          - name: RequestSize
+            args:
+              maxSize: 10MB
+        ```
+
+#### 使用配置类配置
+
+1. 示例
+
+    ```java
+    @Configuration
+    public class GatewayRoutesConfig {
+
+        @Bean
+        public RouteLocator customRoutes(RouteLocatorBuilder builder) {
+            return builder.routes()
+                    .route("route_id_1", r -> r          // 开始定义第一个路由
+                            .path("/api/**")             // 断言
+                            .filters(f -> {              // 过滤器链
+                                f.stripPrefix(1);
+                                f.addRequestHeader("X-Request-Foo", "Bar");
+                                return f;
+                            })
+                            .uri("http://example.com")   // 目标地址
+                    )
+                    .route("route_id_2", r -> r
+                            .host("**.example.com")
+                            .uri("lb://service-name")
+                    )
+                    .build();                            // 构建完成
+        }
+    }
+    ```
+
+#### 自定义全局过滤器
+
+1. 全局过滤器介绍
+
+    - 全局过滤器会拦截所有请求。
+    - 路由过滤器只处理断言匹配的请求。
+
+1. 下面的过滤器为请求增加链路 ID，并记录请求耗时（Flux版本）：
+
+    ```java
+    package com.lcq.scgateway.filter;
+
+    import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+    import org.springframework.cloud.gateway.filter.GlobalFilter;
+    import org.springframework.core.Ordered;
+    import org.springframework.http.server.reactive.ServerHttpRequest;
+    import org.springframework.stereotype.Component;
+    import org.springframework.web.server.ServerWebExchange;
+    import reactor.core.publisher.Mono;
+
+    import java.util.UUID;
+
+    @Component
+    public class RequestTraceGlobalFilter
+            implements GlobalFilter, Ordered {
+
+        @Override
+        public Mono<Void> filter(
+                ServerWebExchange exchange,
+                GatewayFilterChain chain
+        ) {
+            long startTime = System.currentTimeMillis();
+            String requestId = UUID.randomUUID().toString();
+
+            ServerHttpRequest request = exchange.getRequest()
+                    .mutate()
+                    .header("X-Request-Id", requestId)
+                    .build();
+
+            ServerWebExchange newExchange = exchange.mutate()
+                    .request(request)
+                    .build();
+
+            return chain.filter(newExchange)
+                    .then(Mono.fromRunnable(() -> {
+                        long duration =
+                                System.currentTimeMillis()
+                                        - startTime;
+
+                        System.out.println(
+                                "requestId=" + requestId
+                                        + ", path="
+                                        + request.getURI().getPath()
+                                        + ", duration="
+                                        + duration
+                                        + "ms"
+                        );
+                    }));
+        }
+
+        @Override
+        public int getOrder() {
+            return -100;
+        }
+    }
+    ```
+
+    > `getOrder()` 的值越小，过滤器优先级通常越高。
+
+    - 请求阶段：
+
+        ```text
+        Order值小的过滤器
+                ↓
+        Order值大的过滤器
+                ↓
+        下游服务
+        ```
+
+    - 响应返回时顺序相反：
+
+        ```text
+        下游服务
+                ↓
+        Order值大的过滤器
+                ↓
+        Order值小的过滤器
+        ```
+
+    - 路由过滤器和全局过滤器会组成同一条有序过滤链。[Gateway全局过滤器](https://docs.spring.io/spring-cloud-gateway/reference/spring-cloud-gateway-server-webflux/global-filters.html)
+
+
+
+## 负载均衡
+### 课程版本的负载均衡
+
+课程版本的默认负载均衡方式为轮询：
+
+```text
+第1次请求 → 10004
+第2次请求 → 10006
+第3次请求 → 10004
+第4次请求 → 10006
+```
+
+课程还演示了使用随机算法：
+
+```java
+package com.hspedu.springcloud.config;
+
+import com.netflix.loadbalancer.IRule;
+import com.netflix.loadbalancer.RandomRule;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class RibbonRule {
+
+    @Bean
+    public IRule myRibbonRule() {
+        return new RandomRule();
+    }
+}
+```
+
+修改后：
+
+```text
+10004
+或
+10006
+```
+
+由 Ribbon 随机选择。
+
+课程要求测试完成后恢复原来的轮询算法。
+
+需要注意：
+
+```text
+Nacos
+= 服务注册与发现
+
+Ribbon
+= 课程版本的客户端负载均衡
+```
+
+Nacos 并不是直接代替 Ribbon 完成请求选择。
 ## 远程调用
 
-### 简介
+### OpenFeign （服务调用）
 
-#### OpenFeign
+#### 简介
 
-1. OpenFeign是一个声明式的WebService客户端。
+1. OpenFeign 是什么？（核心定义）
+    - **本质**：一个**声明式**的 WebService 客户端。你只需定义一个接口并在上面添加注解，即可完成对远程服务的调用，无需编写繁琐的 HTTP 请求代码。
+    - **底层机制**：通过**动态代理**生成实现类，在调用时进行负载均衡并发起远程请求。
+    - **核心优势**：让编写 Web Service 客户端变得非常简单。
 
-2. 通过在接口上添加注解可以连接别的服务
+2. OpenFeign 的核心特性
+    - **可插拔**：支持可拔插式的编码器（Encoder）和解码器（Decoder）。
+    - **原生集成**：Spring Cloud 对其封装后，完美支持 **Spring MVC 标准注解**（如 `@RequestMapping`）和 `HttpMessageConverters`。
+    - **配合服务发现与负载均衡**：可以与 **Eureka**（服务注册/发现）和 **Ribbon**（客户端负载均衡）组合使用，实现服务间带负载均衡的调用。
 
+
+3. Feign 与 OpenFeign 的区别（重点对比）
+
+    | 对比维度 | **Feign（原生）** | **OpenFeign（Spring Cloud 增强版）** |
+    | :--- | :--- | :--- |
+    | **所属体系** | Netflix 旗下的独立 HTTP 客户端组件 | Spring Cloud 对 Feign 的封装与增强 |
+    | **注解支持** | 只支持 **Feign 自有的注解**（如 `@RequestLine`） | 支持 **Spring MVC 注解**（如 `@RequestMapping`、`@GetMapping`） |
+    | **功能完善度** | 轻量级，内置 Ribbon 做负载均衡 | 在 Feign 基础上增加了编码器、解码器、重试等更强大的扩展机制 |
+    | **引入依赖** | `feign-core` 等原生依赖 | `spring-cloud-starter-openfeign` |
+    | **一句话总结** | 基础实现 | **Feign 的加强版**（实际工作中混用时，通常默认指 OpenFeign） |
+
+    > **精简记忆**：OpenFeign = Feign + 支持 Spring MVC 注解 + 增强功能。
+
+    
+
+4. 工作原理简析
+    1. 在启动类上添加 `@EnableFeignClients` 注解，开启扫描。
+    2. 在需要调用的接口上使用 `@FeignClient` 注解，并指定要调用的服务名（配合 Eureka）。
+    3. Spring 容器启动时，通过动态代理生成接口的实现类。
+    4. 调用时，结合 Ribbon 进行负载均衡，选出具体实例，拼接 URL 并发起 HTTP 请求。
+    5. 接收响应后，利用解码器将数据转换为目标对象返回给调用方。
+
+
+5. 官方参考
+    - GitHub 地址：https://github.com/spring-cloud/spring-cloud-openfeign
+    - Feign 原生参考：https://github.com/OpenFeign/feign
+
+#### 日志配置
+
+1. 基本介绍
+    说明: Feign 提供了日志打印功能，可以通过配置来调整日志级别，从而对 Feign 接口的调用情况进行监控和输出
+2. 日志级别
+    - `NONE`：默认的，不显示任何日志
+    - `BASIC`：仅记录请求方法、URL、响应状态码及执行时间;
+    - `HEADERS`：除了 BASIC中定义的信息之外，还有请求和响应的头信息; 
+    - `FULL`：除了HEADERS中定义的信息之外，还有请求和响应的正文及元数据。
+
+3. 配置日志-应用实例
+    ```java
+    @Configuration
+    public class OpenFeignConfig {
+
+        @Bean
+        Logger.Level loggerLevel(){
+            //日志级别指定为 FULL
+            return Logger.Level.FULL;
+        }
+    }
+    ```
+    
+2. 修改 application.yml
+    常见的日志级别有 5 种，分别是 error、warn、info、debug、trace
+    - `error`：错误日志，指比较严重的错误，对正常业务有影响，需要运维配置监控的；
+    - `warn`：警告日志，一般的错误，对业务影响不大，但是需要开发关注；
+    - `info`：信息日志，记录排查问题的关键信息，如调用时间、出参入参等等；
+    - `debug`：用于开发 DEBUG 的，关键逻辑里面的运行时数据；
+    - `trace`：最详细的信息，一般这些信息只记录到日志文件中。
+
+    ```yml
+    eureka:
+        client:
+            register-with-eureka: true #将自己注册到 EurekaServer
+            fetchRegistry: true #配置从 EurekaServer 抓取其它服务注册信息
+            service-url:
+                defaultZone: http://eureka9001.com:9001/eureka,
+                http://eureka9002.com:9002/eureka
+    logging:
+        level:
+            #对 MemberFeignService 接口调用过程 打印的日志信息-debug 级别
+            com.lcq.springcloud.service.MemberFeignService: debug
+    ```
+
+#### 调用超时
+
+1. Openfeign默认1s超时
+
+2. 配置
+    ```yml
+    ribbon:
+        #设置 feign 客户端超时时间（openFeign 默认支持 ribbon)
+        #指的是建立连接后从服务器读取到可用资源所用的时间，
+        #时间单位是毫秒
+        ReadTimeout: 8000
+        #指的是建立连接所用的时间，适用于网络状况正常的情况下，
+        #两端连接所用的时间
+        ConnectTimeout: 8000
+    ```
 
 
 ### a
 
 1. RPC、RestTemplate、HttpClient、OpenFeign
 
-## 健康管理
+## 分布式链路追踪
+
+### 待补充
+
+1. seluth、zipkin、actuator
+
+#暴露所有监控点
+management:
+endpoints:
+web:
+exposure:
+include: '*
+
 
 ## 流控
 
 ### Sentinel 简介
 
-### Sentinel 配置
+1. 简介
 
+    Sentinel（哨兵）以流量为切入点，从流量控制、熔断降级、系统负载保护等维度维护系统稳定
+
+2. 熔断降级
+    当调用链中某一服务/资源出现不稳定，产生请求堆积，则可由Sentinel对相关资源进行限流、熔断处理，让请求快速失败，避免影响其他资源导致级联故障
+
+3. 系统负载保护
+    在系统不被拖垮的情况下，调用系统资源提高系统吞吐率
+
+4. 消息削峰填谷
+    实践中有一个十分常见的情况，某一瞬间流量突然增大，令系统负载陡然升高，进而影响系统稳定性，但下一秒又没有这么多请求。此时就需要让请求在一个可以容忍的时间内排队，实现削峰填谷。
+
+### Sentinel 配置与启动
+
+1. 下载链接
+    - https://github.com/alibaba/Sentinel/releases/download/1.8.9/sentinel-dashboard-1.8.9.jar
+
+2. 启动
+    ```cmd
+    java -jar sentinel-dashboard-1.8.9.jar
+    # 默认端口8080，若默认端口被占用，则需手动指定
+    java -jar sentinel-dashboard-1.8.9.jar --server.port=9999
+    ```
+
+2. pom.xml
+    ```xml
+    <dependency>
+        <groupId>com.alibaba.cloud</groupId>
+        <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+    </dependency>
+    ```
+
+3. application.yml
+    - `sentinel.eager`：默认为`false`，Sentinel对服务的加载为懒加载，只有当对应微服务的Controller真正被访问过，才会在Sentinel面板注册，开启这个选项，会在微服务启动后立刻向Sentinel发送数据注册，不用先访问再注册
+
+    - `sentinel.transport.port`：默认为`8719`，这是微服务开启的，与sentinel进行数据交互的端口，若端口被占，不会报错，而是顺着端口+1直至可用。
+
+        > 一个微服务可以占用好几个端口开展不同的业务，这里的sentinel交互便是一个典型案例
+
+    - `sentinel.transport.dashboard`：控制台端口，默认`8080`，也是sentinel启动时接收数据的端口。
+
+    ```yaml
+    spring:
+      cloud:
+        sentinel:
+          eager: true
+          transport:
+            dashboard: localhost:9999
+            port: 8719
+    ```
+
+### 流控规则
+
+#### PostMan 使用简介
+
+1. 设定访问路径
+
+2. 在对应请求集合打开运行
+
+3. 设置好次数、间隔时间，开始运行
+
+![java_springCloud_sentinel_postman](./img/java_springCloud_sentinel_postman.png)
+
+#### 概念简介
+
+1. 对话框
+
+    ![java_springCloud_sentinel_createControl](./img/java_springCloud_sentinel_createFlowControl.png)
+
+2. 解释
+    - 资源名：一般为微服务内部的访问路径名
+    - 针对来源：
+    - 阈值类型：
+        - QPS：每秒点击数（Query Per Second），用于衡量一个资源的访问频率
+        - 线程数：当前处理请求的线程资源数
+        - 区别：在一秒钟打过来5个请求，如果每个请求的200ms不相互重叠，则线程数始终为1，而QPS会达到5
+
+3. 流控模式
+    - 直接：即以当前资源进行流量控制
+    - 关联：以另一资源的使用情况对当前资源进行流控
+    - 链路：对从特定渠道访问某一资源的方式进行流控
+
+4. 流控效果
+    - 快速失败：通过直接令请求失败的方式将超载的流量释放
+    - Warm up：一个由冷到热的启动过程 
+    - 排队等待：令某一时刻的请求在一定时间内排队等待，实现削峰填谷。
+
+5. 控制台总览
+    ![java_springCloud_sentinel_dashboard](./img/java_springCloud_sentinel_dashboard.png)
+
+#### 【重点】什么是Sentinel的资源？
+
+1. 在 Sentinel 里，**资源（Resource）不是固定等于 Controller 路径，也不是固定等于 Service 方法**。它本质上是：
+
+    > **任何被 Sentinel 纳入统计、限流、熔断保护的逻辑单元，都可以叫资源。**
+
+    官方解释：
+    >资源
+    >资源是 Sentinel 中的一个关键概念。它可以是任何东西，例如服务、方法，甚至是代码片段。
+    >一旦通过 Sentinel API 进行封装，它就被定义为一种资源，并可以申请 Sentinel 提供的保护。
+
+    最常见的两类就是：
+
+
+    1. Controller 路径资源
+    2. @SentinelResource 标记的方法资源
+
+
+    比如：
+
+    ```java
+    @GetMapping("/gateway/colorA")
+    public String colorA() {
+        return colorService.colorA();
+    }
+    ```
+
+2. 接入 Sentinel 的 Web 适配后，URL 可以自动成为资源，例如：
+
+    ```text
+    /gateway/colorA
+    ```
+
+    这种资源是 **Web 层自动埋点产生的资源**。Sentinel/Spring Cloud Alibaba 的 Web 集成会自动把 Web 请求纳入 Sentinel 资源体系。([GitHub][1])
+
+    而 Service：
+
+    ```java
+    @SentinelResource("colorA")
+    public String colorA() {
+        ...
+    }
+    ```
+
+    这里你又主动定义了一个资源：
+
+    ```text
+    colorA
+    ```
+
+3. 官方文档明确说明，`@SentinelResource(value = "sayHello")` 中的 `sayHello` 就是这个资源的**资源名**。[GitHub](https://github.com/alibaba/spring-cloud-alibaba/wiki/sentinel?utm_source=chatgpt.com)
+
+    所以调用链实际上是：
+
+    ```text
+    HTTP请求
+    ↓
+    /gateway/colorA
+    ↑
+    Controller Web资源
+    ↓
+    Controller方法
+    ↓
+    colorService.colorA()
+    ↓
+    colorA
+    ↑
+    @SentinelResource定义的资源
+    ↓
+    Service真正业务逻辑
+    ```
+
+    因此 Dashboard 才会同时出现：
+
+    ```text
+    /gateway/colorA
+
+    colorA
+    ```
+
+    它们虽然来自同一次请求，但在 Sentinel 看来是**两个独立资源**，可以各自统计、各自配置流控规则。
+
+    你甚至可以同时配置：
+
+    ```text
+    /gateway/colorA
+    QPS = 10
+
+    colorA
+    QPS = 3
+    ```
+
+    那么就是：
+
+    ```text
+    外部请求
+    ↓
+    Controller资源 /gateway/colorA
+    最多约10 QPS
+    ↓
+    Service资源 colorA
+    最多约3 QPS
+    ↓
+    业务方法
+    ```
+
+3. 总结
+
+    > **Sentinel 中的资源是被 Sentinel 保护的逻辑单元。资源既可以由 Web 适配器自动生成，例如 Controller 的访问路径，也可以通过 `@SentinelResource` 显式定义，例如 Service 层的具体业务方法。**
+
+
+    > **`@SentinelResource` 不仅可以用于 Service，本质上可以标记 Spring Bean 中需要保护的方法，只是实际开发中通常更适合用于业务层方法。** Spring Cloud Alibaba 官方示例也推荐 Web 层使用自动 Web 埋点，业务实现层使用 `@SentinelResource`。([GitHub][1])
+
+
+
+[1]: https://github.com/alibaba/spring-cloud-alibaba/wiki/sentinel?utm_source=chatgpt.com "Sentinel · alibaba/spring-cloud-alibaba Wiki · GitHub"
+
+
+#### 针对来源
+
+1. 对话框
+
+   ![java\_springCloud\_sentinel\_originFlowControl](./img/java_springCloud_sentinel_originFlowControl.png)
+
+2. 实操
+
+   * Sentinel 中的**针对来源**用于区分同一个资源的不同调用方。默认值为 `default`，表示不区分请求来源，对所有调用方统一进行流控。
+
+   * 实现 `RequestOriginParser`，告诉 Sentinel 如何识别请求来源。这里以请求头 `origin` 作为调用方标识：
+
+     ```java
+     import com.alibaba.csp.sentinel.adapter.spring.webmvc.callback.RequestOriginParser;
+     import jakarta.servlet.http.HttpServletRequest;
+     import org.springframework.stereotype.Component;
+
+     @Component
+     public class SentinelRequestOriginParser implements RequestOriginParser {
+
+         @Override
+         public String parseOrigin(HttpServletRequest request) {
+
+             String origin = request.getHeader("origin");
+
+             return origin == null ? "default" : origin;
+         }
+     }
+     ```
+
+   * 假设存在资源：
+
+     ```java
+     @RequestMapping("/colorA")
+     public Result<GatewayColorResponse> getColorA(
+             @RequestParam(value = "color", required = false) String color) {
+
+         return Result.success(new GatewayColorResponse(color, port));
+     }
+     ```
+
+   * 在 Sentinel 中为 `/colorA` 添加流控规则，例如：
+
+     ```text
+     资源名：/colorA
+     针对来源：member-service-consumer
+     阈值类型：QPS
+     单机阈值：1
+     流控模式：直接
+     流控效果：快速失败
+     ```
+
+   * 请求时携带不同的 `origin`：
+
+     ```http
+     origin: member-service-consumer
+     ```
+
+     Sentinel 会将该请求识别为来自 `member-service-consumer`，并应用上面的流控规则。
+
+     而：
+
+     ```http
+     origin: other-service
+     ```
+
+     不会命中这条**针对 `member-service-consumer` 的规则**。
+
+3. 完成上述操作后，就可以对**访问同一资源的不同调用来源分别进行流控**。
+
+   ```text
+   member-service-consumer ──→ /colorA ──→ 应用指定流控规则
+
+   other-service ────────────→ /colorA ──→ 不应用该来源规则
+   ```
+
+这里最核心的区别可以记一句：
+
+> **资源名决定“限制哪个资源”，针对来源决定“限制谁调用这个资源”。**
+
+
+#### 直接流控模式
+
+1. 对话框
+
+    ![java_springCloud_sentinel_directFlowControl](./img/java_springCloud_sentinel_directFlowControl.png)
+
+2. 通过设定的资源名，直接限制资源访问到特定值。
+
+#### 间接流控模式
+
+1. 对话框
+
+    ![java_springCloud_sentinel_indirectFlowControl](./img/java_springCloud_sentinel_indirectFlowControl.png)
+
+2. 当另一个资源的访问达到要求时，当前资源也不能访问
+
+#### 链路流控模式
+
+1. 对话框
+
+    ![java_springCloud_sentinel_chianFlowControl](./img/java_springCloud_sentinel_chianFlowControl.png)
+
+2. 实操
+    - 增加配置： 
+        ```yaml
+        spring:
+          cloud:
+            sentinel:
+              web-context-unify: false
+        ```
+    - 在Service层方法增加注解：`@SentinelResource`
+        ```java
+        @Override
+        @SentinelResource(value = "colorA", blockHandler = "colorAHandler")
+        public String colorA(String color) {
+            return "200";
+        }
+
+        public String colorAHandler(String color, BlockException ex) {
+
+            return "500";
+        }
+        ```
+
+    - 配置两个不同的Controller调用这个资源
+
+        ```java 
+        @RequestMapping("/colorA")
+        public Result<GatewayColorResponse> getColorA(
+                @RequestParam(value = "color", required = false) String color) {
+
+            String s = colorService.colorA(color);
+
+            if ("200".equals(s)) {
+
+                return Result.success(new GatewayColorResponse(color, port));
+            } else {
+                return Result.error("限流");
+            }
+        }
+
+        @RequestMapping("/colorB")
+        public Result<GatewayColorResponse> getColorB(
+                @RequestParam(value = "color", required = false) String color) {
+            String s = colorService.colorA(color);
+
+            if ("200".equals(s)) {
+
+                return Result.success(new GatewayColorResponse(color, port));
+            } else {
+                return Result.error("限流");
+            }
+
+        }
+
+        public record GatewayColorResponse(
+                String color,
+                String port
+        ) {
+        }
+        ```
+
+3. 完成上述操作后，就可以完成对特定访问路径进行流控
+
+#### 快速失败
+
+1. 对话框
+ 
+    ![java_springCloud_sentinel_createControl](./img/java_springCloud_sentinel_quickfail.png)
+
+#### Warm Up
+
+1. 对话框
+
+    ![java_springCloud_sentinel_createControl](./img/java_springCloud_sentinel_warmUp.png)
+
+2. 说明
+    warmUp模式中，有一个冷启动因子`coldFactor`，这个值默认为3，意为平常运行在控制值的1/3，当大量请求进来时，通过一定时间（预热时长）预热，逐渐将接受能力提高到最大值。
+
+3. 新版本控制台不提供直接设置冷启动因子的选项，若想更改，需更改JVM参数：
+    ```java
+    -Dcsp.sentinel.flow.cold.factor=5
+    ```
+
+
+
+#### 排队等待
+
+1. 对话框
+
+    ![java_springCloud_sentinel_sentinel_queue](./img/java_springCloud_sentinel_queue.png)
+
+
+2. 此时，如果突然打进来大量请求，这些请求会排队，如果排队时间超过100ms，就失败。
+
+### 熔断降级
+
+#### 简介
+
+1. 文档
+
+    https://sentinelguard.io/zh-cn/docs/circuit-breaking.html
+
+2. 说明
+    在微服务架构中，一个服务往往需要调用另一个服务，如下图所示
+    ![](https://user-images.githubusercontent.com/9434884/62410811-cd871680-b61d-11e9-9df7-3ee41c618644.png)
+    但一个调用链上总会出现一个突然恶化的服务，因为这一个服务，可能整个请求的调用速度都会被拖慢，进而导致请求堆积，此时就需要一个手段，令这个不好用的服务暂时被拒绝访问或者限流。
+
+3. 熔断,降级,限流三者的关系
+    - 熔断强调的是服务之间的调用能实现自我恢复的状态
+    - 限流是从系统的流量入口考虑, 从进入的流量上进行限制, 达到保护系统的作用
+    - 降级, 是从系统业务的维度考虑，流量大了或者频繁异常, 可以牺牲一些非核心业务，保护核心流程正常使用
+
+    即：
+    - 熔断是降级方式的一种
+    - 降级又是限流的一种方式
+    - 三者都是为了通过一定的方式在流量过大或者出现异常时, 保护系统的手段
+
+#### 熔断策略
+
+1. 慢调用比例
+    - **慢调用比例 (SLOW_REQUEST_RATIO)**：选择以慢调用比例作为阈值，需要设置允许的慢调用 RT(即最大的响应时间)，请求的响应时间大于该值则统计为慢调用
+    - 当**单位统计时长(statIntervalMs)（一般为1min）** 内请求数目大于设置的最小请求数目，并且慢调用的比例大于阈值，则接下来的熔断时长内请求会自动被熔断
+    - 熔断时长后, 熔断器会进入**探测恢复状态(HALF-OPEN 状态)**，若接下来的一个请求响应时间小于设置的慢调用 RT 则结束熔断，若大于设置的慢调用 RT 则会再次被熔断
+
+    ![java_springCloud_sentinel_sentinel_SLOW_REQUEST_RATIO](./img/java_springCloud_sentinel_SLOW_REQUEST_RATIO.png)
+
+ 
+2. 异常比列
+    - **异常比例 (ERROR_RATIO)**：当单位统计时长(statIntervalMs)内请求数目大于设置的最小请求数目，并且异常的比例大于阈值，则接下来的熔断时长内请求会自动被熔断
+    - 经过熔断时长后熔断器会进入探测恢复状态(HALF-OPEN 状态)
+    - 若接下来的一个请求成功完成(没有错误)则结束熔断, 否则会再次被熔断
+    - 异常比率的阈值范围是 [0.0, 1.0]，代表 0% - 100%
+
+    ![java_springCloud_sentinel_sentinel_ERROR_RATIO](./img/java_springCloud_sentinel_ERROR_RATIO.png)
+
+
+3. 异常数
+    - **异常数 (ERROR_COUNT)**：当单位统计时长内的异常数目超过阈值之后会自动进行熔断
+    - 经过熔断时长后熔断器会进入探测恢复状态(HALF-OPEN 状态)
+    - 若接下来的一个请求成功完成(没有错误)则结束熔断，否则会再次被熔断
+
+    ![java_springCloud_sentinel_sentinel_ERROR_COUNT](./img/java_springCloud_sentinel_ERROR_COUNT.png)
+
+
+4. 重点概念
+
+    - 单位统计时长：一般为1min，一般在单位时长中，会先无条件通过一定数量的请求避免误杀，然后开始统计比例或者总数。
+
+### 热点规则
+
+#### 基本介绍
+
+1. 作为运维人员，我们在日常配置服务器时，通常会预留较大冗余，并对QPS等核心指标设置严格的限流阈值。这既是因为真实用户的访问在时间上天然分散，很少会集中爆发，也是为了防止恶意流量突袭。因此，对于瞬间出现的异常尖峰流量，我们的策略往往是直接拒绝，以保障整体服务稳定。
+
+    然而，当突发热搜引发大量真实用户集中涌入时，情况就不同了——这些流量代表了正当的业务需求。此时，我们有必要动态放宽限流策略，在优先保障热点内容可访问的同时，仍需保留对恶意攻击的识别与防御能力，避免“趁人之危”的恶意流量借机冲垮服务。换言之，限流需具备弹性，能在热点事件中平衡“保真实用户”与“防恶意攻击”的双重目标。
+
+2. 文档：https://github.com/alibaba/Sentinel/wiki/%E7%83%AD%E7%82%B9%E5%8F%82%E6%95%B0%E9%99%90%E6%B5%81
+
+![](https://github.com/alibaba/Sentinel/wiki/image/sentinel-hot-param-overview-1.png)
+
+
+3. 简介
+
+    - 热点参数限流会统计传入参数中的热点参数，并根据配置的限流阈值与模式，对包含热点参数的资源调用进行限流。
+    - 热点参数限流可以看做是一种特殊的流量控制，仅对包含热点参数的资源调用生效
+    - Sentinel 利用 LRU 策略统计最近最常访问的热点参数，结合令牌桶算法来进行参数级别的流控 https://blog.csdn.net/qq_34416331/article/details/106668747
+    - 热点参数限流支持集群模式
+
+#### 设置热点资源与限流处理方法
+
+1. 代码
+    ```java
+    @RequestMapping("/colorA")
+    @SentinelResource(value = "colorAController", blockHandler = "getColorAErr")
+    public Result<GatewayColorResponse> getColorA(
+            @RequestParam(value = "color", required = false) String color) {
+
+        String s = colorService.colorA(color);
+
+        if ("200".equals(s)) {
+
+            return Result.success(new GatewayColorResponse(color, port));
+        } else {
+            return Result.error("限流");
+        }
+    }
+
+    public Result<GatewayColorResponse> getColorAErr(
+            @RequestParam(value = "color", required = false) String color,
+            BlockException ex) {
+        return Result.error("限流，在Controller");
+    }
+    ```
+
+#### 为特定参数输入设置限流
+
+1. 控制台
+
+    ![java_springCloud_sentinel_hotControl](./img/java_springCloud_sentinel_hotControl.png)
+
+    - 意为选择第一个参数，设置特定数值`yellow`为例外项（即热点）
+
+
+### 系统规则
+
+1.  引例
+    1. 如我们系统最大性能能抗 100QPS, 如何分配 /t1 /t2 的 QPS?
+    2. 方案 1: /t1 分配 QPS=50 /t2 分配 QPS=50 , 问题, 如果/t1 当前 QPS 达到 50 , 而/t2 的 QPS 才 10, 会造成没有充分利用服务器性能. 
+    3. 方案 2: /t1 分配 QPS=100 /t2 分配 QPS=100 , 问题, 容易造成 系统没有流量保护，造成请求线程堆积，形成雪崩. 
+    4. 有没有对各个 资源请求的 QPS弹性设置, 只要总数不超过系统最大QPS的流量保护规则? 
+        ==> **系统规则**
+
+
+2. 文档
+    https://github.com/alibaba/Sentinel/wiki/%E7%B3%BB%E7%BB%9F%E8%87%AA%E9%80%82%E5%BA%94%E9%99%90%E6%B5%81
+
+
+3. 基本介绍
+    系统规则作用, 在系统稳定的前提下，保持系统的吞吐量
+
+    - 系统处理请求的过程想象为一个水管，到来的请求是往这个水管灌水，当系统处理顺畅的时候，请求不需要排队，直接从水管中穿过，这个请求的RT是最短的；
+    
+    - 反之，当请求堆积的时候，那么处理请求的时间则会变为：排队时间 + 最短处理时间
+
+3. 系统规则
+    
+    - **Load 自适应（仅对 Linux/Unix-like 机器生效）**：系统的 load1 作为启发指标，进行自适应系统保护。当系统 load1 超过设定的启发值，且系统当前的并发线程数超过估算的系统容量时才会触发系统保护（BBR 阶段）。系统容量由系统的 maxQps * minRt 估算得出。设定参考值一般是 CPU cores * 2.5。
+    
+    - **CPU usage（1.5.0+ 版本）**：当系统 CPU 使用率超过阈值即触发系统保护（取值范围0.0-1.0），比较灵敏。
+    
+    - **平均 RT**：当单台机器上所有入口流量的平均 RT 达到阈值即触发系统保护，单位是毫秒。
+    
+    - **并发线程数**：当单台机器上所有入口流量的并发线程数达到阈值即触发系统保护。
+    
+    - **入口 QPS**：当单台机器上所有入口流量的 QPS 达到阈值即触发系统保护。
+
+### 自定义方法
+
+#### 简介
+
+1. 在Sentinel中，自定义方法主要解决如下两个问题：
+    - 控制台配置的流控规则触发后的返回值
+    - 具体资源出现业务异常时，如何处理`Throwable`
+
+2. 处理分两种
+    - 为特定方法设定的处理方法，前面已经提到过
+    - 全局处理类，一揽子解决具体问题，本节主要做这个
+
+#### 全局限流处理类`GlobalBlockHandler`
+
+1. 触发条件
+    当控制台设定的限流条件触发后，进入限流处理，由资源的`@SentinelResource`注解完成定义
+
+2. 示例
+    ```java
+    @GetMapping(value = "/t6")
+    @SentinelResource(  value = "t6", 
+                        blockHandlerClass = CustomGlobalBlockHandler.class, 
+                        blockHandler = "handlerMethod1")
+    public Result t6() {
+        log.info("执行 t6() 线程 id= " + Thread.currentThread().getId());
+        return Result.success("200", "t6()执行成功");
+    }
+    ```
+2. 处理类
+    - **注意：全局处理类的方法应为 `public static`**
+    - **处理类的参数列表应与方法一致，或在最后增加`BlockException`类的参数**
+    ```java
+    public class CustomGlobalBlockHandler {
+        public static Result handlerMethod1 (BlockException exception){
+            return Result.error("400", "客户自定义异常处理 handlerm1()");
+        }
+        public static Result handlerMethod2 (BlockException exception){
+            return Result.error("401", "客户自定义异常处理 handlerm2()");
+        }
+    }
+    ```
+
+#### 全局异常处理类`FallbackHandler`
+
+1. 触发条件
+    当业务代码出现异常时，进入异常处理。
+
+2. 示例
+
+    ```java
+    @GetMapping(value = "/t6")
+    @SentinelResource(
+            value = "t6", 
+            fallbackClass = CustomGlobalFallbackHandler.class, 
+            fallback = "fallBackHandlerMethod1", 
+            blockHandlerClass = CustomGlobalBlockHandler.class, 
+            blockHandler = "handlerMethod1"
+    )
+    public Result t6() {
+        if (++num % 5 == 0) {//假定: 当访问 t6 资源次数是 5 的倍数时，就出现了一个 java 的异常
+            throw new RuntimeException("num 的值异常 num= " + num);
+        }
+        log.info("执行 t6() 线程 id= " + Thread.currentThread().getId());
+        return Result.success("200", "t6()执行成功");
+    }
+    ```
+3. 处理类
+    - **注意：处理类的参数列表应与方法一致，或在最后增加`Throwable`类的参数**
+    ```java
+    public class CustomGlobalFallbackHandler {
+        public static Result fallBackHandlerMethod1(Throwable e) {
+            return Result.error("400", "java 异常信息= " + e.getMessage());
+        }
+
+        public static Result fallBackHandlerMethod2(Throwable e) {
+            return Result.error("401", "java 异常信息= " + e.getMessage());
+        }
+    }
+    ```
+
+### 规范开发思路（by codex）
+
+更规范的思路不是写“万能 `blockHandler`”，而是把 Sentinel 处理分层：
+
+> 通用限流统一处理；只有真的需要业务兜底数据时，才写专用 `fallback/blockHandler`。
+
+#### 1. Controller 接口限流：全局处理
+
+项目使用的是 Spring Boot 4、Sentinel 1.8.9。对于普通 Spring MVC 接口，可以注册一个全局 `BlockExceptionHandler`，不需要给每个 Controller 写参数匹配的方法。
+
+```java
+@Configuration
+public class SentinelWebConfig {
+
+    @Bean
+    public BlockExceptionHandler blockExceptionHandler(ObjectMapper objectMapper) {
+
+        return (request, response, resourceName, exception) -> {
+            response.setStatus(429);
+            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+            Result<Void> result =
+                    Result.error("429", "请求过于频繁，请稍后重试");
+
+            objectMapper.writeValue(response.getOutputStream(), result);
+        };
+    }
+}
+```
+
+之后 Controller 可以简化为：
+
+```java
+@RequestMapping("/colorA")
+public Result<GatewayColorResponse> getColorA(
+        @RequestParam(required = false) String color) {
+
+    String result = colorService.colorA(color);
+
+    return Result.success(
+            new GatewayColorResponse(color, port)
+    );
+}
+```
+
+也就是说，可以删除 Controller 中这些内容：
+
+```java
+@SentinelResource(
+    value = "colorAController",
+    blockHandler = "getColorAErr"
+)
+```
+
+以及：
+
+```java
+public Result<GatewayColorResponse> getColorAErr(
+        String color,
+        BlockException ex) {
+    ...
+}
+```
+
+Spring Cloud Alibaba 已经自动将 Web URL 作为 Sentinel 资源，所以如果只是保护 HTTP 接口，一般不需要再给每个 Controller 加 `@SentinelResource`。官方也建议 Web 层优先使用 Web 适配，而将 `@SentinelResource` 放在服务实现层。[Spring Cloud Alibaba Sentinel 文档](https://github.com/alibaba/spring-cloud-alibaba/wiki/sentinel)
+
+#### 2. Service 方法：没有真正的兜底数据，就不要写 handler
+
+如果 `colorA()` 没有真正的降级结果，推荐：
+
+```java
+@SentinelResource("colorA")
+public String colorA(String color) {
+    return "正常业务结果";
+}
+```
+
+不写 `blockHandler`，让 Sentinel 异常继续向上抛，再由全局异常处理统一转换成 429。
+
+如果这个 Service 确实能够提供有意义的兜底数据，例如缓存数据，才写专用 handler：
+
+```java
+@SentinelResource(
+    value = "queryProduct",
+    blockHandler = "queryProductBlocked"
+)
+public Product queryProduct(Long id) {
+    return productClient.query(id);
+}
+
+public Product queryProductBlocked(
+        Long id,
+        BlockException exception) {
+
+    // 返回缓存，而不是随便返回 "500"
+    return productCache.get(id);
+}
+```
+
+这时参数匹配是合理的，因为兜底逻辑确实需要 `id`。
+
+#### 3. 参数不同，但返回类型相同：使用 `defaultFallback`
+
+如果很多方法都返回 `Result<?>`，又确实希望在注解层统一处理，可以使用 `defaultFallback`：
+
+```java
+public final class CommonFallbacks {
+
+    private CommonFallbacks() {
+    }
+
+    public static Result<?> systemBusy(Throwable exception) {
+        return Result.error("503", "服务暂时不可用");
+    }
+}
+```
+
+使用时：
+
+```java
+@SentinelResource(
+    value = "queryUser",
+    defaultFallback = "systemBusy",
+    fallbackClass = CommonFallbacks.class
+)
+public Result<User> queryUser(Long id) {
+    // ...
+}
+```
+
+另一个参数完全不同的方法也可以使用：
+
+```java
+@SentinelResource(
+    value = "queryOrder",
+    defaultFallback = "systemBusy",
+    fallbackClass = CommonFallbacks.class
+)
+public Result<Order> queryOrder(
+        String orderNo,
+        Integer type,
+        Boolean detail) {
+    // ...
+}
+```
+
+`defaultFallback` 不需要复制原方法的参数列表，只能是：
+
+```java
+systemBusy()
+```
+
+或者：
+
+```java
+systemBusy(Throwable exception)
+```
+
+但它仍然要求返回类型兼容。因此 `String`、`Product`、`Result<?>` 等不同返回类型，无法全部使用同一个方法。[Sentinel 注解官方说明](https://sentinelguard.io/zh-cn/docs/annotation-support.html)
+
+另外要小心：`fallback`/`defaultFallback` 还可能处理普通业务异常，容易把代码 Bug 悄悄吞掉，所以不建议把它当成所有异常的万能处理器。
+
+
+### 持久化配置
+
+#### 简介
+
+1. 为什么需要持久化
+    与Nacos不同，Sentinel的所有流控配置都是保存在微服务的内存中，重启直接丢失。Sentinel 规则持久化，就是把原本只存在微服务内存中的规则，保存到 Nacos；微服务启动或规则变更时，再从 Nacos 自动加载。Sentinel 官方把这种方式称为“原始模式”，主要用于测试，不适合生产环境。[Sentinel 控制台规则管理说明](https://github.com/alibaba/Sentinel/wiki/Sentinel-%E6%8E%A7%E5%88%B6%E5%8F%B0/a27a5f9396e674a9626b3600ceb42d7467971294)
+
+2. 需要增加的依赖
+
+    在需要读取 Sentinel 规则的微服务中增加：
+
+    ```xml
+    <dependency>
+        <groupId>com.alibaba.csp</groupId>
+        <artifactId>sentinel-datasource-nacos</artifactId>
+    </dependency>
+    ```
+
+#### 三种规则管理模式
+
+1. 原始模式
+
+    ```text
+    Dashboard → 微服务内存
+    ```
+
+    优点：简单。
+
+    缺点：
+
+    - 服务重启后规则丢失。
+    - 多实例管理比较麻烦。
+    - 不适合生产环境。
+
+2. Pull 模式
+
+    ```text
+    本地文件/外部存储 ← 微服务定时读取
+    ```
+
+    优点：比纯内存可靠。
+
+    缺点：
+
+    - 有同步延迟。
+    - 本地文件不适合容器和多实例。
+    - 规则修改和冲突管理比较麻烦。
+
+3. Push 模式
+
+    ```text
+    Nacos → 主动通知所有微服务
+    ```
+
+    优点：
+
+    - 规则集中保存。
+    - 修改后动态生效。
+    - 所有实例自动获得相同规则。
+    - 微服务重启后可以重新加载。
+
+    这是 Sentinel 官方推荐的生产模式。Nacos、ZooKeeper、Apollo 都属于这种动态配置源。[Sentinel 生产环境说明](https://github.com/alibaba/Sentinel/wiki/%E5%9C%A8%E7%94%9F%E4%BA%A7%E7%8E%AF%E5%A2%83%E4%B8%AD%E4%BD%BF%E7%94%A8-Sentinel)
+
+    注意：所谓 Push 并不是 Nacos 把 Java 对象硬塞给 Sentinel，而是客户端注册监听器，Nacos 配置变化后通知客户端，客户端随即重新加载规则。
+
+
+#### 微服务的配置
+
+1. 推荐这样写：
+
+    ```yaml
+    spring:
+      application:
+        name: member-service-nacos-consumer
+    
+      cloud:
+        sentinel:
+          eager: true
+    
+          transport:
+            dashboard: localhost:9999
+            port: 8719
+    
+          datasource:
+            flow-rules:
+              nacos:
+                server-addr: localhost:8848
+                data-id: ${spring.application.name}-flow-rules
+                group-id: SENTINEL_GROUP
+                data-type: json
+                rule-type: flow
+    ```
+
+2. 如果 Nacos开启了认证：
+
+    ```yaml
+    spring:
+      cloud:
+        sentinel:
+          datasource:
+            flow-rules:
+              nacos:
+                server-addr: localhost:8848
+                username: nacos
+                password: nacos
+                namespace: 你的命名空间ID
+                data-id: ${spring.application.name}-flow-rules
+                group-id: SENTINEL_GROUP
+                data-type: json
+                rule-type: flow
+    ```
+
+3. 各配置的含义如下：
+
+    | 配置 | 含义 |
+    |---|---|
+    | `flow-rules` | 数据源名称，可以自己命名 |
+    | `nacos` | 表示数据来自 Nacos |
+    | `server-addr` | Nacos Server 地址 |
+    | `data-id` | Nacos 中规则配置的 Data ID |
+    | `group-id` | Nacos 配置所属分组 |
+    | `namespace` | Nacos 命名空间ID，使用 public 时通常省略 |
+    | `data-type` | Nacos 配置内容的格式 |
+    | `rule-type` | 这份配置对应哪种 Sentinel 规则 |
+
+4. 另一种方式
+
+    ```yaml
+    dataId: member-service-nacos-consumer
+    groupId: DEFAULT_GROUP
+    ```
+
+    也能工作，只要 Nacos 中完全一致。
+
+    不过更推荐给 Data ID 加上规则类型后缀：
+
+    ```yaml
+    data-id: member-service-nacos-consumer-flow-rules
+    group-id: SENTINEL_GROUP
+    ```
+
+    这样看到名字就知道它保存的是流控规则。
+
+
+#### 在 Nacos 中创建规则
+
+进入 Nacos 控制台的“配置管理”，创建配置：
+
+```text
+Data ID: member-service-nacos-consumer-flow-rules
+Group: SENTINEL_GROUP
+配置格式: JSON
+```
+
+配置内容：
+
+```json
+[
+  {
+    "resource": "/member/openfeign/consumer/get/1",
+    "limitApp": "default",
+    "grade": 1,
+    "count": 1,
+    "strategy": 0,
+    "controlBehavior": 0,
+    "clusterMode": false
+  }
+]
+```
+
+一定要注意最外层是数组：
+
+```json
+[
+  {
+  }
+]
+```
+
+不能只写：
+
+```json
+{
+}
+```
+
+因为一个 Data ID 中可以保存多条规则：
+
+```json
+[
+  {
+    "resource": "/api/member",
+    "grade": 1,
+    "count": 1,
+    "limitApp": "default",
+    "strategy": 0,
+    "controlBehavior": 0,
+    "clusterMode": false
+  },
+  {
+    "resource": "/api/order",
+    "grade": 1,
+    "count": 5,
+    "limitApp": "default",
+    "strategy": 0,
+    "controlBehavior": 0,
+    "clusterMode": false
+  }
+]
+```
+
+修改 Nacos 配置时，通常是在修改这一类型的完整规则列表。把内容改成：
+
+```json
+[]
+```
+
+相当于清空该数据源的流控规则。
+
+---
+
+#### 每个规则字段含义
+
+1. `resource`
+
+    ```json
+    "resource": "/member/openfeign/consumer/get/1"
+    ```
+
+    被保护的 Sentinel 资源名称。
+
+    它必须与 Sentinel Dashboard“簇点链路”中显示的资源名完全一致。
+
+    如果保护的是 HTTP 接口，可能显示：
+
+    ```text
+    /member/openfeign/consumer/get/1
+    ```
+
+    如果保护的是：
+
+    ```java
+    @SentinelResource("queryMember")
+    ```
+
+    那么应该配置：
+
+    ```json
+    "resource": "queryMember"
+    ```
+
+    如果保护的是 OpenFeign 调用，资源名通常可能类似：
+
+    ```text
+    GET:http://member-service-provider/member/get/{id}
+    ```
+
+    所以不要仅凭感觉填写，应该先调用一次接口，再去 Sentinel“簇点链路”复制实际资源名。
+
+1. `limitApp`
+
+    ```json
+    "limitApp": "default"
+    ```
+
+    表示针对哪个调用来源限流。
+
+    `default` 表示不区分调用方，所有请求一起统计。
+
+1. `grade`
+
+    ```json
+    "grade": 1
+    ```
+
+    阈值统计方式：
+
+    ```text
+    0：并发线程数
+    1：QPS
+    ```
+
+    这里是 QPS。
+
+1. `count`
+
+    ```json
+    "count": 1
+    ```
+
+    阈值。
+
+    配合：
+
+    ```json
+    "grade": 1
+    ```
+
+    表示单个服务实例每秒最多通过大约一次请求。
+
+    注意是“单机阈值”。假设有三个微服务实例：
+
+    ```text
+    实例1：QPS 1
+    实例2：QPS 1
+    实例3：QPS 1
+    ```
+
+    整个服务经过负载均衡后，理论总通过量可能接近 QPS 3。
+
+    如果希望多个实例共同使用一个全局 QPS，需要研究 Sentinel 集群流控，而不只是：
+
+    ```json
+    "clusterMode": false
+    ```
+
+1. `strategy`
+
+    ```json
+    "strategy": 0
+    ```
+
+    流控模式：
+
+    ```text
+    0：直接
+    1：关联
+    2：链路
+    ```
+
+    一般接口限流使用 `0`。
+
+    如果使用关联或链路模式，还需要正确配置关联资源等字段。
+
+1. `controlBehavior`
+
+    ```json
+    "controlBehavior": 0
+    ```
+
+    流控效果：
+
+    ```text
+    0：快速失败
+    1：Warm Up
+    2：排队等待
+    ```
+
+    快速失败表示超过 QPS 后立即抛出 `BlockException`。
+
+1. `clusterMode`
+
+    ```json
+    "clusterMode": false
+    ```
+
+    是否启用集群流控。
+
+    `false` 表示每个微服务实例独立统计。
+
+    把它简单改成 `true` 并不能自动完成集群限流，还需要配置 Token Server、Token Client 等集群流控组件。
+
+---
+
+#### 多种规则应该分不同 Data ID
+
+建议按照规则类型分开存储：
+
+```text
+member-service-nacos-consumer-flow-rules
+member-service-nacos-consumer-degrade-rules
+member-service-nacos-consumer-system-rules
+member-service-nacos-consumer-authority-rules
+member-service-nacos-consumer-param-flow-rules
+```
+
+对应的微服务配置：
+
+```yaml
+spring:
+  cloud:
+    sentinel:
+      datasource:
+        flow:
+          nacos:
+            server-addr: localhost:8848
+            data-id: ${spring.application.name}-flow-rules
+            group-id: SENTINEL_GROUP
+            data-type: json
+            rule-type: flow
+
+        degrade:
+          nacos:
+            server-addr: localhost:8848
+            data-id: ${spring.application.name}-degrade-rules
+            group-id: SENTINEL_GROUP
+            data-type: json
+            rule-type: degrade
+
+        authority:
+          nacos:
+            server-addr: localhost:8848
+            data-id: ${spring.application.name}-authority-rules
+            group-id: SENTINEL_GROUP
+            data-type: json
+            rule-type: authority
+```
+
+常用对应关系：
+
+| 规则 | `rule-type` |
+|---|---|
+| 流控规则 | `flow` |
+| 熔断规则 | `degrade` |
+| 热点参数规则 | `param-flow` |
+| 系统规则 | `system` |
+| 授权规则 | `authority` |
+| Gateway流控规则 | `gw-flow` |
+| Gateway API分组 | `gw-api-group` |
+
+尤其要注意：
+
+> 普通 Spring MVC 接口用 `flow`，Spring Cloud Gateway 网关规则用 `gw-flow`，两者不能混用。
+
+#### Nacos 与 Sentinel Dashboard 谁负责修改规则
+
+这是最容易踩坑的地方。
+
+接入 Nacos 后，应该把 Nacos 当成唯一规则来源：
+
+```text
+Nacos = 规则真相来源
+Sentinel 客户端 = 规则执行者
+Dashboard = 监控和观察
+```
+
+如果你在 Nacos 中添加规则：
+
+```text
+Nacos → 微服务 → 规则生效
+```
+
+但是如果使用原版 Sentinel Dashboard 的普通流控规则页面修改：
+
+```text
+Dashboard → 微服务内存
+```
+
+它默认不会反向写入 Nacos。
+
+于是可能出现：
+
+1. Nacos 中 QPS 是 1。
+2. Dashboard 中修改成 QPS 10。
+3. 微服务内存暂时变成 10。
+4. Nacos 下一次推送或服务重启。
+5. 规则重新变回 1。
+
+所以简单项目中要遵守：
+
+> 只在 Nacos 修改持久化规则，不要再从普通 Dashboard 页面修改。
+
+如果希望在 Sentinel Dashboard 中修改后自动写入 Nacos，需要改造 Dashboard，接入：
+
+```java
+DynamicRuleProvider
+DynamicRulePublisher
+```
+
+官方仓库提供了示例，但默认 Dashboard 并没有完整开启这种生产能力。[Sentinel Nacos 推送示例说明](https://github.com/alibaba/Sentinel/wiki/Sentinel-%E6%8E%A7%E5%88%B6%E5%8F%B0%EF%BC%88%E9%9B%86%E7%BE%A4%E6%B5%81%E6%8E%A7%E7%AE%A1%E7%90%86%EF%BC%89?from=20421&from_column=20421)
+
+
+ 
 ## 分布式事务
 
 ### 介绍
