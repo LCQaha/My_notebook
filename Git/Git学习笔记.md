@@ -545,3 +545,1183 @@ $ git remote add origin <gitee_repo_url>
 git config --global user.name "Your Name"
 git config --global user.email "youremail@example.com"
 ```
+
+项目中没有找到这三个现成标题，因此我没有擅自修改某份文档。下面内容可以直接接在已有基础知识后面。
+
+# Git 行为规范
+
+## 基本内容
+
+项目采用简化的 GitHub Flow：
+
+```text
+main
+ ├─ feat/功能名称
+ ├─ fix/问题名称
+ ├─ refactor/重构名称
+ ├─ docs/文档名称
+ └─ hotfix/紧急修复名称
+```
+
+| 类型 | 使用场景 |
+|---|---|
+| `feat` | 增加新功能 |
+| `fix` | 修复错误 |
+| `test` | 增加或调整测试 |
+| `refactor` | 重构代码，但不改变外部行为 |
+| `docs` | 修改文档 |
+| `chore` | 项目维护、初始化、清理 |
+| `build` | 构建工具和依赖调整 |
+| `ci` | 自动化流水线调整 |
+| `perf` | 性能优化 |
+| `revert` | 撤销已有提交 |
+
+| 分支 | 用途 | 是否长期存在 |
+| --- | --- | --- |
+| `main` | 稳定、可部署代码 | 是 |
+| `feat/*` | 新功能 | 否 |
+| `fix/*` | 普通缺陷修复 | 否 |
+| `hotfix/*` | 线上紧急修复 | 否 |
+| `refactor/*` | 不改变行为的重构 | 否 |
+| `test/*` | 测试建设 | 否 |
+| `docs/*` | 文档修改 | 否 |
+| `chore/*` | 构建、工具和仓库维护 | 否 |
+| `ci/*` | 持续集成配置 | 否 |
+
+### 1. 主分支规则
+
+`main` 代表随时可以测试、打包或发布的代码。
+
+团队统一遵守：
+
+- 不直接在 `main` 上开发。
+- 不直接向 `main` 强制推送。
+- 一个分支只解决一个问题。
+- 功能通过测试和审查后才能合并。
+- 已经推送的公共提交不随意改写历史。
+- 生产版本必须从 `main` 创建标签。
+
+### 2. 分支命名
+
+分支名称全部使用小写英文，单词用短横线连接：
+
+```text
+feat/user-register
+feat/user-login
+fix/duplicate-username
+fix/login-session
+refactor/password-service
+test/user-register
+docs/git-guide
+hotfix/security-validation
+release/v0.1.0
+```
+
+不要使用：
+
+```text
+test
+new
+dev1
+我的分支
+修改一下
+feature123
+```
+
+### 3. 开发一个功能的标准流程
+
+首先更新主分支：
+
+```powershell
+# 切换到 main 主分支
+git switch main
+
+# --ff-only：只允许快进更新，禁止自动产生额外的合并提交
+git pull --ff-only
+```
+
+创建功能分支：
+
+```powershell
+# -c：创建新分支并立即切换过去
+git switch -c feat/user-register
+```
+
+开发过程中随时检查：
+
+```powershell
+git status
+git diff
+```
+
+完成一个独立、可验证的改动后提交：
+
+```powershell
+git add src/main/java/具体文件
+git add src/test/java/具体文件
+
+git diff --cached --stat
+git diff --cached
+git commit -m "feat(user): 增加用户注册接口"
+```
+
+第一次推送分支：
+
+```powershell
+# -u：建立本地分支与远程分支的跟踪关系
+# origin：远程仓库的默认别名
+git push -u origin feat/user-register
+```
+
+然后在 GitHub 创建 Pull Request，完成：
+
+1. 自动测试。
+2. 人工代码审查。
+3. 配置和敏感信息检查。
+4. 功能验收。
+5. 合并到 `main`。
+
+合并后更新本地并删除旧分支：
+
+```powershell
+git switch main
+git pull --ff-only
+# -d：安全删除已经合并的本地分支
+# 如果分支尚未合并，Git会拒绝删除
+git branch -d feat/user-register
+```
+
+确定远程分支不再需要后：
+
+```powershell
+# --delete：删除远程仓库中的指定分支
+git push origin --delete feat/user-register
+```
+
+### 4. 多久提交一次
+
+不按照“写了多少行”或“AI回答了几次”决定提交，而是按照逻辑目标决定。
+
+适合提交的时机：
+
+- 一个接口可以独立运行。
+- 一个问题已经完整修复。
+- 一次重构完成且行为没有变化。
+- 一组测试已经补齐并通过。
+- 一份文档已经形成完整主题。
+- 当前状态可以被安全回退。
+
+不适合提交的状态：
+
+- 代码无法编译。
+- 功能只完成一半。
+- 测试仍然失败。
+- 调试代码尚未删除。
+- 同时混入多个无关功能。
+- 尚未检查 AI 生成的代码。
+
+一般情况下，一个小功能可以有多个提交，但一次提交只表达一个目的。
+
+### 5. AI 编程时的提交点
+
+不要让 AI 每修改一次就提交，也不要等多个功能全部完成后只提交一次。
+
+推荐流程：
+
+```text
+明确一个小目标
+→ AI实现
+→ 人工检查差异
+→ 编译和测试
+→ 修正问题
+→ 再次检查
+→ 形成一个有意义的提交
+```
+
+AI生成代码后至少检查：
+
+```powershell
+git diff
+mvn test
+git status
+```
+
+重点确认：
+
+- 是否修改了任务范围之外的文件。
+- 是否覆盖了配置和密码。
+- 是否增加了无用依赖。
+- 是否留下临时类、日志和测试数据。
+- 是否真的满足业务要求。
+- 是否存在表面通过但逻辑错误的实现。
+
+AI中间尝试产生的 `WIP` 提交不要直接合并到主分支。合并前应整理、合并或删除无意义提交。
+
+### 6. 同步主分支
+
+其他成员合并代码后，开始新任务前执行：
+
+```powershell
+git switch main
+git pull --ff-only
+git switch -c feat/新功能
+```
+
+如果自己的功能分支开发期间 `main` 已更新：
+
+```powershell
+# origin：从名为 origin 的远程仓库获取最新记录
+# fetch 只下载记录，不直接修改当前工作区
+git fetch origin
+
+git switch feat/当前功能
+
+# origin/main：本地保存的远程 main 分支状态
+# 将远程 main 的更新合并到当前功能分支
+git merge origin/main
+```
+
+发生冲突时：
+
+1. 阅读双方代码。
+2. 确认应该保留的业务行为。
+3. 修改冲突文件。
+4. 重新测试。
+5. 提交冲突处理结果。
+
+不要在不了解代码的情况下直接选择“全部保留当前”或“全部接受对方”。
+
+### 7. 回退已经合并的功能
+
+团队主分支已经包含后续提交时，使用 `git revert`，不要使用 `reset --hard`。
+
+例如：
+
+```text
+A：用户注册
+B：用户登录
+```
+
+现在只撤销注册，不撤销登录：
+
+```powershell
+git log --oneline
+git revert A的提交编号
+git push
+```
+
+`git revert` 会创建一个新的反向提交，因此不会删除后面的登录历史。
+
+`git reset` 主要用于尚未共享的本地提交，不用于随意回退团队主分支。
+
+### 8. 忽略文件管理
+
+`.gitignore` 应在第一次 `git add` 之前准备好。
+
+提交前检查是否有被忽略的文件误入暂存区：
+
+```powershell
+git ls-files --cached --ignored --exclude-standard
+```
+
+正常情况应当没有输出。
+
+如果某个文件已经被 Git 跟踪，后来才加入 `.gitignore`：
+
+```powershell
+git rm --cached 文件路径
+```
+
+目录使用：
+
+```powershell
+git rm -r --cached 目录路径
+```
+
+然后提交：
+
+```powershell
+git add .gitignore
+git commit -m "chore: 停止跟踪本地文件和生成文件"
+```
+
+`--cached` 只停止 Git 跟踪，不会删除本地实际文件。
+
+如果误提交的是密码、Token 或私钥：
+
+1. 立即更换泄露的凭据。
+2. 停止使用旧凭据。
+3. 从当前版本停止跟踪。
+4. 与团队协商清理 Git 历史。
+5. 重新同步所有成员仓库。
+
+仅仅修改 `.gitignore` 不能删除历史提交中的秘密。
+
+---
+
+## 完整开发示例：从创建分支到删除分支
+
+下面以“开发用户注册功能”为例，完整演示一次团队开发流程。
+
+完整流程：
+
+```text
+更新 main
+→ 创建功能分支
+→ 开发代码
+→ 检查修改
+→ 执行测试
+→ 暂存文件
+→ 检查暂存区
+→ 提交
+→ 推送分支
+→ 创建 Pull Request
+→ 审查并合并
+→ 更新本地 main
+→ 删除本地和远程功能分支
+```
+
+### 1. 确认当前工作区干净
+
+开始新功能前执行：
+
+```powershell
+# 查看当前分支以及未提交修改
+git status
+```
+
+理想结果：
+
+```text
+On branch main
+nothing to commit, working tree clean
+```
+
+如果存在未提交修改，不要直接创建新分支。应先选择：
+
+- 完成并提交当前修改。
+- 暂存到其他分支。
+- 确认无用后再撤销。
+- 使用 `git stash` 临时保存。
+
+### 2. 切换并更新主分支
+
+```powershell
+# 切换到 main 主分支
+git switch main
+
+# --ff-only：只允许快进更新
+# 如果更新需要产生额外合并提交，Git会停止并提示处理
+git pull --ff-only
+```
+
+为什么先更新：
+
+- 新分支应从最新主分支创建。
+- 避免基于旧代码重复开发。
+- 减少后续合并冲突。
+
+### 3. 创建功能分支
+
+```powershell
+# -c：创建新分支并立即切换
+# feat：表示开发新功能
+# user-register：表示本分支只负责用户注册
+git switch -c feat/user-register
+```
+
+检查当前分支：
+
+```powershell
+# --show-current：只显示当前分支名称
+git branch --show-current
+```
+
+预期输出：
+
+```text
+feat/user-register
+```
+
+### 4. 开发过程中检查修改
+
+完成一部分代码后执行：
+
+```powershell
+# 查看新增、修改、删除以及未跟踪文件
+git status
+
+# 查看尚未暂存的具体代码差异
+git diff
+```
+
+此时重点检查：
+
+- 是否修改了任务范围以外的文件。
+- 是否误改了 `application.yml`。
+- 是否出现真实密码、Token 或私钥。
+- 是否留下调试代码。
+- 是否生成了不应提交的文件。
+- AI是否删除或覆盖了已有逻辑。
+
+### 5. 完成测试
+
+后端项目执行：
+
+```powershell
+# 清理旧构建产物并执行全部测试
+mvn clean test
+```
+
+如果需要同时检查能否正常打包：
+
+```powershell
+# clean：删除以前生成的 target
+# package：编译、测试并生成JAR
+mvn clean package
+```
+
+测试失败时不要提交为正式功能，应先修复问题。
+
+### 6. 精确暂存本次文件
+
+日常开发优先按照文件或目录暂存：
+
+```powershell
+# 暂存注册接口
+git add src/main/java/com/lcq/usercenterbackend/user/controller/UserAccountController.java
+
+# 暂存注册业务实现
+git add src/main/java/com/lcq/usercenterbackend/user/service/UserAccountService.java
+git add src/main/java/com/lcq/usercenterbackend/user/service/impl/UserAccountServiceImpl.java
+
+# 暂存注册请求和返回对象
+git add src/main/java/com/lcq/usercenterbackend/user/dto/UserRegisterRequestDTO.java
+git add src/main/java/com/lcq/usercenterbackend/user/vo/RegisterUserVO.java
+
+# 暂存对应测试
+git add src/test/java/com/lcq/usercenterbackend/service/UserAccountServiceTest.java
+```
+
+如果这个分支中所有修改都属于注册功能，也可以执行：
+
+```powershell
+# -A：暂存仓库中的全部新增、修改和删除
+# 执行前必须先检查 git status 和 git diff
+git add -A
+```
+
+### 7. 检查暂存区
+
+```powershell
+# --cached：检查已经暂存的内容
+# --stat：只显示文件和修改行数统计
+git diff --cached --stat
+```
+
+```powershell
+# 查看准备提交的完整代码差异
+# 内容较长时按 q 退出
+git diff --cached
+```
+
+```powershell
+# --check：检查多余空格、冲突标记等格式问题
+git diff --cached --check
+```
+
+```powershell
+# --cached：只检查暂存区
+# --ignored：只显示匹配忽略规则的文件
+# --exclude-standard：应用 .gitignore 等标准忽略规则
+# 正常情况下不应该有任何输出
+git ls-files --cached --ignored --exclude-standard
+```
+
+最后确认：
+
+```powershell
+git status
+```
+
+必须保证：
+
+- 暂存文件都属于用户注册。
+- 没有混入登录、搜索或其他功能。
+- 没有提交 `.idea`、`target`、日志和本地配置。
+- 没有真实密码和密钥。
+- 没有临时测试文件。
+
+### 8. 创建有意义的提交
+
+如果注册接口、业务逻辑和测试共同组成一个不可分割的功能，可以提交为：
+
+```powershell
+# -m：指定本次提交说明
+git commit -m "feat(user): 完成用户注册功能"
+```
+
+如果能够拆成多个独立、可验证的阶段，可以分别提交：
+
+```powershell
+git commit -m "feat(user): 增加用户注册接口"
+git commit -m "fix(user): 增加重复用户名校验"
+git commit -m "test(user): 补充用户注册测试"
+```
+
+但不要为了增加提交数量强行拆分。每个提交都应该能够被独立理解、验证和回退。
+
+提交后检查：
+
+```powershell
+# --oneline：每个提交只显示一行
+# -3：只显示最近3个提交
+git log --oneline -3
+
+git status
+```
+
+### 9. 第一次推送功能分支
+
+```powershell
+# -u：建立本地分支和远程分支的跟踪关系
+# origin：远程仓库别名
+# feat/user-register：需要推送的本地分支
+git push -u origin feat/user-register
+```
+
+建立跟踪关系后，该分支后续可以直接执行：
+
+```powershell
+git push
+git pull
+```
+
+### 10. 创建 Pull Request
+
+进入 GitHub 仓库，选择：
+
+```text
+Compare & pull request
+```
+
+确认：
+
+```text
+base: main
+compare: feat/user-register
+```
+
+Pull Request标题：
+
+```text
+feat(user): 完成用户注册功能
+```
+
+说明示例：
+
+```markdown
+## 改动内容
+
+- 增加用户注册接口
+- 增加用户名唯一性校验
+- 增加密码加密处理
+- 增加用户注册测试
+
+## 验证结果
+
+- Maven测试通过
+- 重复用户名注册返回预期错误
+- 密码未以明文保存
+
+## 风险说明
+
+- 本次修改涉及用户账号写入逻辑
+- 未修改数据库生产配置
+```
+
+### 11. 审查期间继续修改
+
+如果审查人员提出问题，不需要重新创建分支或 Pull Request。
+
+继续在原分支修改：
+
+```powershell
+git switch feat/user-register
+
+# 修改代码后检查
+git status
+git diff
+
+# 暂存修正内容
+git add 具体文件
+
+# 提交审查修正
+git commit -m "fix(user): 修正注册参数校验"
+
+# 推送后，原 Pull Request 会自动更新
+git push
+```
+
+### 12. 合并 Pull Request
+
+合并前必须确认：
+
+- 测试通过。
+- 审查通过。
+- 没有合并冲突。
+- 没有敏感信息。
+- 功能满足验收要求。
+
+初学团队建议先使用：
+
+```text
+Create a merge commit
+```
+
+这种方式会保留功能分支提交，并让 Git 能够明确识别该分支已经合并。
+
+如果选择 `Squash and merge`，GitHub 会把功能分支的多个提交压缩成一个新提交。历史更简洁，但本地删除分支时可能需要使用强制删除。
+
+### 13. 合并后更新本地主分支
+
+Pull Request在 GitHub 合并后，本地执行：
+
+```powershell
+# 回到主分支
+git switch main
+
+# --ff-only：只进行快进更新，避免产生意外合并提交
+git pull --ff-only
+```
+
+确认注册功能已经进入主分支：
+
+```powershell
+# --oneline：单行显示提交
+# --decorate：显示分支和标签位置
+# -5：显示最近5个提交
+git log --oneline --decorate -5
+```
+
+也应重新运行测试：
+
+```powershell
+mvn clean test
+```
+
+### 14. 删除本地功能分支
+
+先确认当前位于 `main`：
+
+```powershell
+git branch --show-current
+```
+
+查看哪些分支已经合并：
+
+```powershell
+# --merged main：列出已经合并到 main 的本地分支
+git branch --merged main
+```
+
+如果使用的是 `Create a merge commit`：
+
+```powershell
+# -d：安全删除已经合并的本地分支
+# 如果 Git认为该分支尚未合并，会拒绝删除
+git branch -d feat/user-register
+```
+
+如果使用的是 `Squash and merge`，原分支提交编号与 `main` 上的压缩提交不同，`-d` 可能拒绝删除。
+
+确认 Pull Request已经合并、代码已进入 `main` 后，可以执行：
+
+```powershell
+# -D：强制删除本地分支
+# 只能在确认 Pull Request已经合并后使用
+git branch -D feat/user-register
+```
+
+### 15. 删除远程功能分支
+
+如果 GitHub 没有自动删除远程分支：
+
+```powershell
+# --delete：删除 origin 上的指定远程分支
+git push origin --delete feat/user-register
+```
+
+清理本地保存的失效远程分支记录：
+
+```powershell
+# --prune：删除已经不存在的远程跟踪分支记录
+git fetch --prune
+```
+
+如果 GitHub 已经自动删除远程功能分支，就不需要再次执行 `git push origin --delete`。
+
+### 16. 最终检查
+
+```powershell
+# 查看本地分支及其远程跟踪关系
+# -v：显示提交信息
+# 第二个 -v：同时显示上游分支
+git branch -vv
+
+# 查看远程仓库地址
+git remote -v
+
+# 确认工作区干净
+git status
+```
+
+最终理想状态：
+
+```text
+当前分支：main
+上游分支：origin/main
+功能分支：已经删除
+工作区：干净
+测试：通过
+```
+
+### 完整命令速查
+
+```powershell
+# 1. 更新主分支
+git switch main
+git pull --ff-only
+
+# 2. 创建并切换功能分支
+git switch -c feat/user-register
+
+# 3. 开发完成后检查
+git status
+git diff
+mvn clean test
+
+# 4. 暂存并审查
+git add -A
+git diff --cached --stat
+git diff --cached
+git diff --cached --check
+git ls-files --cached --ignored --exclude-standard
+
+# 5. 提交并推送
+git commit -m "feat(user): 完成用户注册功能"
+git push -u origin feat/user-register
+
+# 6. 在 GitHub 创建并合并 Pull Request
+
+# 7. 合并后更新本地 main
+git switch main
+git pull --ff-only
+mvn clean test
+
+# 8. 安全删除已合并的本地分支
+git branch -d feat/user-register
+
+# 9. 删除远程功能分支
+git push origin --delete feat/user-register
+
+# 10. 清理并检查
+git fetch --prune
+git branch -vv
+git status
+```
+
+核心原则是：
+
+> 从最新 `main` 创建短期分支，在分支上完成一个明确目标，通过测试和审查后使用 Pull Request 合并，最后及时删除已经完成使命的分支。
+
+## 如何优雅地提交
+
+### 1. 提交前检查
+
+日常开发尽量明确添加文件：
+
+```powershell
+git status
+git diff
+
+git add src/main/java/具体文件
+git add src/test/java/具体文件
+```
+
+不要在没有检查的情况下习惯性执行：
+
+```powershell
+git add -A
+```
+
+`git add -A` 适合首次建立代码基线，日常开发更推荐按文件或目录暂存。
+
+### 2. 检查暂存内容
+
+```powershell
+# --cached：查看暂存区，而不是未暂存的工作区
+# --stat：只显示文件数量和代码行统计
+git diff --cached --stat
+git diff --cached
+# --check：检查多余空格、冲突标记等格式问题
+git diff --cached --check
+# --cached：只检查已经进入暂存区的文件
+# --ignored：只显示匹配忽略规则的文件
+# --exclude-standard：应用 .gitignore 和 Git 标准忽略规则
+# 正常情况下该命令不应产生任何输出
+git ls-files --cached --ignored --exclude-standard
+```
+
+分别用于检查：
+
+- 本次涉及哪些文件。
+- 实际准备提交哪些代码。
+- 是否存在明显空白符问题。
+- 是否误暂存了应当忽略的文件。
+
+查看长差异时，按 `q` 退出。
+
+### 3. 提交信息格式
+
+统一采用：
+
+```text
+类型(范围): 简洁说明
+```
+
+常用类型：
+
+| 类型 | 使用场景 |
+|---|---|
+| `feat` | 增加新功能 |
+| `fix` | 修复错误 |
+| `test` | 增加或调整测试 |
+| `refactor` | 重构代码，但不改变外部行为 |
+| `docs` | 修改文档 |
+| `chore` | 项目维护、初始化、清理 |
+| `build` | 构建工具和依赖调整 |
+| `ci` | 自动化流水线调整 |
+| `perf` | 性能优化 |
+| `revert` | 撤销已有提交 |
+
+规范示例：
+
+```text
+feat(user): 增加用户注册接口
+fix(user): 修复重复用户名注册问题
+test(user): 补充用户注册单元测试
+refactor(security): 提取密码加密服务
+docs: 更新本地启动说明
+chore: 建立项目代码基线
+build: 升级 Spring Boot 依赖
+```
+
+不规范示例：
+
+```text
+修改
+更新代码
+fix bug
+完成了
+测试一下
+AI生成
+最终版本
+```
+
+### 4. 一个提交只做一件事
+
+假设注册功能包含接口、重复用户名校验、密码服务和测试，可以拆分为：
+
+```text
+feat(user): 增加用户注册接口
+fix(user): 增加重复用户名校验
+refactor(security): 提取密码加密服务
+test(user): 补充用户注册测试
+```
+
+如果这些改动无法独立运行，也可以合并成一个完整提交：
+
+```text
+feat(user): 完成用户注册功能
+```
+
+判断标准不是文件数量，而是该提交能否被单独理解、验证和回退。
+
+### 5. 正式提交
+
+```powershell
+git commit -m "feat(user): 增加用户注册接口"
+```
+
+复杂提交可以增加正文：
+
+```powershell
+# 第一个 -m 作为提交标题
+# 第二个 -m 作为提交正文
+git commit `
+  -m "feat(user): 增加用户注册接口" `
+  -m "增加参数校验、用户名唯一性检查和密码加密处理。"
+```
+
+提交后检查：
+
+```powershell
+git status
+git log --oneline -5
+```
+
+### 6. 签名提交
+
+全局启用 SSH 签名：
+
+```powershell
+git config --global gpg.format ssh
+git config --global user.signingkey "C:/Users/用户名/.ssh/签名公钥.pub"
+git config --global commit.gpgsign true
+git config --global tag.gpgSign true
+```
+
+公钥需要在 GitHub 中添加为 `Signing Key`。
+
+启用自动签名后，普通提交也会自动签名：
+
+```powershell
+git commit -m "feat(user): 增加用户注册接口"
+```
+
+历史提交不会自动获得签名。尚未推送的最新提交可以补签：
+
+```powershell
+git commit --amend --no-edit -S
+```
+
+已经推送并被团队使用的提交，不要随意通过 `amend` 改写。
+
+---
+
+## 从空项目开始
+
+### 1. 确定项目命名
+
+仓库名称使用全小写和短横线：
+
+```text
+user-center-backend
+user-center-frontend
+```
+
+Java包名不能包含短横线，可以使用：
+
+```text
+com.example.usercenter
+```
+
+### 2. 准备项目文件
+
+第一次提交前至少准备：
+
+```text
+.gitignore
+README.md
+pom.xml
+src/
+```
+
+不得提交：
+
+```text
+.idea/
+target/
+.env
+真实密码
+Token
+私钥
+个人本地配置
+运行日志
+```
+
+环境配置文件只提交结构和变量引用，不提交真实秘密。
+
+### 3. 初始化仓库
+
+在项目根目录执行：
+
+```powershell
+# 在当前目录创建 .git 仓库
+git init
+
+# -m：把当前分支重命名为 main
+git branch -m main
+```
+
+检查 Git 身份：
+
+```powershell
+git config user.name
+git config user.email
+```
+
+### 4. 第一次暂存
+
+```powershell
+git status
+git add -A
+git status
+```
+
+检查忽略规则：
+
+```powershell
+git ls-files --cached --ignored --exclude-standard
+```
+
+检查暂存内容：
+
+```powershell
+git diff --cached --stat
+git diff --cached
+git diff --cached --check
+```
+
+重点检查：
+
+- 是否包含 `.idea`、`target` 等生成内容。
+- 配置文件是否包含真实密码。
+- 是否包含临时测试文件。
+- 是否有误删除或无关文件。
+- 第一次提交是否能够代表当前完整代码基线。
+
+### 5. 创建第一次提交
+
+全新空项目可以使用：
+
+```powershell
+git commit -m "chore: 初始化项目结构"
+```
+
+已经存在大量代码、现在才开始使用 Git，则使用：
+
+```powershell
+git commit -m "chore: 建立项目代码基线"
+```
+
+不要把已经存在的大量代码伪装成多个历史功能提交。
+
+### 6. 创建 GitHub 仓库
+
+在 GitHub 创建空仓库。已有本地项目时，不要预先创建：
+
+```text
+README
+.gitignore
+License
+```
+
+否则远程仓库会多出本地没有的初始提交。
+
+添加 SSH 远程地址：
+
+```powershell
+git remote add origin git@github.com:用户名/仓库名.git
+git remote -v
+```
+
+PowerShell 中 `@` 不需要转义，不要写成：
+
+```text
+git\@github.com
+```
+
+第一次推送：
+
+```powershell
+git push -u origin main
+```
+
+`-u` 会建立本地 `main` 与远程 `origin/main` 的跟踪关系。之后可以直接执行：
+
+```powershell
+git push
+git pull
+```
+
+### 7. 第一个功能分支
+
+```powershell
+git switch main
+git pull --ff-only
+git switch -c feat/user-register
+```
+
+完成开发后：
+
+```powershell
+git add 具体文件
+git diff --cached
+mvn test
+git commit -m "feat(user): 增加用户注册功能"
+git push -u origin feat/user-register
+```
+
+然后通过 Pull Request 合并，不直接向 `main` 推送功能代码。
+
+### 8. 第一个 Release
+
+早期开发版本建议从：
+
+```text
+v0.1.0
+```
+
+开始，而不是直接使用 `v1.0.0`。
+
+发布前：
+
+1. 将 Maven 版本从 `SNAPSHOT` 改为正式版本。
+2. 确认主分支干净。
+3. 执行全部测试。
+4. 完成打包。
+5. 提交版本调整。
+6. 创建签名标签。
+7. 推送标签。
+8. 在 GitHub 创建 Release。
+
+示例：
+
+```powershell
+mvn clean test
+mvn clean package
+
+git add pom.xml
+git commit -m "chore(release): 准备 v0.1.0"
+
+git tag -s v0.1.0 -m "release: v0.1.0"
+git push
+git push origin v0.1.0
+```
+
+然后在 GitHub 中：
+
+```text
+Releases
+→ Draft a new release
+→ 选择 v0.1.0
+→ 填写发布说明
+→ 上传 JAR
+→ Publish release
+```
+
+如果版本尚未达到生产可用状态，应勾选：
+
+```text
+This is a pre-release
+```
+
+Release发布后，继续开发时将 Maven 版本更新为下一个开发版本，例如：
+
+```xml
+<version>0.2.0-SNAPSHOT</version>
+```
+
+

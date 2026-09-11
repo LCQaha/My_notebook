@@ -3184,6 +3184,21 @@ upstream keepalive      反向代理后端连接复用
 
 2. 解释
     - `/srv`：即service data，用于存放本机对外提供服务所需的数据。对于 Web 站点，可以把 Nginx 直接读取的静态资源放在 `/srv/www/站点名/` 下。
+    `/srv` 一般存什么
+    常见例子：
+        ```text
+        /srv/
+        ├── www/                    # Web网站文件
+        │   ├── example.com/
+        │   └── api.example.com/
+        ├── ftp/                    # FTP对外提供的文件
+        ├── rsync/                  # rsync共享数据
+        ├── git/                    # Git仓库
+        ├── tftp/                   # TFTP启动文件
+        ├── nfs/                    # NFS共享目录
+        └── media/                  # 对外提供的图片、视频等
+        ```
+        Filesystem Hierarchy Standard 对 /srv 的定义就是“本系统对外提供的、与站点有关的数据”；标准还明确把 ftp、rsync、www、cvs 列为可能的子目录命名方式。[FHS`/srv`规范](https://specifications.freedesktop.org/fhs/latest/srv.html)
     - `releases`：保存每次发布的版本。
     - `current`：软链接，指向当前正在运行的版本。
     - `shared`：放跨版本共享内容，比如上传文件、缓存文件等。纯静态站点暂时可以不用。
